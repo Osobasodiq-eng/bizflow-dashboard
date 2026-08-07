@@ -1,0 +1,1509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BizFlow — Social Commerce OS</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.44.0/tabler-icons.min.css">
+<style>
+:root{
+  /* These design tokens were used throughout the app but never actually
+     defined anywhere — every var(--color-...) reference below was silently
+     falling back to browser defaults. Defining them here is what makes
+     secondary text, card backgrounds, and hairline borders render as
+     intended instead of by accident. */
+  --color-background-primary:#ffffff;
+  --color-background-secondary:#F4F8F6;
+  --color-background-tertiary:#EDF3EF;
+  --color-border-secondary:#D9E4DF;
+  --color-border-tertiary:#E8EFEB;
+  --color-text-primary:#16241F;
+  --color-text-secondary:#75887F;
+  --font-sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+.app{display:flex;height:760px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:16px;overflow:hidden;font-family:var(--font-sans)}
+.sidebar{width:210px;background:#085041;display:flex;flex-direction:column;flex-shrink:0}
+.s-logo{padding:22px 18px 16px;display:flex;align-items:center;gap:10px}
+.s-logo-icon{width:32px;height:32px;background:#1D9E75;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.s-logo-icon i{font-size:17px;color:#fff}
+.s-logo-text{font-size:16px;font-weight:500;color:#fff;letter-spacing:-0.2px}
+.s-logo-sub{font-size:10px;color:rgba(255,255,255,0.45);margin-top:1px}
+.s-section{padding:6px 10px;font-size:10px;font-weight:500;color:rgba(255,255,255,0.35);letter-spacing:0.8px;margin-top:8px}
+.s-nav{padding:0 8px;flex:1}
+.s-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;cursor:pointer;color:rgba(255,255,255,0.55);font-size:13px;margin-bottom:1px;transition:all 0.1s}
+.s-item i{font-size:16px;flex-shrink:0}
+.s-item:hover{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.85)}
+.s-item.on{background:rgba(255,255,255,0.14);color:#fff;font-weight:500}
+.s-item .badge{margin-left:auto;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);font-size:10px;padding:2px 7px;border-radius:10px}
+.s-footer{padding:14px 12px;border-top:1px solid rgba(255,255,255,0.08)}
+.s-merchant{display:flex;align-items:center;gap:9px}
+.s-av{width:32px;height:32px;border-radius:50%;background:#1D9E75;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:#fff;flex-shrink:0}
+.s-mname{font-size:12px;font-weight:500;color:#fff}
+.s-mplan{font-size:11px;color:rgba(255,255,255,0.4);margin-top:1px}
+.main{flex:1;display:flex;flex-direction:column;min-width:0;background:var(--color-background-tertiary)}
+.topbar{padding:0 20px;height:54px;background:var(--color-background-primary);border-bottom:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.topbar-left{display:flex;align-items:center;gap:8px}
+.tb-title{font-size:15px;font-weight:500;color:var(--color-text-primary)}
+.tb-date{font-size:12px;color:var(--color-text-secondary)}
+.topbar-right{display:flex;gap:8px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:8px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);font-size:12px;cursor:pointer;transition:background 0.1s}
+.btn:hover{background:var(--color-background-secondary)}
+.btn-g{background:#085041;border-color:#085041;color:#fff}
+.btn-g:hover{background:#0F6E56}
+.scroll{flex:1;overflow-y:auto;padding:18px}
+.panel{display:none}
+.panel.on{display:block}
+.kpi-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:16px}
+.kpi-label{font-size:11px;color:var(--color-text-secondary);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.kpi-val{font-size:22px;font-weight:500;color:var(--color-text-primary);line-height:1}
+.kpi-foot{font-size:11px;margin-top:6px}
+.up{color:#0F6E56}
+.warn{color:#BA7517}
+.danger{color:#A32D2D}
+.row2{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:14px;margin-bottom:14px}
+.row2b{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;margin-bottom:14px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:16px}
+.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.card-title{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.card-sub{font-size:11px;color:var(--color-text-secondary)}
+.card-link{font-size:12px;color:#0F6E56;cursor:pointer}
+.legend{display:flex;gap:16px;margin-bottom:12px}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--color-text-secondary)}
+.leg-dot{width:9px;height:9px;border-radius:2px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;font-size:10px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:0.5px;padding:0 0 8px;border-bottom:0.5px solid var(--color-border-tertiary)}
+td{padding:9px 0;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.pill{display:inline-block;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:500}
+.p-green{background:#E1F5EE;color:#085041}
+.p-amber{background:#FAEEDA;color:#633806}
+.p-blue{background:#E6F1FB;color:#0C447C}
+.p-purple{background:#EEEDFE;color:#3C3489}
+.p-red{background:#FCEBEB;color:#791F1F}
+.p-gray{background:#F1EFE8;color:#5F5E5A}
+.av{width:26px;height:26px;border-radius:50%;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:#085041;flex-shrink:0}
+.cr{display:flex;align-items:center;gap:7px}
+.amt{font-weight:500}
+.bar-wrap{height:5px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden;margin-top:5px}
+.bar-fill{height:100%;border-radius:3px}
+.inv-row{padding:10px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.inv-row:last-child{border-bottom:none}
+.inv-top{display:flex;justify-content:space-between;align-items:flex-start}
+.inv-name{font-size:12px;font-weight:500;color:var(--color-text-primary)}
+.inv-meta{font-size:11px;color:var(--color-text-secondary);margin-top:1px}
+.notif{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border-radius:8px;background:var(--color-background-secondary);margin-bottom:7px;font-size:12px;cursor:pointer;transition:background 0.1s}
+.notif:hover{background:var(--color-background-tertiary)}
+.notif i{font-size:15px;margin-top:1px;flex-shrink:0}
+.tl{list-style:none}
+.tl li{display:flex;gap:10px;padding-bottom:14px;position:relative}
+.tl li:last-child{padding-bottom:0}
+.tl-dot{width:8px;height:8px;border-radius:50%;background:#0F6E56;flex-shrink:0;margin-top:4px}
+.tl-dot.dim{background:var(--color-border-secondary)}
+.tl-line{position:absolute;left:3px;top:12px;bottom:0;width:1px;background:var(--color-border-tertiary)}
+.tl-t{font-size:12px;font-weight:500;color:var(--color-text-primary)}
+.tl-d{font-size:11px;color:var(--color-text-secondary);margin-top:1px}
+.donut-wrap{position:relative;display:flex;align-items:center;justify-content:center}
+.donut-center{position:absolute;text-align:center}
+.donut-big{font-size:20px;font-weight:500;color:var(--color-text-primary)}
+.donut-sm{font-size:10px;color:var(--color-text-secondary)}
+.wa-msg{padding:9px 12px;border-radius:0 10px 10px 10px;background:#E1F5EE;font-size:12px;color:#085041;max-width:220px;margin-bottom:6px}
+.wa-msg.out{border-radius:10px 0 10px 10px;background:#085041;color:#fff;margin-left:auto}
+.seg-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--color-background-secondary);border-radius:8px;margin-bottom:7px;cursor:pointer;transition:background 0.1s}
+.seg-row:hover{background:var(--color-background-tertiary)}
+.seg-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.seg-title{font-size:12px;font-weight:500;color:var(--color-text-primary)}
+.seg-sub{font-size:11px;color:var(--color-text-secondary)}
+input[type=text],select{font-size:12px;padding:7px 10px;border:0.5px solid var(--color-border-secondary);border-radius:8px;background:var(--color-background-primary);color:var(--color-text-primary);outline:none}
+input[type=text]:focus,select:focus{border-color:#0F6E56}
+
+/* Auth screen */
+.auth-input{font-size:13px;padding:11px 13px;border:1px solid #E2E8E5;border-radius:9px;background:#fff;color:#1A2B25;outline:none;width:100%;transition:border-color 0.15s,box-shadow 0.15s}
+.auth-input:focus{border-color:#1D9E75;box-shadow:0 0 0 3px rgba(29,158,117,0.12)}
+.auth-label{font-size:12px;font-weight:500;color:#4A5B54;margin-bottom:6px;display:block}
+.auth-btn{width:100%;padding:12px;border:none;border-radius:9px;background:linear-gradient(135deg,#1D9E75,#0F6E56);color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:opacity 0.15s;box-shadow:0 2px 8px rgba(15,110,86,0.25)}
+.auth-btn:hover{opacity:0.92}
+.pw-wrap{position:relative}
+.pw-toggle{position:absolute;right:11px;top:50%;transform:translateY(-50%);cursor:pointer;color:#8AA098;font-size:15px;background:none;border:none;padding:2px}
+.pw-toggle:hover{color:#1D9E75}
+</style>
+</head>
+<body>
+
+<div id="auth-screen" style="position:fixed;inset:0;background:#F4F8F6;z-index:200;display:flex;align-items:stretch;justify-content:center;font-family:var(--font-sans)">
+  <div style="display:flex;width:100%;max-width:920px;margin:auto;box-shadow:0 20px 60px rgba(11,84,66,0.15);border-radius:20px;overflow:hidden">
+
+    <!-- Left brand panel -->
+    <div style="flex:1;background:linear-gradient(160deg,#0F6E56 0%,#0B5442 55%,#083D30 100%);padding:48px 40px;display:flex;flex-direction:column;justify-content:space-between;color:#fff;min-width:280px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <svg width="34" height="34" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+          <rect width="40" height="40" rx="10" fill="rgba(255,255,255,0.16)"/>
+          <path d="M11 27 L11 13" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+          <path d="M20 27 L20 9" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity="0.85"/>
+          <path d="M29 27 L29 17" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+          <path d="M8 20 L32 12" stroke="#9FE1CB" stroke-width="2" stroke-linecap="round" fill="none"/>
+        </svg>
+        <span style="font-size:19px;font-weight:600;letter-spacing:-0.3px">BizFlow</span>
+      </div>
+      <div>
+        <h1 style="font-size:26px;font-weight:600;line-height:1.3;margin-bottom:12px">Run your business<br>from one place.</h1>
+        <p style="font-size:13px;color:rgba(255,255,255,0.72);line-height:1.6;max-width:280px">Orders, customers, inventory, and payments — tracked in real time, from anywhere.</p>
+      </div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.45)">© 2026 BizFlow</div>
+    </div>
+
+    <!-- Right form panel -->
+    <div style="flex:1.15;background:#fff;padding:48px 44px;display:flex;flex-direction:column;justify-content:center;min-width:320px">
+
+      <div id="auth-login">
+        <h2 style="font-size:20px;font-weight:600;color:#132621;margin-bottom:4px">Welcome back</h2>
+        <p style="font-size:13px;color:#7A8C85;margin-bottom:26px">Log in to your business account</p>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div>
+            <label class="auth-label">Email</label>
+            <input id="login-email" type="email" class="auth-input" placeholder="you@business.com">
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <label class="auth-label" style="margin-bottom:0">Password</label>
+            <a href="#" onclick="showForgot();return false;" style="font-size:12px;color:#0F6E56;text-decoration:none">Forgot password?</a>
+          </div>
+          <div class="pw-wrap" style="margin-top:-8px">
+            <input id="login-password" type="password" class="auth-input" style="padding-right:38px" placeholder="Enter your password">
+            <button type="button" class="pw-toggle" onclick="togglePw('login-password',this)"><i class="ti ti-eye" aria-hidden="true"></i></button>
+          </div>
+          <div id="login-error" style="color:#C0392B;font-size:12px;min-height:14px"></div>
+          <button class="auth-btn" onclick="submitLogin()">Log in</button>
+        </div>
+        <p style="text-align:center;font-size:13px;color:#7A8C85;margin-top:22px">
+          New to BizFlow? <a href="#" onclick="showSignup();return false;" style="color:#0F6E56;font-weight:600;text-decoration:none">Create a business account</a>
+        </p>
+      </div>
+
+      <div id="auth-signup" style="display:none">
+        <h2 style="font-size:20px;font-weight:600;color:#132621;margin-bottom:4px">Create your account</h2>
+        <p style="font-size:13px;color:#7A8C85;margin-bottom:26px">Set up your business in under a minute</p>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div>
+            <label class="auth-label">Business name</label>
+            <input id="signup-business" type="text" class="auth-input" placeholder="e.g. Amara Perfumes">
+          </div>
+          <div>
+            <label class="auth-label">Email</label>
+            <input id="signup-email" type="email" class="auth-input" placeholder="you@business.com">
+          </div>
+          <div>
+            <label class="auth-label">Password</label>
+            <div class="pw-wrap">
+              <input id="signup-password" type="password" class="auth-input" style="padding-right:38px" placeholder="At least 6 characters">
+              <button type="button" class="pw-toggle" onclick="togglePw('signup-password',this)"><i class="ti ti-eye" aria-hidden="true"></i></button>
+            </div>
+          </div>
+          <div id="signup-error" style="color:#C0392B;font-size:12px;min-height:14px"></div>
+          <button class="auth-btn" onclick="submitSignup()">Create account</button>
+        </div>
+        <p style="text-align:center;font-size:13px;color:#7A8C85;margin-top:22px">
+          Already have an account? <a href="#" onclick="showLogin();return false;" style="color:#0F6E56;font-weight:600;text-decoration:none">Log in</a>
+        </p>
+      </div>
+
+      <div id="auth-forgot" style="display:none">
+        <h2 style="font-size:20px;font-weight:600;color:#132621;margin-bottom:4px">Reset your password</h2>
+        <p style="font-size:13px;color:#7A8C85;margin-bottom:26px">Enter your account email and we'll help you reset it</p>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div>
+            <label class="auth-label">Email</label>
+            <input id="forgot-email" type="email" class="auth-input" placeholder="you@business.com">
+          </div>
+          <div id="forgot-error" style="color:#C0392B;font-size:12px;min-height:14px"></div>
+          <button class="auth-btn" onclick="submitForgot()">Send reset instructions</button>
+        </div>
+        <div id="forgot-result" style="display:none;margin-top:18px;padding:14px;background:#F4F8F6;border-radius:9px;font-size:12px;color:#4A5B54;line-height:1.6"></div>
+        <p style="text-align:center;font-size:13px;color:#7A8C85;margin-top:22px">
+          <a href="#" onclick="showLogin();return false;" style="color:#0F6E56;font-weight:600;text-decoration:none">Back to log in</a>
+        </p>
+      </div>
+
+      <div id="auth-reset" style="display:none">
+        <h2 style="font-size:20px;font-weight:600;color:#132621;margin-bottom:4px">Choose a new password</h2>
+        <p style="font-size:13px;color:#7A8C85;margin-bottom:26px">Paste the reset code you were given, and set a new password</p>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div>
+            <label class="auth-label">Reset code</label>
+            <input id="reset-token" type="text" class="auth-input" placeholder="Paste your reset code here">
+          </div>
+          <div>
+            <label class="auth-label">New password</label>
+            <div class="pw-wrap">
+              <input id="reset-password" type="password" class="auth-input" style="padding-right:38px" placeholder="At least 6 characters">
+              <button type="button" class="pw-toggle" onclick="togglePw('reset-password',this)"><i class="ti ti-eye" aria-hidden="true"></i></button>
+            </div>
+          </div>
+          <div id="reset-error" style="color:#C0392B;font-size:12px;min-height:14px"></div>
+          <button class="auth-btn" onclick="submitReset()">Update password</button>
+        </div>
+        <p style="text-align:center;font-size:13px;color:#7A8C85;margin-top:22px">
+          <a href="#" onclick="showLogin();return false;" style="color:#0F6E56;font-weight:600;text-decoration:none">Back to log in</a>
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="app">
+  <div id="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:100;align-items:center;justify-content:center" onclick="if(event.target===this)closeModal()">
+    <div id="modal-box" style="background:#fff;border-radius:12px;padding:20px;width:420px;max-width:90vw;max-height:85vh;overflow-y:auto;font-family:var(--font-sans)"></div>
+  </div>
+  <div class="sidebar">
+    <div class="s-logo">
+      <div class="s-logo-icon">
+        <svg width="19" height="19" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+          <path d="M11 27 L11 13" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+          <path d="M20 27 L20 9" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity="0.85"/>
+          <path d="M29 27 L29 17" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+          <path d="M8 20 L32 12" stroke="#9FE1CB" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        </svg>
+      </div>
+      <div><div class="s-logo-text">BizFlow</div><div class="s-logo-sub">Social Commerce OS</div></div>
+    </div>
+    <div class="s-nav">
+      <div class="s-section">OVERVIEW</div>
+      <div class="s-item on" onclick="go('dashboard',this)"><i class="ti ti-layout-dashboard" aria-hidden="true"></i> Dashboard</div>
+      <div class="s-section">MANAGE</div>
+      <div class="s-item" onclick="go('orders',this)"><i class="ti ti-shopping-bag" aria-hidden="true"></i> Orders <span class="badge">14</span></div>
+      <div class="s-item" onclick="go('customers',this)"><i class="ti ti-users" aria-hidden="true"></i> Customers</div>
+      <div class="s-item" onclick="go('inventory',this)"><i class="ti ti-box" aria-hidden="true"></i> Inventory <span class="badge" style="background:rgba(231,76,60,0.25);color:#f5a09a">3</span></div>
+      <div class="s-item" onclick="go('payments',this)"><i class="ti ti-credit-card" aria-hidden="true"></i> Payments</div>
+      <div class="s-section">GROWTH</div>
+      <div class="s-item" style="opacity:0.45;cursor:default"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i> WhatsApp <span class="badge">Soon</span></div>
+      <div class="s-item" style="opacity:0.45;cursor:default"><i class="ti ti-chart-line" aria-hidden="true"></i> Analytics <span class="badge">Soon</span></div>
+    </div>
+    <div class="s-footer">
+      <div class="s-merchant">
+        <div class="s-av" id="s-av">—</div>
+        <div><div class="s-mname" id="s-mname">—</div><div class="s-mplan" id="s-memail">—</div></div>
+        <i class="ti ti-logout" style="font-size:14px;color:rgba(255,255,255,0.5);margin-left:auto;cursor:pointer" onclick="logout()" title="Log out" aria-hidden="true"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="tb-title" id="pg-title">Dashboard</div>
+        <div class="tb-date" style="padding-left:8px;border-left:0.5px solid var(--color-border-tertiary);margin-left:4px">Tue, 9 Jun 2026</div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn" onclick="showBusinessSummary()"><i class="ti ti-sparkles" style="font-size:13px" aria-hidden="true"></i> Business summary</button>
+        <button class="btn btn-g" onclick="openNewOrderModal()"><i class="ti ti-plus" style="font-size:13px" aria-hidden="true"></i> New Order</button>
+      </div>
+    </div>
+
+    <div class="scroll">
+
+      <div id="p-dashboard" class="panel on">
+        <div class="kpi-row">
+          <div class="kpi">
+            <div class="kpi-label">Revenue today <i class="ti ti-trending-up" style="font-size:13px;color:#0F6E56" aria-hidden="true"></i></div>
+            <div class="kpi-val" id="kpi-revenue">—</div>
+            <div class="kpi-foot up" id="kpi-revenue-foot">Loading…</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Orders today <i class="ti ti-shopping-bag" style="font-size:13px;color:var(--color-text-secondary)" aria-hidden="true"></i></div>
+            <div class="kpi-val" id="kpi-orders">—</div>
+            <div class="kpi-foot up" id="kpi-orders-foot">Loading…</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Unpaid <i class="ti ti-clock" style="font-size:13px;color:#BA7517" aria-hidden="true"></i></div>
+            <div class="kpi-val" id="kpi-unpaid">—</div>
+            <div class="kpi-foot warn" id="kpi-unpaid-foot">Loading…</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Low stock <i class="ti ti-alert-triangle" style="font-size:13px;color:#A32D2D" aria-hidden="true"></i></div>
+            <div class="kpi-val" id="kpi-lowstock">—</div>
+            <div class="kpi-foot danger">Restock needed</div>
+          </div>
+        </div>
+
+        <div class="row2">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Revenue — last 7 days</div>
+                <div class="card-sub" style="margin-top:2px" id="rev-total">Loading…</div>
+              </div>
+              <div style="display:flex;gap:6px">
+                <span class="pill p-green" id="rev-mom">—</span>
+              </div>
+            </div>
+            <div style="position:relative;width:100%;height:160px">
+              <canvas id="revChart" role="img" aria-label="Line chart of daily revenue over last 7 days">Revenue trend over 7 days.</canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Payment methods</div></div>
+            <div class="donut-wrap" style="height:140px">
+              <canvas id="donutChart" role="img" aria-label="Donut chart of payment methods">Payment methods breakdown.</canvas>
+              <div class="donut-center"><div class="donut-big" id="donut-total">—</div><div class="donut-sm">this month</div></div>
+            </div>
+            <div class="legend" style="justify-content:center;margin-top:8px;margin-bottom:0" id="pay-legend">
+              <span class="leg-item">Loading…</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="row2b">
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">Orders by status</div>
+              <div class="card-sub">This month</div>
+            </div>
+            <div style="position:relative;width:100%;height:130px">
+              <canvas id="barChart" role="img" aria-label="Bar chart of orders by status this month">New 12, Awaiting 8, Paid 34, Shipped 28, Delivered 51, Cancelled 4.</canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Today's activity</div><div class="card-link" onclick="go('orders',document.querySelectorAll('.s-item')[2])">See orders</div></div>
+            <ul class="tl" id="activity-list">
+              <li><div class="tl-dot"></div><div><div class="tl-t">Loading…</div></div></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="card-title">Top products this month</div><div class="card-link" onclick="go('inventory',document.querySelectorAll('.s-item')[4])">Manage stock</div></div>
+          <div style="position:relative;width:100%;height:110px">
+            <canvas id="hbarChart" role="img" aria-label="Horizontal bar chart of top products by units sold">Oud Noir 50ml: 38, Rose Silk: 31, Amber Musk: 24, Oud Noir 100ml: 19, Cedar Oud: 14.</canvas>
+          </div>
+        </div>
+      </div>
+
+      <div id="p-orders" class="panel">
+        <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center">
+          <input type="text" id="order-search" placeholder="Search by customer or order..." style="flex:1">
+          <select id="order-status-filter"><option value="">All statuses</option><option value="New">New</option><option value="Processing">Processing</option><option value="Shipped">Shipped</option><option value="Delivered">Delivered</option><option value="Cancelled">Cancelled</option></select>
+          <button class="btn btn-g" style="font-size:12px" onclick="openNewOrderModal()"><i class="ti ti-plus" style="font-size:13px" aria-hidden="true"></i> New Order</button>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <table style="table-layout:fixed">
+            <thead><tr><th style="padding:12px 14px;width:90px">Order</th><th style="padding:12px 6px;width:130px">Customer</th><th style="padding:12px 6px">Item(s)</th><th style="padding:12px 6px;width:90px">Amount</th><th style="padding:12px 6px;width:80px">Payment</th><th style="padding:12px 6px;width:85px">Status</th><th style="padding:12px 6px;width:75px">Delivery</th></tr></thead>
+            <tbody id="orders-tbody">
+              <tr><td colspan="7" style="padding:14px;text-align:center;color:var(--color-text-secondary)">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="p-customers" class="panel">
+        <div class="row2b">
+          <div class="card">
+            <div class="card-head"><div class="card-title">Customer segments</div></div>
+            <div style="position:relative;width:100%;height:150px">
+              <canvas id="custChart" role="img" aria-label="Bar chart showing customer segment counts: VIP 2, Frequent 6, New 3, At Risk 8">VIP 2, Frequent 6, New 3, At Risk 8.</canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title" id="cust-detail-name">Loading…</div><span class="pill p-amber" id="cust-detail-tag">—</span></div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+              <div style="width:40px;height:40px;border-radius:50%;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:#085041" id="cust-detail-av">—</div>
+              <div><div style="font-size:13px;font-weight:500;color:var(--color-text-primary)" id="cust-detail-phone">—</div><div style="font-size:11px;color:var(--color-text-secondary)" id="cust-detail-loc">—</div></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+              <div style="background:var(--color-background-secondary);border-radius:8px;padding:10px"><div style="font-size:10px;color:var(--color-text-secondary);margin-bottom:4px">Orders</div><div style="font-size:18px;font-weight:500;color:var(--color-text-primary)" id="cust-detail-orders">—</div></div>
+              <div style="background:var(--color-background-secondary);border-radius:8px;padding:10px"><div style="font-size:10px;color:var(--color-text-secondary);margin-bottom:4px">Total spend</div><div style="font-size:18px;font-weight:500;color:var(--color-text-primary)" id="cust-detail-spend">—</div></div>
+            </div>
+            <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:10px" id="cust-detail-lastorder">—</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">All customers</div><div class="card-link">Export CSV</div></div>
+          <table>
+            <thead><tr><th style="width:130px">Customer</th><th>Phone</th><th>Orders</th><th>Spend</th><th>Last order</th><th>Tag</th></tr></thead>
+            <tbody id="customers-tbody">
+              <tr><td colspan="6" style="padding:14px;text-align:center;color:var(--color-text-secondary)">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="p-inventory" class="panel">
+        <div class="kpi-row">
+          <div class="kpi"><div class="kpi-label">Products</div><div class="kpi-val" id="inv-kpi-products">—</div><div class="kpi-foot" style="color:var(--color-text-secondary)" id="inv-kpi-cats">—</div></div>
+          <div class="kpi"><div class="kpi-label">Stock value</div><div class="kpi-val" id="inv-kpi-value">—</div><div class="kpi-foot up">Cost basis</div></div>
+          <div class="kpi"><div class="kpi-label">Low stock</div><div class="kpi-val" style="color:#BA7517" id="inv-kpi-low">—</div><div class="kpi-foot warn">Below threshold</div></div>
+          <div class="kpi"><div class="kpi-label">Out of stock</div><div class="kpi-val" style="color:#A32D2D" id="inv-kpi-out">—</div><div class="kpi-foot danger" id="inv-kpi-out-names">—</div></div>
+        </div>
+        <div class="row2b">
+          <div class="card" style="grid-column:1/-1">
+            <div class="card-head"><div class="card-title">Product inventory</div><button class="btn btn-g" style="font-size:12px" onclick="openAddProductModal()"><i class="ti ti-plus" style="font-size:12px" aria-hidden="true"></i> Add product</button></div>
+            <div id="inventory-list">
+              <div class="inv-row">Loading…</div>
+            </div>
+          </div>
+        </div>
+        <button class="btn" style="font-size:12px" onclick="showRestockRecommendation()"><i class="ti ti-sparkles" style="font-size:13px" aria-hidden="true"></i> Restock recommendation</button>
+      </div>
+
+      <div id="p-payments" class="panel">
+        <div class="kpi-row">
+          <div class="kpi"><div class="kpi-label">Collected today</div><div class="kpi-val" id="pay-kpi-today">—</div><div class="kpi-foot up" id="pay-kpi-today-foot">Loading…</div></div>
+          <div class="kpi"><div class="kpi-label">Pending</div><div class="kpi-val" id="pay-kpi-pending">—</div><div class="kpi-foot warn" id="pay-kpi-pending-foot">Loading…</div></div>
+          <div class="kpi"><div class="kpi-label">This month</div><div class="kpi-val" id="pay-kpi-month">—</div><div class="kpi-foot up">Confirmed payments</div></div>
+          <div class="kpi"><div class="kpi-label">Avg order value</div><div class="kpi-val" id="pay-kpi-avg">—</div><div class="kpi-foot up">Across all orders</div></div>
+        </div>
+        <div class="card" style="margin-bottom:14px">
+          <div class="card-head"><div class="card-title">Daily collections — last 7 days</div></div>
+          <div style="position:relative;width:100%;height:140px">
+            <canvas id="payChart" role="img" aria-label="Stacked bar chart of daily payment collections over 7 days">7-day payment collection trend.</canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">Payment log</div><button class="btn btn-g" style="font-size:12px" onclick="openMarkPaidModal()"><i class="ti ti-check" style="font-size:12px" aria-hidden="true"></i> Mark as paid</button></div>
+          <table>
+            <thead><tr><th>Order</th><th>Customer</th><th>Amount</th><th>Method</th><th>Ref</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody id="payments-tbody">
+              <tr><td colspan="7" style="padding:14px;text-align:center;color:var(--color-text-secondary)">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="p-whatsapp" class="panel">
+        <div class="row2b">
+          <div class="card">
+            <div class="card-head"><div class="card-title">Incoming message</div><span class="pill p-blue">AI-assisted</span></div>
+            <div id="wa-inbox">
+              <div style="padding:14px;color:var(--color-text-secondary);font-size:12px">Loading…</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Broadcast campaigns</div></div>
+            <div id="wa-broadcasts">
+              <div style="padding:14px;color:var(--color-text-secondary);font-size:12px">Loading…</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+function go(name, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.s-item').forEach(i => i.classList.remove('on'));
+  const p = document.getElementById('p-' + name);
+  if (p) p.classList.add('on');
+  if (el) el.classList.add('on');
+  const titles = {dashboard:'Dashboard',orders:'Orders',customers:'Customers',inventory:'Inventory',payments:'Payments',whatsapp:'WhatsApp'};
+  document.getElementById('pg-title').textContent = titles[name] || name;
+  if (name === 'orders' && !window._ordersDone) { loadOrders(); window._ordersDone = true; }
+  if (name === 'customers' && !window._custDone) { loadCustomers(); window._custDone = true; }
+  if (name === 'inventory' && !window._invDone) { loadInventory(); window._invDone = true; }
+  if (name === 'payments' && !window._payDone) { loadPayments(); window._payDone = true; }
+  if (name === 'whatsapp' && !window._waDone) { loadWhatsapp(); window._waDone = true; }
+}
+
+const G = '#0F6E56', G2 = '#1D9E75', G3 = '#9FE1CB', AMB = '#EF9F27', RED = '#E24B4A';
+const BORDER = 'rgba(128,128,128,0.08)';
+const baseOpts = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } };
+const API_BASE = 'https://bizflow-api-v0sd.onrender.com';
+
+// ================================================================
+// AUTH — login, signup, and the apiFetch() wrapper every API call uses
+// ================================================================
+
+// Every fetch() in this file was changed to apiFetch() — this wrapper
+// automatically attaches "Authorization: Bearer <token>" to every request,
+// so individual functions never have to think about auth themselves.
+function apiFetch(url, options = {}) {
+  const token = localStorage.getItem('bizflow_token');
+  const headers = { ...(options.headers || {}) };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  return fetch(url, { ...options, headers });
+}
+
+function togglePw(inputId, btn) {
+  const input = document.getElementById(inputId);
+  const icon = btn.querySelector('i');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.className = 'ti ti-eye-off';
+  } else {
+    input.type = 'password';
+    icon.className = 'ti ti-eye';
+  }
+}
+
+function hideAllAuthScreens() {
+  ['auth-login', 'auth-signup', 'auth-forgot', 'auth-reset'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+}
+function showLogin() { hideAllAuthScreens(); document.getElementById('auth-login').style.display = 'block'; }
+function showSignup() { hideAllAuthScreens(); document.getElementById('auth-signup').style.display = 'block'; }
+function showForgot() { hideAllAuthScreens(); document.getElementById('auth-forgot').style.display = 'block'; }
+function showReset(prefillToken) {
+  hideAllAuthScreens();
+  document.getElementById('auth-reset').style.display = 'block';
+  if (prefillToken) document.getElementById('reset-token').value = prefillToken;
+}
+
+async function submitForgot() {
+  const email = document.getElementById('forgot-email').value.trim();
+  const errorEl = document.getElementById('forgot-error');
+  const resultEl = document.getElementById('forgot-result');
+  if (!email) { errorEl.textContent = 'Enter your email first.'; return; }
+
+  try {
+    const response = await fetch(`${API_BASE}/api/auth/forgot-password`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Something went wrong');
+
+    resultEl.style.display = 'block';
+    if (data.devToken) {
+      // Honest limitation: no email service is connected yet, so we show the
+      // reset code directly here instead of it arriving by email.
+      resultEl.innerHTML = `
+        <strong style="color:#132621">No email service is connected yet</strong>, so here's your reset code directly
+        (this box wouldn't exist in a real production version — you'd get this by email instead):
+        <div style="margin-top:8px;padding:8px;background:#fff;border-radius:6px;font-family:monospace;font-size:11px;word-break:break-all;border:1px solid #E2E8E5">${data.devToken}</div>
+        <button class="auth-btn" style="margin-top:12px;padding:9px" onclick="showReset('${data.devToken}')">Continue to reset password</button>
+      `;
+    } else {
+      resultEl.textContent = data.message;
+    }
+  } catch (err) {
+    errorEl.textContent = err.message;
+  }
+}
+
+async function submitReset() {
+  const token = document.getElementById('reset-token').value.trim();
+  const newPassword = document.getElementById('reset-password').value;
+  const errorEl = document.getElementById('reset-error');
+  if (!token || !newPassword) { errorEl.textContent = 'Both fields are required.'; return; }
+
+  try {
+    const response = await fetch(`${API_BASE}/api/auth/reset-password`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token, newPassword })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Could not reset password');
+    alert('Password updated — log in with your new password.');
+    showLogin();
+  } catch (err) {
+    errorEl.textContent = err.message;
+  }
+}
+
+async function submitLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errorEl = document.getElementById('login-error');
+  try {
+    const response = await fetch(`${API_BASE}/api/auth/login`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Login failed');
+    onAuthSuccess(data);
+  } catch (err) {
+    errorEl.textContent = err.message;
+  }
+}
+
+async function submitSignup() {
+  const businessName = document.getElementById('signup-business').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const password = document.getElementById('signup-password').value;
+  const errorEl = document.getElementById('signup-error');
+  try {
+    const response = await fetch(`${API_BASE}/api/auth/signup`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ businessName, email, password })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Signup failed');
+    onAuthSuccess(data);
+  } catch (err) {
+    errorEl.textContent = err.message;
+  }
+}
+
+function onAuthSuccess(data) {
+  localStorage.setItem('bizflow_token', data.token);
+  localStorage.setItem('bizflow_business', data.business.name);
+  localStorage.setItem('bizflow_email', data.email);
+  enterApp();
+}
+
+function logout() {
+  localStorage.removeItem('bizflow_token');
+  localStorage.removeItem('bizflow_business');
+  localStorage.removeItem('bizflow_email');
+  location.reload(); // simplest way to reset all in-memory state back to a clean slate
+}
+
+function enterApp() {
+  document.getElementById('auth-screen').style.display = 'none';
+  const businessName = localStorage.getItem('bizflow_business') || 'My Business';
+  document.getElementById('s-mname').textContent = businessName;
+  document.getElementById('s-memail').textContent = localStorage.getItem('bizflow_email') || '';
+  document.getElementById('s-av').textContent = businessName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  loadDashboard();
+}
+
+// On page load: if we already have a saved token, skip straight to the app.
+// Otherwise show the login screen. We don't deeply verify the token here —
+// if it's expired/invalid, the first API call will 401 and we could add a
+// redirect-to-login on 401 later; keeping this simple for now.
+if (localStorage.getItem('bizflow_token')) {
+  enterApp();
+} else {
+  document.getElementById('auth-screen').style.display = 'flex';
+}
+
+// naira formatter helper — used everywhere we show money
+function naira(n) { return '₦' + Number(n).toLocaleString(); }
+
+// ================================================================
+// DASHBOARD — 4 KPIs (already wired) + 4 charts + activity feed
+// ================================================================
+
+function buildRevChart(trend) {
+  new Chart(document.getElementById('revChart'), {
+    type: 'line',
+    data: {
+      labels: trend.map(d => d.day),
+      datasets: [{
+        data: trend.map(d => d.revenue),
+        borderColor: G, borderWidth: 2, pointRadius: 3, pointBackgroundColor: G,
+        tension: 0.4, fill: true, backgroundColor: 'rgba(15,110,86,0.07)'
+      }]
+    },
+    options: { ...baseOpts,
+      scales: {
+        x: { grid: { color: BORDER }, ticks: { font: { size: 11 }, color: '#888' } },
+        y: { grid: { color: BORDER }, ticks: { font: { size: 11 }, color: '#888', callback: v => '₦' + (v/1000).toFixed(0) + 'k' }, beginAtZero: true }
+      }
+    }
+  });
+  const total = trend.reduce((s, d) => s + d.revenue, 0);
+  document.getElementById('rev-total').textContent = naira(total) + ' total this week';
+}
+
+function buildDonutChart(pm) {
+  new Chart(document.getElementById('donutChart'), {
+    type: 'doughnut',
+    data: {
+      labels: pm.breakdown.map(b => b.method),
+      datasets: [{ data: pm.breakdown.map(b => b.amount), backgroundColor: [G, G2, G3], borderWidth: 0, hoverOffset: 4 }]
+    },
+    options: { ...baseOpts, cutout: '68%' }
+  });
+  document.getElementById('donut-total').textContent = '₦' + (pm.total / 1000000).toFixed(2) + 'm';
+  const colors = [G, G2, G3];
+  document.getElementById('pay-legend').innerHTML = pm.breakdown.map((b, i) =>
+    `<span class="leg-item"><span class="leg-dot" style="background:${colors[i]}"></span>${b.method} ${b.pct}%</span>`
+  ).join('');
+}
+
+function buildStatusChart(rows) {
+  new Chart(document.getElementById('barChart'), {
+    type: 'bar',
+    data: {
+      labels: rows.map(r => r.status),
+      datasets: [{ data: rows.map(r => r.count), backgroundColor: [G2, '#534AB7', G, G, G, RED], borderRadius: 4 }]
+    },
+    options: { ...baseOpts,
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#888' } },
+        y: { grid: { color: BORDER }, ticks: { font: { size: 10 }, color: '#888', stepSize: 10 }, beginAtZero: true }
+      }
+    }
+  });
+}
+
+function buildTopProductsChart(rows) {
+  new Chart(document.getElementById('hbarChart'), {
+    type: 'bar',
+    data: {
+      labels: rows.map(r => r.name),
+      datasets: [{ data: rows.map(r => r.units), backgroundColor: G, borderRadius: 3 }]
+    },
+    options: { ...baseOpts, indexAxis: 'y',
+      scales: {
+        x: { grid: { color: BORDER }, ticks: { font: { size: 10 }, color: '#888' }, beginAtZero: true },
+        y: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#888' } }
+      }
+    }
+  });
+}
+
+function renderActivity(items) {
+  document.getElementById('activity-list').innerHTML = items.map((a, i) => `
+    <li>
+      <div class="tl-dot${i === items.length - 1 ? ' dim' : ''}"></div>
+      ${i < items.length - 1 ? '<div class="tl-line"></div>' : ''}
+      <div><div class="tl-t">${a.text}</div><div class="tl-d">${a.meta}</div></div>
+    </li>
+  `).join('');
+}
+
+async function loadDashboard() {
+  try {
+    const [summary, trend, pm, statusRows, topProducts, activity] = await Promise.all([
+      apiFetch(`${API_BASE}/api/dashboard/summary`).then(r => r.json()),
+      apiFetch(`${API_BASE}/api/dashboard/revenue-trend`).then(r => r.json()),
+      apiFetch(`${API_BASE}/api/dashboard/payment-methods`).then(r => r.json()),
+      apiFetch(`${API_BASE}/api/dashboard/orders-by-status`).then(r => r.json()),
+      apiFetch(`${API_BASE}/api/dashboard/top-products`).then(r => r.json()),
+      apiFetch(`${API_BASE}/api/dashboard/activity`).then(r => r.json()),
+    ]);
+
+    document.getElementById('kpi-revenue').textContent = naira(summary.revenueToday);
+    document.getElementById('kpi-revenue-foot').textContent =
+      summary.revenueChangePct !== null ? `${summary.revenueChangePct > 0 ? '+' : ''}${summary.revenueChangePct}% vs yesterday` : 'No data for yesterday';
+    document.getElementById('kpi-orders').textContent = summary.ordersToday;
+    document.getElementById('kpi-orders-foot').textContent = `${summary.ordersToday} order(s) today`;
+    document.getElementById('kpi-unpaid').textContent = naira(summary.unpaidAmount);
+    document.getElementById('kpi-unpaid-foot').textContent = `${summary.unpaidCount} orders pending`;
+    document.getElementById('kpi-lowstock').textContent = summary.lowStockCount;
+    window._lastSummary = summary;
+    window._lastTopProducts = topProducts;
+
+    buildRevChart(trend);
+    buildDonutChart(pm);
+    buildStatusChart(statusRows);
+    buildTopProductsChart(topProducts);
+    renderActivity(activity);
+  } catch (err) {
+    console.error('Failed to load dashboard:', err);
+    document.getElementById('kpi-revenue').textContent = 'Error';
+  }
+}
+
+// ================================================================
+// ORDERS — table with live search + status filter
+// ================================================================
+
+function renderOrders(orders) {
+  const tbody = document.getElementById('orders-tbody');
+  if (!orders.length) {
+    tbody.innerHTML = `<tr><td colspan="7" style="padding:14px;text-align:center;color:var(--color-text-secondary)">No orders match.</td></tr>`;
+    return;
+  }
+  const paymentPill = { Paid: 'p-green', Awaiting: 'p-amber', Cancelled: 'p-red' };
+  const statusPill = { New: 'p-blue', Processing: 'p-blue', Shipped: 'p-purple', Delivered: 'p-green', Cancelled: 'p-red' };
+  const initials = name => name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+
+  tbody.innerHTML = orders.map(o => `
+    <tr style="cursor:pointer" onclick="showOrderDetail('${o.id}')">
+      <td style="padding:10px 14px;font-size:11px;color:var(--color-text-secondary)">${o.id}</td>
+      <td style="padding:10px 6px"><div class="cr"><div class="av">${initials(o.customerName)}</div>${o.customerName}</div></td>
+      <td style="padding:10px 6px">${o.items.map(i => i.name + (i.qty > 1 ? ' × ' + i.qty : '')).join(', ')}</td>
+      <td style="padding:10px 6px" class="amt">${naira(o.amount)}</td>
+      <td style="padding:10px 6px"><span class="pill ${paymentPill[o.paymentStatus] || 'p-gray'}">${o.paymentStatus}</span></td>
+      <td style="padding:10px 6px"><span class="pill ${statusPill[o.status] || 'p-gray'}">${o.status}</span></td>
+      <td style="padding:10px 6px;font-size:11px;color:var(--color-text-secondary)">${o.delivery || '—'}</td>
+    </tr>
+  `).join('');
+}
+
+async function loadOrders() {
+  try {
+    const search = document.getElementById('order-search').value;
+    const status = document.getElementById('order-status-filter').value;
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    if (status) params.set('status', status);
+
+    const response = await apiFetch(`${API_BASE}/api/orders?${params.toString()}`);
+    const orders = await response.json();
+    renderOrders(orders);
+  } catch (err) {
+    console.error('Failed to load orders:', err);
+    document.getElementById('orders-tbody').innerHTML = `<tr><td colspan="7" style="padding:14px;text-align:center;color:#A32D2D">Could not reach the API. Is it running?</td></tr>`;
+  }
+}
+
+// Re-fetch as the user types/filters — this is what makes search "live"
+document.getElementById('order-search').addEventListener('input', () => loadOrders());
+document.getElementById('order-status-filter').addEventListener('change', () => loadOrders());
+
+// ================================================================
+// CUSTOMERS — segments chart + detail card + table
+// ================================================================
+
+async function loadCustomers() {
+  try {
+    const [segments, customers] = await Promise.all([
+      apiFetch(`${API_BASE}/api/customers/segments`).then(r => r.json()),
+      apiFetch(`${API_BASE}/api/customers`).then(r => r.json()),
+    ]);
+
+    new Chart(document.getElementById('custChart'), {
+      type: 'bar',
+      data: {
+        labels: Object.keys(segments),
+        datasets: [{ data: Object.values(segments), backgroundColor: [AMB, G, G2, RED], borderRadius: 4 }]
+      },
+      options: { ...baseOpts,
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#888' } },
+          y: { grid: { color: BORDER }, ticks: { font: { size: 11 }, color: '#888', stepSize: 2 }, beginAtZero: true }
+        }
+      }
+    });
+
+    const initials = name => name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    const tagPill = { VIP: 'p-amber', Frequent: 'p-blue', New: 'p-green', 'At Risk': 'p-red' };
+
+    // Show the highest-spending customer in the detail card
+    const featured = [...customers].sort((a, b) => b.spend - a.spend)[0];
+    window._lastCustomers = customers;
+    window._featuredCustomer = featured;
+    if (featured) {
+      document.getElementById('cust-detail-name').textContent = featured.name;
+      document.getElementById('cust-detail-tag').textContent = featured.tag;
+      document.getElementById('cust-detail-av').textContent = initials(featured.name);
+      document.getElementById('cust-detail-phone').textContent = featured.phone;
+      document.getElementById('cust-detail-loc').textContent =
+        `${featured.location} · Since ${new Date(featured.since).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}`;
+      document.getElementById('cust-detail-orders').textContent = featured.orderCount;
+      document.getElementById('cust-detail-spend').textContent = naira(featured.spend);
+      document.getElementById('cust-detail-lastorder').textContent = featured.lastOrderItem
+        ? `Last order: ${featured.lastOrderItem}` : 'No orders yet';
+    }
+
+    document.getElementById('customers-tbody').innerHTML = customers.map(c => `
+      <tr>
+        <td><div class="cr"><div class="av">${initials(c.name)}</div>${c.name}</div></td>
+        <td style="color:var(--color-text-secondary);font-size:11px">${c.phone}</td>
+        <td>${c.orderCount}</td>
+        <td class="amt">${naira(c.spend)}</td>
+        <td style="font-size:11px;color:var(--color-text-secondary)">${c.lastOrderDate ? new Date(c.lastOrderDate).toLocaleDateString() : '—'}</td>
+        <td><span class="pill ${tagPill[c.tag] || 'p-gray'}">${c.tag}</span></td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    console.error('Failed to load customers:', err);
+  }
+}
+
+// ================================================================
+// INVENTORY — KPIs + product list + "Add product"
+// ================================================================
+
+async function loadInventory() {
+  try {
+    const [summary, products] = await Promise.all([
+      apiFetch(`${API_BASE}/api/products/summary`).then(r => r.json()),
+      apiFetch(`${API_BASE}/api/products`).then(r => r.json()),
+    ]);
+
+    document.getElementById('inv-kpi-products').textContent = summary.totalProducts;
+    document.getElementById('inv-kpi-cats').textContent = `Across ${summary.categories} categories`;
+    document.getElementById('inv-kpi-value').textContent = naira(summary.stockValue);
+    document.getElementById('inv-kpi-low').textContent = summary.lowStockCount;
+    document.getElementById('inv-kpi-out').textContent = summary.outOfStockCount;
+    document.getElementById('inv-kpi-out-names').textContent = summary.outOfStockNames.join(', ') || 'None';
+    window._lastProducts = products;
+
+    document.getElementById('inventory-list').innerHTML = products.map(p => {
+      const margin = Math.round(((p.price - p.cost) / p.price) * 100);
+      const pct = Math.min(100, Math.round((p.quantity / (p.threshold * 4)) * 100));
+      let color = '#1D9E75', label = `${p.quantity} units`, sub = `Threshold: ${p.threshold}`, subColor = 'var(--color-text-secondary)';
+      if (p.quantity === 0) { color = '#E24B4A'; subColor = '#A32D2D'; sub = 'Out of stock'; }
+      else if (p.quantity <= p.threshold) { color = '#EF9F27'; subColor = '#BA7517'; sub = 'Low stock'; }
+      return `
+        <div class="inv-row">
+          <div class="inv-top">
+            <div><div class="inv-name">${p.name} <span class="pill p-gray" style="margin-left:6px">${p.id}</span></div>
+            <div class="inv-meta">Cost ${naira(p.cost)} · Sells ${naira(p.price)} · Margin ${margin}%</div></div>
+            <div style="text-align:right;display:flex;align-items:center;gap:10px">
+              <div><div style="font-size:13px;font-weight:500;color:${p.quantity <= p.threshold ? (p.quantity === 0 ? '#A32D2D' : '#BA7517') : '#0F6E56'}">${label}</div><div style="font-size:10px;color:${subColor}">${sub}</div></div>
+              <button class="btn" style="font-size:11px;padding:5px 8px" onclick="showEditProduct('${p.id}')" title="Edit"><i class="ti ti-pencil" style="font-size:12px" aria-hidden="true"></i></button>
+              <button class="btn" style="font-size:11px;padding:5px 8px;color:#A32D2D" onclick="deleteProduct('${p.id}')" title="Delete"><i class="ti ti-trash" style="font-size:12px" aria-hidden="true"></i></button>
+            </div>
+          </div>
+          <div class="bar-wrap" style="margin-top:8px"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+        </div>
+      `;
+    }).join('');
+  } catch (err) {
+    console.error('Failed to load inventory:', err);
+  }
+}
+
+// Real modal form — replaces the old browser prompt() chain
+function openAddProductModal() {
+  openModal(`
+    <h3 style="margin-bottom:14px;font-size:16px">Add product</h3>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <label style="font-size:11px;color:var(--color-text-secondary)">Product name
+        <input id="ap-name" type="text" style="width:100%;margin-top:4px" placeholder="e.g. Velvet Oud 50ml">
+      </label>
+      <label style="font-size:11px;color:var(--color-text-secondary)">Category
+        <input id="ap-category" type="text" style="width:100%;margin-top:4px" placeholder="e.g. Oud">
+      </label>
+      <div style="display:flex;gap:8px">
+        <label style="font-size:11px;color:var(--color-text-secondary);flex:1">Cost price (₦)
+          <input id="ap-cost" type="number" style="width:100%;margin-top:4px" value="5000">
+        </label>
+        <label style="font-size:11px;color:var(--color-text-secondary);flex:1">Selling price (₦)
+          <input id="ap-price" type="number" style="width:100%;margin-top:4px" value="10000">
+        </label>
+      </div>
+      <label style="font-size:11px;color:var(--color-text-secondary)">Starting quantity
+        <input id="ap-qty" type="number" style="width:100%;margin-top:4px" value="10">
+      </label>
+      <div id="ap-error" style="color:#A32D2D;font-size:12px"></div>
+      <div style="display:flex;gap:8px;margin-top:6px">
+        <button class="btn" style="flex:1;justify-content:center" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-g" style="flex:1;justify-content:center" onclick="submitAddProduct()">Add product</button>
+      </div>
+    </div>
+  `);
+}
+
+async function submitAddProduct() {
+  const name = document.getElementById('ap-name').value.trim();
+  const category = document.getElementById('ap-category').value.trim();
+  const cost = Number(document.getElementById('ap-cost').value);
+  const price = Number(document.getElementById('ap-price').value);
+  const quantity = Number(document.getElementById('ap-qty').value);
+
+  if (!name) { document.getElementById('ap-error').textContent = 'Product name is required.'; return; }
+
+  try {
+    const response = await apiFetch(`${API_BASE}/api/products`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, category, cost, price, quantity })
+    });
+    if (!response.ok) throw new Error((await response.json()).error || 'Request failed');
+    closeModal();
+    loadInventory(); // refresh so the new product appears immediately
+  } catch (err) {
+    document.getElementById('ap-error').textContent = 'Could not add product: ' + err.message;
+  }
+}
+
+// --- Edit product (price / cost / quantity / threshold) ---
+async function showEditProduct(productId) {
+  const p = await apiFetch(`${API_BASE}/api/products/${productId}`).then(r => r.json());
+  openModal(`
+    <h3 style="margin-bottom:14px;font-size:16px">Edit ${p.name}</h3>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <label style="font-size:11px;color:var(--color-text-secondary)">Product name
+        <input id="ep-name" type="text" value="${p.name}" style="width:100%;margin-top:4px">
+      </label>
+      <div style="display:flex;gap:8px">
+        <label style="font-size:11px;color:var(--color-text-secondary);flex:1">Cost price (₦)
+          <input id="ep-cost" type="number" value="${p.cost}" style="width:100%;margin-top:4px">
+        </label>
+        <label style="font-size:11px;color:var(--color-text-secondary);flex:1">Selling price (₦)
+          <input id="ep-price" type="number" value="${p.price}" style="width:100%;margin-top:4px">
+        </label>
+      </div>
+      <div style="display:flex;gap:8px">
+        <label style="font-size:11px;color:var(--color-text-secondary);flex:1">Quantity in stock
+          <input id="ep-qty" type="number" value="${p.quantity}" style="width:100%;margin-top:4px">
+        </label>
+        <label style="font-size:11px;color:var(--color-text-secondary);flex:1">Low-stock threshold
+          <input id="ep-threshold" type="number" value="${p.threshold}" style="width:100%;margin-top:4px">
+        </label>
+      </div>
+      <div id="ep-error" style="color:#A32D2D;font-size:12px"></div>
+      <div style="display:flex;gap:8px;margin-top:6px">
+        <button class="btn" style="flex:1;justify-content:center" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-g" style="flex:1;justify-content:center" onclick="submitEditProduct('${p.id}')">Save</button>
+      </div>
+    </div>
+  `);
+}
+
+async function submitEditProduct(productId) {
+  const body = {
+    name: document.getElementById('ep-name').value.trim(),
+    cost: Number(document.getElementById('ep-cost').value),
+    price: Number(document.getElementById('ep-price').value),
+    quantity: Number(document.getElementById('ep-qty').value),
+    threshold: Number(document.getElementById('ep-threshold').value),
+  };
+  try {
+    const response = await apiFetch(`${API_BASE}/api/products/${productId}`, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+    });
+    if (!response.ok) throw new Error('Request failed');
+    closeModal();
+    loadInventory();
+  } catch (err) {
+    document.getElementById('ep-error').textContent = 'Could not save changes: ' + err.message;
+  }
+}
+
+async function deleteProduct(productId) {
+  if (!confirm('Delete this product? This cannot be undone.')) return;
+  try {
+    await apiFetch(`${API_BASE}/api/products/${productId}`, { method: 'DELETE' });
+    loadInventory();
+  } catch (err) {
+    alert('Could not delete product.');
+  }
+}
+
+// ================================================================
+// PAYMENTS — KPIs + collections chart + log + "Mark as paid"
+// ================================================================
+
+async function loadPayments() {
+  try {
+    const [summary, collections, payments] = await Promise.all([
+      apiFetch(`${API_BASE}/api/payments/summary`).then(r => r.json()),
+      apiFetch(`${API_BASE}/api/payments/collections`).then(r => r.json()),
+      apiFetch(`${API_BASE}/api/payments`).then(r => r.json()),
+    ]);
+
+    document.getElementById('pay-kpi-today').textContent = naira(summary.collectedToday);
+    document.getElementById('pay-kpi-today-foot').textContent = `${summary.transfersConfirmedToday} transfer(s) confirmed`;
+    document.getElementById('pay-kpi-pending').textContent = naira(summary.pendingAmount);
+    document.getElementById('pay-kpi-pending-foot').textContent = `${summary.pendingCount} orders awaiting`;
+    document.getElementById('pay-kpi-month').textContent = naira(summary.monthTotal);
+    document.getElementById('pay-kpi-avg').textContent = naira(summary.avgOrderValue);
+
+    new Chart(document.getElementById('payChart'), {
+      type: 'bar',
+      data: {
+        labels: collections.map(d => d.day),
+        datasets: [
+          { label: 'Transfer', data: collections.map(d => d.Transfer), backgroundColor: G, borderRadius: 3 },
+          { label: 'POS', data: collections.map(d => d.POS), backgroundColor: G2, borderRadius: 3 },
+          { label: 'Cash', data: collections.map(d => d.Cash), backgroundColor: G3, borderRadius: 3 }
+        ]
+      },
+      options: { ...baseOpts,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { stacked: true, grid: { display: false }, ticks: { font: { size: 11 }, color: '#888' } },
+          y: { stacked: true, grid: { color: BORDER }, ticks: { font: { size: 11 }, color: '#888', callback: v => '₦' + (v/1000).toFixed(0) + 'k' }, beginAtZero: true }
+        }
+      }
+    });
+
+    const statusPill = { Confirmed: 'p-green', Awaiting: 'p-amber' };
+    document.getElementById('payments-tbody').innerHTML = payments.map(p => `
+      <tr>
+        <td style="font-size:11px;color:var(--color-text-secondary)">${p.orderId}</td>
+        <td><div class="cr"><div class="av">${p.customerName.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}</div>${p.customerName}</div></td>
+        <td class="amt">${naira(p.amount)}</td>
+        <td>${p.method}</td>
+        <td style="font-size:11px;color:var(--color-text-secondary)">${p.ref || '—'}</td>
+        <td><span class="pill ${statusPill[p.status] || 'p-gray'}">${p.status}</span></td>
+        <td style="font-size:11px;color:var(--color-text-secondary)">${p.date ? new Date(p.date).toLocaleString() : 'Pending'}</td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    console.error('Failed to load payments:', err);
+  }
+}
+
+// Real modal form — replaces the old browser prompt() chain
+async function openMarkPaidModal() {
+  const orders = await apiFetch(`${API_BASE}/api/orders?paymentStatus=Awaiting`).then(r => r.json());
+  if (!orders.length) {
+    openModal(`<h3 style="margin-bottom:10px;font-size:16px">Mark as paid</h3><p style="font-size:13px;color:var(--color-text-secondary)">No unpaid orders right now — nothing to mark.</p><button class="btn" style="margin-top:12px" onclick="closeModal()">Close</button>`);
+    return;
+  }
+  openModal(`
+    <h3 style="margin-bottom:14px;font-size:16px">Mark as paid</h3>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <label style="font-size:11px;color:var(--color-text-secondary)">Which order was paid?
+        <select id="mp-order" style="width:100%;margin-top:4px">
+          ${orders.map(o => `<option value="${o.id}">${o.id} — ${o.customerName} — ${naira(o.amount)}</option>`).join('')}
+        </select>
+      </label>
+      <label style="font-size:11px;color:var(--color-text-secondary)">Payment method
+        <select id="mp-method" style="width:100%;margin-top:4px">
+          <option>Transfer</option><option>POS</option><option>Cash</option>
+        </select>
+      </label>
+      <div id="mp-error" style="color:#A32D2D;font-size:12px"></div>
+      <div style="display:flex;gap:8px;margin-top:6px">
+        <button class="btn" style="flex:1;justify-content:center" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-g" style="flex:1;justify-content:center" onclick="submitMarkPaid()">Confirm payment</button>
+      </div>
+    </div>
+  `);
+}
+
+async function submitMarkPaid() {
+  const orderId = document.getElementById('mp-order').value;
+  const method = document.getElementById('mp-method').value;
+  try {
+    const response = await apiFetch(`${API_BASE}/api/payments/${orderId}/mark-paid`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ method })
+    });
+    if (!response.ok) throw new Error((await response.json()).error || 'Request failed');
+    closeModal();
+    loadPayments(); // refresh so the payment shows up immediately
+  } catch (err) {
+    document.getElementById('mp-error').textContent = 'Could not mark as paid: ' + err.message;
+  }
+}
+
+// ================================================================
+// WHATSAPP — incoming message inbox (AI-detected order) + broadcasts
+// ================================================================
+
+function renderInboxEmpty() {
+  document.getElementById('wa-inbox').innerHTML =
+    `<div style="padding:14px;color:var(--color-text-secondary);font-size:12px">No pending messages. New WhatsApp orders will appear here.</div>`;
+}
+
+async function loadWhatsapp() {
+  try {
+    const [inbox, broadcasts] = await Promise.all([
+      apiFetch(`${API_BASE}/api/whatsapp/inbox`).then(r => r.json()),
+      apiFetch(`${API_BASE}/api/whatsapp/broadcasts`).then(r => r.json()),
+    ]);
+
+    if (!inbox.length) {
+      renderInboxEmpty();
+    } else {
+      const t = inbox[0]; // show the first pending thread
+      const messagesHtml = `
+        <div style="background:var(--color-background-secondary);border-radius:8px;padding:12px;margin-bottom:12px">
+          <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:8px">${t.phone} · ${t.customerName}</div>
+          ${t.messages.map(m => `<div class="wa-msg${m.from === 'us' ? ' out' : ''}">${m.text}</div>`).join('')}
+        </div>`;
+
+      if (t.detected) {
+        // Seed/demo thread with pre-computed "AI detected" info
+        document.getElementById('wa-inbox').innerHTML = messagesHtml + `
+          <div style="background:#E1F5EE;border-radius:8px;padding:10px 12px;font-size:12px;color:#085041;margin-bottom:12px;border-left:3px solid #0F6E56;border-top-left-radius:0;border-bottom-left-radius:0">
+            <i class="ti ti-sparkles" style="font-size:13px;margin-right:5px" aria-hidden="true"></i><strong style="font-weight:500">AI detected:</strong> ${t.detected.productName} × ${t.detected.qty}, ${t.detected.location}. ${t.detected.isNewCustomer ? 'New customer.' : ''} Total ${naira(t.detected.total)}.
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-g" style="flex:1;justify-content:center;font-size:12px" onclick="createOrderFromWhatsapp('${t.id}')">Create Order</button>
+            <button class="btn" style="font-size:12px" onclick="ignoreWhatsappThread('${t.id}')">Ignore</button>
+          </div>
+        `;
+      } else {
+        // Real message from the live webhook — no AI extraction wired up yet,
+        // so fall back to the regular New Order form, pre-filled with the phone
+        document.getElementById('wa-inbox').innerHTML = messagesHtml + `
+          <div style="background:#FCEBEB;border-radius:8px;padding:10px 12px;font-size:12px;color:#791F1F;margin-bottom:12px">
+            No order info auto-detected from this message yet. Create the order manually using their number.
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-g" style="flex:1;justify-content:center;font-size:12px" onclick="openNewOrderModal('${t.phone}')">Create Order Manually</button>
+            <button class="btn" style="font-size:12px" onclick="ignoreWhatsappThread('${t.id}')">Ignore</button>
+          </div>
+        `;
+      }
+    }
+
+    const icons = { vip: 'ti-crown', dormant: 'ti-clock', new: 'ti-user-plus', frequent: 'ti-star' };
+    const bg = { vip: '#FAEEDA', dormant: '#FCEBEB', new: '#E1F5EE', frequent: '#EEEDFE' };
+    const color = { vip: '#633806', dormant: '#791F1F', new: '#085041', frequent: '#3C3489' };
+    document.getElementById('wa-broadcasts').innerHTML = broadcasts.map(b => `
+      <div class="seg-row" onclick="showSegmentMembers('${b.key}', '${b.title}')">
+        <div class="seg-icon" style="background:${bg[b.key]}"><i class="ti ${icons[b.key]}" style="font-size:15px;color:${color[b.key]}" aria-hidden="true"></i></div>
+        <div style="flex:1"><div class="seg-title">${b.title}</div><div class="seg-sub">${b.sub}</div></div>
+        <i class="ti ti-chevron-right" style="font-size:14px;color:var(--color-text-secondary)" aria-hidden="true"></i>
+      </div>
+    `).join('');
+  } catch (err) {
+    console.error('Failed to load WhatsApp panel:', err);
+  }
+}
+
+// "Create Order" — turns the AI-detected info into a real order via the API
+async function createOrderFromWhatsapp(threadId) {
+  try {
+    const response = await apiFetch(`${API_BASE}/api/whatsapp/inbox/${threadId}/create-order`, { method: 'POST' });
+    if (!response.ok) { const err = await response.json(); throw new Error(err.error); }
+    const { order } = await response.json();
+    alert(`Order ${order.id} created (${naira(order.amount)})`);
+    loadWhatsapp(); // refresh — the thread should now be gone from the inbox
+  } catch (err) {
+    alert('Could not create order: ' + err.message);
+  }
+}
+
+// "Ignore" — marks the thread as handled without creating an order
+async function ignoreWhatsappThread(threadId) {
+  try {
+    await apiFetch(`${API_BASE}/api/whatsapp/inbox/${threadId}/ignore`, { method: 'POST' });
+    loadWhatsapp();
+  } catch (err) {
+    console.error('Failed to ignore thread:', err);
+  }
+}
+
+// ================================================================
+// MODAL SYSTEM — replaces the broken sendPrompt()-based buttons
+// ================================================================
+
+function openModal(html) {
+  document.getElementById('modal-box').innerHTML = html;
+  document.getElementById('modal-overlay').style.display = 'flex';
+}
+function closeModal() {
+  document.getElementById('modal-overlay').style.display = 'none';
+}
+
+// --- New Order form (top bar + Orders panel button) ---
+async function openNewOrderModal() {
+  const [customers, products] = await Promise.all([
+    apiFetch(`${API_BASE}/api/customers`).then(r => r.json()),
+    apiFetch(`${API_BASE}/api/products`).then(r => r.json()),
+  ]);
+  const inStock = products.filter(p => p.quantity > 0);
+
+  openModal(`
+    <h3 style="margin-bottom:14px;font-size:16px">New order</h3>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <label style="font-size:11px;color:var(--color-text-secondary)">Customer
+        <select id="no-customer" style="width:100%;margin-top:4px" onchange="document.getElementById('no-new-customer-fields').style.display = this.value === 'new' ? 'flex' : 'none'">
+          <option value="new">+ New customer</option>
+          ${customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+        </select>
+      </label>
+      <div id="no-new-customer-fields" style="display:flex;flex-direction:column;gap:8px;background:var(--color-background-secondary);padding:10px;border-radius:8px">
+        <input id="no-new-name" type="text" placeholder="Customer name" style="width:100%">
+        <input id="no-new-phone" type="text" placeholder="Phone (e.g. +234 800 000 0000)" style="width:100%">
+        <input id="no-new-location" type="text" placeholder="Delivery location" style="width:100%">
+      </div>
+      <label style="font-size:11px;color:var(--color-text-secondary)">Product
+        <select id="no-product" style="width:100%;margin-top:4px">
+          ${inStock.map(p => `<option value="${p.id}">${p.name} — ${naira(p.price)} (${p.quantity} in stock)</option>`).join('')}
+        </select>
+      </label>
+      <label style="font-size:11px;color:var(--color-text-secondary)">Quantity
+        <input id="no-qty" type="number" value="1" min="1" style="width:100%;margin-top:4px">
+      </label>
+      <label style="font-size:11px;color:var(--color-text-secondary)">Delivery location (existing customers)
+        <input id="no-delivery" type="text" placeholder="Optional" style="width:100%;margin-top:4px">
+      </label>
+      <div id="no-error" style="color:#A32D2D;font-size:12px"></div>
+      <div style="display:flex;gap:8px;margin-top:6px">
+        <button class="btn" style="flex:1;justify-content:center" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-g" style="flex:1;justify-content:center" onclick="submitNewOrder()">Create order</button>
+      </div>
+    </div>
+  `);
+}
+
+async function submitNewOrder() {
+  const customerSel = document.getElementById('no-customer').value;
+  const productId = document.getElementById('no-product').value;
+  const qty = Number(document.getElementById('no-qty').value);
+  const delivery = document.getElementById('no-delivery').value.trim();
+  const errorEl = document.getElementById('no-error');
+
+  const body = { items: [{ productId, qty }], delivery: delivery || null };
+  if (customerSel === 'new') {
+    const name = document.getElementById('no-new-name').value.trim();
+    const phone = document.getElementById('no-new-phone').value.trim();
+    const location = document.getElementById('no-new-location').value.trim();
+    if (!name || !phone) { errorEl.textContent = 'New customer needs a name and phone number.'; return; }
+    body.customer = { name, phone, location };
+    if (!delivery) body.delivery = location;
+  } else {
+    body.customerId = customerSel;
+  }
+
+  try {
+    const response = await apiFetch(`${API_BASE}/api/orders`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+    });
+    if (!response.ok) throw new Error((await response.json()).error || 'Request failed');
+    const order = await response.json();
+    closeModal();
+    if (window._ordersDone) loadOrders();
+    alert(`Order ${order.id} created — ${naira(order.amount)}`);
+  } catch (err) {
+    errorEl.textContent = 'Could not create order: ' + err.message;
+  }
+}
+
+// --- Order detail popup (clicking a row in Orders) ---
+async function showOrderDetail(orderId) {
+  try {
+    const o = await apiFetch(`${API_BASE}/api/orders/${orderId}`).then(r => r.json());
+    openModal(`
+      <h3 style="margin-bottom:4px;font-size:16px">${o.id}</h3>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:14px">${new Date(o.date).toLocaleString()}</div>
+      <div style="font-size:13px;line-height:1.8">
+        <div><strong>Customer:</strong> ${o.customerName}</div>
+        <div><strong>Items:</strong> ${o.items.map(i => `${i.name} × ${i.qty}`).join(', ')}</div>
+        <div><strong>Amount:</strong> ${naira(o.amount)}</div>
+        <div><strong>Payment:</strong> ${o.paymentStatus}</div>
+        <div><strong>Status:</strong> ${o.status}</div>
+        <div><strong>Delivery:</strong> ${o.delivery || '—'}</div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="btn" style="flex:1;justify-content:center" onclick="closeModal()">Close</button>
+        <button class="btn" style="flex:1;justify-content:center" onclick="showEditOrder('${o.id}')">Edit</button>
+        <button class="btn" style="flex:1;justify-content:center;color:#A32D2D" onclick="deleteOrder('${o.id}')">Delete</button>
+      </div>
+    `);
+  } catch (err) {
+    alert('Could not load order details.');
+  }
+}
+
+// --- Edit order (status / payment status / delivery) ---
+async function showEditOrder(orderId) {
+  const o = await apiFetch(`${API_BASE}/api/orders/${orderId}`).then(r => r.json());
+  const statuses = ['New', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
+  const paymentStatuses = ['Awaiting', 'Paid', 'Cancelled'];
+  openModal(`
+    <h3 style="margin-bottom:14px;font-size:16px">Edit ${o.id}</h3>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <label style="font-size:11px;color:var(--color-text-secondary)">Order status
+        <select id="eo-status" style="width:100%;margin-top:4px">
+          ${statuses.map(s => `<option ${s === o.status ? 'selected' : ''}>${s}</option>`).join('')}
+        </select>
+      </label>
+      <label style="font-size:11px;color:var(--color-text-secondary)">Payment status
+        <select id="eo-payment" style="width:100%;margin-top:4px">
+          ${paymentStatuses.map(s => `<option ${s === o.paymentStatus ? 'selected' : ''}>${s}</option>`).join('')}
+        </select>
+      </label>
+      <label style="font-size:11px;color:var(--color-text-secondary)">Delivery courier
+        <input id="eo-delivery" type="text" value="${o.delivery || ''}" style="width:100%;margin-top:4px">
+      </label>
+      <div id="eo-error" style="color:#A32D2D;font-size:12px"></div>
+      <div style="display:flex;gap:8px;margin-top:6px">
+        <button class="btn" style="flex:1;justify-content:center" onclick="showOrderDetail('${o.id}')">Back</button>
+        <button class="btn btn-g" style="flex:1;justify-content:center" onclick="submitEditOrder('${o.id}')">Save</button>
+      </div>
+    </div>
+  `);
+}
+
+async function submitEditOrder(orderId) {
+  const status = document.getElementById('eo-status').value;
+  const paymentStatus = document.getElementById('eo-payment').value;
+  const delivery = document.getElementById('eo-delivery').value.trim();
+  try {
+    const response = await apiFetch(`${API_BASE}/api/orders/${orderId}`, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status, paymentStatus, delivery: delivery || null })
+    });
+    if (!response.ok) throw new Error('Request failed');
+    closeModal();
+    if (window._ordersDone) loadOrders();
+  } catch (err) {
+    document.getElementById('eo-error').textContent = 'Could not save changes: ' + err.message;
+  }
+}
+
+async function deleteOrder(orderId) {
+  if (!confirm(`Delete order ${orderId}? This cannot be undone.`)) return;
+  try {
+    await apiFetch(`${API_BASE}/api/orders/${orderId}`, { method: 'DELETE' });
+    closeModal();
+    if (window._ordersDone) loadOrders();
+  } catch (err) {
+    alert('Could not delete order.');
+  }
+}
+
+// --- Restock recommendation (Inventory panel) — real math, not fake "AI" ---
+function showRestockRecommendation() {
+  const products = window._lastProducts || [];
+  const needsRestock = products.filter(p => p.quantity <= p.threshold);
+  if (!needsRestock.length) {
+    openModal(`<h3 style="margin-bottom:10px;font-size:16px">Restock recommendation</h3><p style="font-size:13px;color:var(--color-text-secondary)">Everything is above its threshold — nothing needs restocking right now.</p><button class="btn" style="margin-top:12px" onclick="closeModal()">Close</button>`);
+    return;
+  }
+  const rows = needsRestock.map(p => {
+    const target = p.threshold * 3;
+    const suggested = Math.max(target - p.quantity, p.threshold);
+    return `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--color-border-tertiary);font-size:13px">
+      <span>${p.name} <span style="color:var(--color-text-secondary);font-size:11px">(${p.quantity} left)</span></span>
+      <strong>+${suggested} units</strong>
+    </div>`;
+  }).join('');
+  openModal(`
+    <h3 style="margin-bottom:4px;font-size:16px">Restock recommendation</h3>
+    <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:12px">Based on current stock vs. each product's threshold (target: 3× threshold)</div>
+    ${rows}
+    <button class="btn" style="margin-top:14px;width:100%;justify-content:center" onclick="closeModal()">Close</button>
+  `);
+}
+
+// --- Send WhatsApp — real deep link, opens an actual WhatsApp chat ---
+function openWhatsappChat() {
+  const c = window._featuredCustomer;
+  if (!c) return;
+  const phone = c.phone.replace(/[^0-9]/g, ''); // wa.me needs digits only, no +
+  const message = encodeURIComponent(`Hi ${c.name.split(' ')[0]}, this is BizFlow — `);
+  window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
+}
+
+// --- Business summary (top bar) — real numbers, computed, not an AI call ---
+function showBusinessSummary() {
+  const s = window._lastSummary;
+  const top = window._lastTopProducts || [];
+  if (!s) { alert('Dashboard data is still loading — try again in a second.'); return; }
+  openModal(`
+    <h3 style="margin-bottom:14px;font-size:16px">Business summary</h3>
+    <div style="font-size:13px;line-height:1.9">
+      <div>💰 Revenue today: <strong>${naira(s.revenueToday)}</strong>${s.revenueChangePct !== null ? ` (${s.revenueChangePct > 0 ? '+' : ''}${s.revenueChangePct}% vs yesterday)` : ''}</div>
+      <div>📦 Orders today: <strong>${s.ordersToday}</strong></div>
+      <div>⏳ Unpaid: <strong>${naira(s.unpaidAmount)}</strong> across ${s.unpaidCount} order(s)</div>
+      <div>⚠️ Low/out of stock items: <strong>${s.lowStockCount}</strong></div>
+      ${top.length ? `<div style="margin-top:8px">🏆 Top product: <strong>${top[0].name}</strong> (${top[0].units} units sold)</div>` : ''}
+    </div>
+    <button class="btn" style="margin-top:16px;width:100%;justify-content:center" onclick="closeModal()">Close</button>
+  `);
+}
+
+// --- Segment members (WhatsApp broadcast rows) ---
+function showSegmentMembers(key, title) {
+  const customers = window._lastCustomers || [];
+  const now = new Date();
+  const daysSince = d => d ? (now - new Date(d)) / (1000 * 60 * 60 * 24) : Infinity;
+
+  let members = [];
+  if (key === 'dormant') members = customers.filter(c => daysSince(c.lastOrderDate) > 30);
+  else if (key === 'new') members = customers.filter(c => c.tag === 'New');
+  else if (key === 'frequent') members = customers.filter(c => c.tag === 'Frequent');
+  else if (key === 'vip') members = customers.filter(c => c.tag === 'VIP');
+
+  const rows = members.map(c => {
+    const phone = c.phone.replace(/[^0-9]/g, '');
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--color-border-tertiary);font-size:13px">
+      <span>${c.name}</span>
+      <a href="https://wa.me/${phone}" target="_blank" style="color:#0F6E56;font-size:12px;text-decoration:none">Message ↗</a>
+    </div>`;
+  }).join('') || `<p style="font-size:13px;color:var(--color-text-secondary)">No customers in this segment yet.</p>`;
+
+  openModal(`
+    <h3 style="margin-bottom:12px;font-size:16px">${title}</h3>
+    ${rows}
+    <button class="btn" style="margin-top:14px;width:100%;justify-content:center" onclick="closeModal()">Close</button>
+  `);
+}
+
+// Note: the app now starts via enterApp() after a successful login/signup,
+// or immediately if a saved token was found (see the AUTH section above)
+// — not with an unconditional call here.
+</script>
+</body>
+</html>
