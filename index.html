@@ -334,12 +334,12 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
     </div>
     <div class="s-nav">
       <div class="s-section">OVERVIEW</div>
-      <div class="s-item on" onclick="go('dashboard',this)"><i class="ti ti-layout-dashboard" aria-hidden="true"></i> Dashboard</div>
+      <div class="s-item on" id="s-nav-dashboard" onclick="go('dashboard',this)"><i class="ti ti-layout-dashboard" aria-hidden="true"></i> Dashboard</div>
       <div class="s-section">MANAGE</div>
-      <div class="s-item" onclick="go('orders',this)"><i class="ti ti-shopping-bag" aria-hidden="true"></i> Orders <span class="badge" id="s-badge-orders" style="display:none">0</span></div>
-      <div class="s-item" onclick="go('customers',this)"><i class="ti ti-users" aria-hidden="true"></i> Customers</div>
-      <div class="s-item" onclick="go('inventory',this)"><i class="ti ti-box" aria-hidden="true"></i> Inventory <span class="badge" id="s-badge-inventory" style="background:rgba(231,76,60,0.25);color:#f5a09a;display:none">0</span></div>
-      <div class="s-item" onclick="go('payments',this)"><i class="ti ti-credit-card" aria-hidden="true"></i> Payments</div>
+      <div class="s-item" id="s-nav-inventory" onclick="go('inventory',this)"><i class="ti ti-box" aria-hidden="true"></i> Inventory <span class="badge" id="s-badge-inventory" style="background:rgba(231,76,60,0.25);color:#f5a09a;display:none">0</span></div>
+      <div class="s-item" id="s-nav-customers" onclick="go('customers',this)"><i class="ti ti-users" aria-hidden="true"></i> Customers</div>
+      <div class="s-item" id="s-nav-orders" onclick="go('orders',this)"><i class="ti ti-shopping-bag" aria-hidden="true"></i> Orders <span class="badge" id="s-badge-orders" style="display:none">0</span></div>
+      <div class="s-item" id="s-nav-payments" onclick="go('payments',this)"><i class="ti ti-credit-card" aria-hidden="true"></i> Payments</div>
       <div class="s-section">GROWTH</div>
       <div class="s-item" style="opacity:0.45;cursor:default"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i> WhatsApp <span class="badge">Soon</span></div>
       <div class="s-item" style="opacity:0.45;cursor:default"><i class="ti ti-chart-line" aria-hidden="true"></i> Analytics <span class="badge">Soon</span></div>
@@ -431,7 +431,7 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
             </div>
           </div>
           <div class="card">
-            <div class="card-head"><div class="card-title">Today's activity</div><div class="card-link" onclick="go('orders',document.querySelectorAll('.s-item')[2])">See orders</div></div>
+            <div class="card-head"><div class="card-title">Today's activity</div><div class="card-link" onclick="go('orders',document.getElementById('s-nav-orders'))">See orders</div></div>
             <ul class="tl" id="activity-list">
               <li><div class="tl-dot"></div><div><div class="tl-t">Loading…</div></div></li>
             </ul>
@@ -439,7 +439,7 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
         </div>
 
         <div class="card">
-          <div class="card-head"><div class="card-title">Top products this month</div><div class="card-link" onclick="go('inventory',document.querySelectorAll('.s-item')[4])">Manage stock</div></div>
+          <div class="card-head"><div class="card-title">Best sellers this month</div><div class="card-link" onclick="go('inventory',document.getElementById('s-nav-inventory'))">Manage stock</div></div>
           <div style="position:relative;width:100%;height:110px">
             <canvas id="hbarChart" role="img" aria-label="Horizontal bar chart of top products by units sold">Oud Noir 50ml: 38, Rose Silk: 31, Amber Musk: 24, Oud Noir 100ml: 19, Cedar Oud: 14.</canvas>
           </div>
@@ -450,6 +450,8 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
         <div class="orders-toolbar" style="display:flex;gap:8px;margin-bottom:14px;align-items:center">
           <input type="text" id="order-search" placeholder="Search by customer or order..." style="flex:1">
           <select id="order-status-filter"><option value="">All statuses</option><option value="New">New</option><option value="Processing">Processing</option><option value="Shipped">Shipped</option><option value="Delivered">Delivered</option><option value="Cancelled">Cancelled</option></select>
+          <button class="btn" style="font-size:12px" onclick="openImportModal('orders')"><i class="ti ti-upload" style="font-size:12px" aria-hidden="true"></i> Import</button>
+          <button class="btn" style="font-size:12px" onclick="exportOrdersCSV()"><i class="ti ti-download" style="font-size:12px" aria-hidden="true"></i> Export</button>
           <button class="btn btn-g" style="font-size:12px" onclick="openNewOrderModal()"><i class="ti ti-plus" style="font-size:13px" aria-hidden="true"></i> New Order</button>
         </div>
         <div class="card" style="padding:0;overflow:hidden">
@@ -484,7 +486,7 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
           </div>
         </div>
         <div class="card">
-          <div class="card-head"><div class="card-title">All customers</div><div class="card-link">Export CSV</div></div>
+          <div class="card-head"><div class="card-title">All customers</div><div style="display:flex;gap:10px;align-items:center"><button class="btn" style="font-size:12px" onclick="openImportModal('customers')"><i class="ti ti-upload" style="font-size:12px" aria-hidden="true"></i> Import CSV</button><button class="btn btn-g" style="font-size:12px" onclick="openAddCustomerModal()"><i class="ti ti-user-plus" style="font-size:12px" aria-hidden="true"></i> Add customer</button><div class="card-link" onclick="exportCustomersCSV()">Export CSV</div></div></div>
           <table>
             <thead><tr><th style="width:130px">Customer</th><th>Phone</th><th>Orders</th><th>Spend</th><th>Last order</th><th>Tag</th></tr></thead>
             <tbody id="customers-tbody">
@@ -503,7 +505,7 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
         </div>
         <div class="row2b">
           <div class="card" style="grid-column:1/-1">
-            <div class="card-head"><div class="card-title">Product inventory</div><button class="btn btn-g" style="font-size:12px" onclick="openAddProductModal()"><i class="ti ti-plus" style="font-size:12px" aria-hidden="true"></i> Add product</button></div>
+            <div class="card-head"><div class="card-title">Product inventory</div><div style="display:flex;gap:8px"><button class="btn" style="font-size:12px" onclick="openImportModal('products')"><i class="ti ti-upload" style="font-size:12px" aria-hidden="true"></i> Import CSV</button><button class="btn" style="font-size:12px" onclick="exportProductsCSV()"><i class="ti ti-download" style="font-size:12px" aria-hidden="true"></i> Export CSV</button><button class="btn btn-g" style="font-size:12px" onclick="openAddProductModal()"><i class="ti ti-plus" style="font-size:12px" aria-hidden="true"></i> Add product</button></div></div>
             <div id="inventory-list">
               <div class="inv-row">Loading…</div>
             </div>
@@ -526,7 +528,7 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
           </div>
         </div>
         <div class="card">
-          <div class="card-head"><div class="card-title">Payment log</div><button class="btn btn-g" style="font-size:12px" onclick="openMarkPaidModal()"><i class="ti ti-check" style="font-size:12px" aria-hidden="true"></i> Mark as paid</button></div>
+          <div class="card-head"><div class="card-title">Payment log</div><div style="display:flex;gap:8px"><button class="btn" style="font-size:12px" onclick="openImportModal('payments')"><i class="ti ti-upload" style="font-size:12px" aria-hidden="true"></i> Import CSV</button><button class="btn" style="font-size:12px" onclick="exportPaymentsCSV()"><i class="ti ti-download" style="font-size:12px" aria-hidden="true"></i> Export CSV</button><button class="btn btn-g" style="font-size:12px" onclick="openMarkPaidModal()"><i class="ti ti-check" style="font-size:12px" aria-hidden="true"></i> Mark as paid</button></div></div>
           <table>
             <thead><tr><th>Order</th><th>Customer</th><th>Amount</th><th>Method</th><th>Ref</th><th>Status</th><th>Date</th></tr></thead>
             <tbody id="payments-tbody">
@@ -558,6 +560,7 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.5.4/papaparse.min.js"></script>
 <script>
 function go(name, el) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
@@ -1046,6 +1049,218 @@ async function loadInventory() {
 }
 
 // Real modal form — replaces the old browser prompt() chain
+// --- Add customer (Customers panel) ---
+function openAddCustomerModal() {
+  openModal(`
+    <div class="modal-title"><i class="ti ti-user-plus" style="color:#1D9E75" aria-hidden="true"></i> Add customer</div>
+    <div class="modal-sub">Add a new customer to your business</div>
+
+    <div class="modal-field">
+      <label class="modal-label">Full name</label>
+      <input id="ac-name" type="text" class="modal-input" placeholder="e.g. Amaka Okonkwo">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Phone number</label>
+      <input id="ac-phone" type="text" class="modal-input" placeholder="e.g. +234 800 000 0000">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Location <span style="font-weight:400;color:#A3B3AC">(optional)</span></label>
+      <input id="ac-location" type="text" class="modal-input" placeholder="e.g. Lekki, Lagos">
+    </div>
+    <div id="ac-error" class="modal-error"></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="modal-btn modal-btn-primary" onclick="submitAddCustomer()">Add customer</button>
+    </div>
+  `);
+}
+
+async function submitAddCustomer() {
+  const name = document.getElementById('ac-name').value.trim();
+  const phone = document.getElementById('ac-phone').value.trim();
+  const location = document.getElementById('ac-location').value.trim();
+  const errorEl = document.getElementById('ac-error');
+
+  if (!name || !phone) { errorEl.textContent = 'Name and phone number are both required.'; return; }
+
+  try {
+    const response = await apiFetch(`${API_BASE}/api/customers`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, phone, location: location || undefined })
+    });
+    if (!response.ok) throw new Error((await response.json()).error || 'Request failed');
+    closeModal();
+    loadCustomers(); // refresh so the new customer appears immediately
+  } catch (err) {
+    errorEl.textContent = 'Could not add customer: ' + err.message;
+  }
+}
+
+// ================================================================
+// CSV EXPORT — generic helper + one function per resource
+// ================================================================
+
+function downloadCSV(filename, columns, rows) {
+  const escape = v => {
+    if (v === null || v === undefined) return '';
+    const s = String(v);
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  const header = columns.map(c => escape(c.label)).join(',');
+  const body = rows.map(row => columns.map(c => escape(row[c.key])).join(',')).join('\r\n');
+  const blob = new Blob([header + '\r\n' + body], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+async function exportCustomersCSV() {
+  const customers = await apiFetch(`${API_BASE}/api/customers`).then(r => r.json());
+  downloadCSV('customers.csv', [
+    { key: 'name', label: 'Name' }, { key: 'phone', label: 'Phone' }, { key: 'location', label: 'Location' },
+    { key: 'tag', label: 'Tag' }, { key: 'orderCount', label: 'Orders' }, { key: 'spend', label: 'Spend' },
+    { key: 'lastOrderDate', label: 'Last Order' },
+  ], customers);
+}
+
+async function exportProductsCSV() {
+  const products = await apiFetch(`${API_BASE}/api/products`).then(r => r.json());
+  downloadCSV('inventory.csv', [
+    { key: 'name', label: 'Name' }, { key: 'category', label: 'Category' }, { key: 'cost', label: 'Cost' },
+    { key: 'price', label: 'Price' }, { key: 'quantity', label: 'Quantity' }, { key: 'threshold', label: 'Threshold' },
+  ], products);
+}
+
+async function exportOrdersCSV() {
+  const orders = await apiFetch(`${API_BASE}/api/orders`).then(r => r.json());
+  const rows = orders.map(o => ({ ...o, itemsText: o.items.map(i => `${i.name} x${i.qty}`).join('; ') }));
+  downloadCSV('orders.csv', [
+    { key: 'id', label: 'Order ID' }, { key: 'customerName', label: 'Customer' }, { key: 'itemsText', label: 'Items' },
+    { key: 'amount', label: 'Amount' }, { key: 'paymentStatus', label: 'Payment Status' }, { key: 'status', label: 'Status' },
+    { key: 'delivery', label: 'Delivery' }, { key: 'date', label: 'Date' },
+  ], rows);
+}
+
+async function exportPaymentsCSV() {
+  const payments = await apiFetch(`${API_BASE}/api/payments`).then(r => r.json());
+  downloadCSV('payments.csv', [
+    { key: 'id', label: 'Payment ID' }, { key: 'orderId', label: 'Order ID' }, { key: 'customerName', label: 'Customer' },
+    { key: 'amount', label: 'Amount' }, { key: 'method', label: 'Method' }, { key: 'ref', label: 'Reference' },
+    { key: 'status', label: 'Status' }, { key: 'date', label: 'Date' },
+  ], payments);
+}
+
+// ================================================================
+// CSV IMPORT — one config object drives a shared modal + upload flow.
+// Uses PapaParse (loaded via CDN) to turn the uploaded file into an
+// array of row objects, keyed by the CSV's header row.
+// ================================================================
+
+const IMPORT_CONFIG = {
+  products: {
+    title: 'Import products', endpoint: '/api/products/import',
+    columns: ['name', 'category', 'cost', 'price', 'quantity', 'threshold'],
+    sample: 'name,category,cost,price,quantity,threshold\nRose Perfume 50ml,Floral,5000,12000,10,5\n',
+    onDone: () => { loadInventory(); updateInventoryBadge(); },
+  },
+  customers: {
+    title: 'Import customers', endpoint: '/api/customers/import',
+    columns: ['name', 'phone', 'location'],
+    sample: 'name,phone,location\nAmaka Okonkwo,+234 803 441 2211,Lagos Island\n',
+    onDone: () => { loadCustomers(); },
+  },
+  orders: {
+    title: 'Import orders', endpoint: '/api/orders/import',
+    columns: ['customerName', 'customerPhone', 'productName', 'quantity', 'delivery', 'paymentStatus', 'status'],
+    sample: 'customerName,customerPhone,productName,quantity,delivery,paymentStatus,status\nAmaka Okonkwo,+234 803 441 2211,Rose Perfume 50ml,1,Lagos Island,Awaiting,New\n',
+    onDone: () => { if (window._ordersDone) loadOrders(); updateOrdersBadge(); },
+    note: "Each row is one order for ONE product — for orders with several products, use separate rows. If a customer with that phone number already exists, they'll be reused instead of duplicated. Product names must match an existing product exactly.",
+  },
+  payments: {
+    title: 'Import payments', endpoint: '/api/payments/import',
+    columns: ['orderId', 'method', 'amount', 'ref', 'status', 'date'],
+    sample: 'orderId,method,amount,ref,status,date\nBF-0001,Transfer,12000,TRF1234,Confirmed,\n',
+    onDone: () => { loadPayments(); },
+    note: "Every row must reference an order that already exists (e.g. BF-0001) — a payment can't be created without one. Leave \"amount\" blank to use the order's full amount.",
+  },
+};
+
+function openImportModal(type) {
+  const cfg = IMPORT_CONFIG[type];
+  window._importType = type;
+  openModal(`
+    <div class="modal-title"><i class="ti ti-upload" style="color:#1D9E75" aria-hidden="true"></i> ${cfg.title}</div>
+    <div class="modal-sub">Upload a CSV with these columns: <strong>${cfg.columns.join(', ')}</strong></div>
+    ${cfg.note ? `<div class="modal-info-box">${cfg.note}</div>` : ''}
+    <div class="modal-field">
+      <input type="file" id="import-file" accept=".csv" class="modal-input" style="padding:8px">
+    </div>
+    <div style="margin-bottom:14px">
+      <a href="#" onclick="downloadSampleCSV('${type}');return false;" style="font-size:12px;color:#0F6E56;text-decoration:none">Download a sample CSV to see the format ↓</a>
+    </div>
+    <div id="import-result"></div>
+    <div id="import-error" class="modal-error"></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="modal-btn modal-btn-primary" onclick="submitImport()">Upload and import</button>
+    </div>
+  `);
+}
+
+function downloadSampleCSV(type) {
+  const cfg = IMPORT_CONFIG[type];
+  const blob = new Blob([cfg.sample], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `sample-${type}.csv`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function submitImport() {
+  const type = window._importType;
+  const cfg = IMPORT_CONFIG[type];
+  const fileInput = document.getElementById('import-file');
+  const errorEl = document.getElementById('import-error');
+  const file = fileInput.files[0];
+  if (!file) { errorEl.textContent = 'Choose a CSV file first.'; return; }
+  errorEl.textContent = '';
+
+  Papa.parse(file, {
+    header: true,
+    skipEmptyLines: true,
+    complete: async (results) => {
+      const rows = results.data;
+      if (!rows.length) { errorEl.textContent = 'That CSV file appears to be empty.'; return; }
+      try {
+        const response = await apiFetch(`${API_BASE}${cfg.endpoint}`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rows })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Import failed');
+
+        document.getElementById('import-result').innerHTML = `
+          <div class="modal-info-box">
+            <strong style="color:#0F6E56">${data.created} row(s) imported successfully.</strong>
+            ${data.errors.length ? `<div style="margin-top:8px;color:#A32D2D">${data.errors.length} row(s) skipped:</div>
+              <div style="max-height:130px;overflow-y:auto;margin-top:6px">
+                ${data.errors.map(e => `<div style="font-size:11.5px;padding:4px 0;border-bottom:1px solid #EEF2F0">Row ${e.row}: ${e.error}</div>`).join('')}
+              </div>` : ''}
+          </div>
+        `;
+        cfg.onDone();
+      } catch (err) {
+        errorEl.textContent = 'Import failed: ' + err.message;
+      }
+    },
+    error: (err) => { errorEl.textContent = 'Could not read that CSV file: ' + err.message; }
+  });
+}
+
 function openAddProductModal() {
   openModal(`
     <div class="modal-title"><i class="ti ti-package" style="color:#1D9E75" aria-hidden="true"></i> Add product</div>
@@ -1621,7 +1836,7 @@ function showBusinessSummary() {
       <strong>${s.lowStockCount} item${s.lowStockCount !== 1 ? 's' : ''}</strong>
     </div>
     ${top.length ? `<div class="modal-list-row">
-      <span style="display:flex;align-items:center;gap:8px;color:#4A5B54"><i class="ti ti-trophy" style="color:#EF9F27" aria-hidden="true"></i> Top product</span>
+      <span style="display:flex;align-items:center;gap:8px;color:#4A5B54"><i class="ti ti-trophy" style="color:#EF9F27" aria-hidden="true"></i> Best seller</span>
       <strong>${top[0].name} <span style="font-weight:400;font-size:11px;color:#75887F">(${top[0].units} sold)</span></strong>
     </div>` : ''}
 
