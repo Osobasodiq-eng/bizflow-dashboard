@@ -44,6 +44,15 @@ tr:last-child td{border-bottom:none}
 .del-btn{background:#FDF0EF;color:#C0392B;border:1px solid #F5D6D3;border-radius:7px;padding:6px 10px;font-size:12px;cursor:pointer}
 .del-btn:hover{background:#FBE4E2}
 .empty-state{padding:40px;text-align:center;color:var(--text-secondary);font-size:13px}
+
+@media (max-width: 700px){
+  #admin-screen{padding:20px 14px}
+  .stat-row{grid-template-columns:repeat(2,1fr)}
+  table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap}
+}
+@media (max-width: 420px){
+  .stat-row{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
