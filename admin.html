@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BizFlow — Admin</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.44.0/tabler-icons.min.css">
+<style>
+:root{
+  --g:#0F6E56; --g2:#1D9E75; --bg:#F4F8F6; --border:#E2E8E5;
+  --text:#16241F; --text-secondary:#75887F;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
+input{font-size:13px;padding:11px 13px;border:1px solid var(--border);border-radius:9px;background:#fff;color:var(--text);outline:none;width:100%}
+input:focus{border-color:var(--g2);box-shadow:0 0 0 3px rgba(29,158,117,0.12)}
+
+/* Login screen */
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center}
+.login-card{width:360px;max-width:90vw;background:#fff;border-radius:16px;padding:36px 32px;box-shadow:0 20px 50px rgba(11,84,66,0.12)}
+.logo-row{display:flex;align-items:center;gap:9px;justify-content:center;margin-bottom:22px}
+
+/* Admin dashboard */
+#admin-screen{display:none;max-width:1100px;margin:0 auto;padding:32px 24px}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+.topbar h1{font-size:20px;font-weight:600;display:flex;align-items:center;gap:8px}
+.logout-link{font-size:13px;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;gap:5px}
+.logout-link:hover{color:var(--g)}
+
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+.stat-card{background:#fff;border-radius:12px;padding:18px;border:1px solid var(--border)}
+.stat-label{font-size:11.5px;color:var(--text-secondary);margin-bottom:6px}
+.stat-val{font-size:22px;font-weight:600}
+
+.table-card{background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden}
+.table-head{padding:16px 20px;border-bottom:1px solid var(--border);font-size:15px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:0.4px;color:var(--text-secondary);padding:10px 20px;border-bottom:1px solid var(--border)}
+td{padding:12px 20px;font-size:13px;border-bottom:1px solid #F1F5F3}
+tr:last-child td{border-bottom:none}
+.biz-name{font-weight:500}
+.biz-email{font-size:11.5px;color:var(--text-secondary)}
+.del-btn{background:#FDF0EF;color:#C0392B;border:1px solid #F5D6D3;border-radius:7px;padding:6px 10px;font-size:12px;cursor:pointer}
+.del-btn:hover{background:#FBE4E2}
+.empty-state{padding:40px;text-align:center;color:var(--text-secondary);font-size:13px}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-card">
+    <div class="logo-row">
+      <svg width="28" height="28" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#0F6E56"/><path d="M11 27 L11 13" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M20 27 L20 9" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity="0.85"/><path d="M29 27 L29 17" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M8 20 L32 12" stroke="#9FE1CB" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+      <span style="font-size:17px;font-weight:600">BizFlow Admin</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <input id="login-email" type="email" placeholder="Admin email">
+      <input id="login-password" type="password" placeholder="Password">
+      <div id="login-error" style="color:#C0392B;font-size:12px;min-height:14px"></div>
+      <button onclick="doLogin()" style="width:100%;padding:11px;border:none;border-radius:9px;background:#0F6E56;color:#fff;font-size:14px;font-weight:600;cursor:pointer">Log in</button>
+    </div>
+  </div>
+</div>
+
+<div id="admin-screen">
+  <div class="topbar">
+    <h1><i class="ti ti-shield-lock" style="color:#0F6E56" aria-hidden="true"></i> BizFlow Admin</h1>
+    <div class="logout-link" onclick="logout()"><i class="ti ti-logout" aria-hidden="true"></i> Log out</div>
+  </div>
+
+  <div class="stat-row" id="stat-row">
+    <div class="stat-card"><div class="stat-label">Total businesses</div><div class="stat-val" id="stat-businesses">—</div></div>
+    <div class="stat-card"><div class="stat-label">New this week</div><div class="stat-val" id="stat-new">—</div></div>
+    <div class="stat-card"><div class="stat-label">Total orders</div><div class="stat-val" id="stat-orders">—</div></div>
+    <div class="stat-card"><div class="stat-label">Total revenue</div><div class="stat-val" id="stat-revenue">—</div></div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-head">All businesses <span id="biz-count" style="font-weight:400;font-size:12px;color:var(--text-secondary)"></span></div>
+    <table>
+      <thead><tr><th>Business</th><th>Signed up</th><th>Products</th><th>Customers</th><th>Orders</th><th>Revenue</th><th></th></tr></thead>
+      <tbody id="biz-tbody"><tr><td colspan="7" class="empty-state">Loading…</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+// Same API_BASE as the main dashboard — this admin panel talks to the same backend.
+const API_BASE = 'https://bizflow-api-v0sd.onrender.com';
+
+function apiFetch(url, options = {}) {
+  const token = localStorage.getItem('bizflow_admin_token');
+  const headers = { ...(options.headers || {}) };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  return fetch(url, { ...options, headers });
+}
+
+function naira(n) { return '₦' + Number(n).toLocaleString(); }
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errorEl = document.getElementById('login-error');
+  try {
+    const response = await fetch(`${API_BASE}/api/auth/login`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Login failed');
+
+    localStorage.setItem('bizflow_admin_token', data.token);
+
+    // Confirm this account is ACTUALLY an admin before showing the panel —
+    // a valid login isn't enough, ADMIN_EMAILS has to include this email too.
+    const check = await apiFetch(`${API_BASE}/api/admin/stats`);
+    if (check.status === 403) {
+      localStorage.removeItem('bizflow_admin_token');
+      throw new Error('This account is not authorized for admin access.');
+    }
+
+    enterAdmin();
+  } catch (err) {
+    errorEl.textContent = err.message;
+  }
+}
+
+function logout() {
+  localStorage.removeItem('bizflow_admin_token');
+  location.reload();
+}
+
+async function enterAdmin() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('admin-screen').style.display = 'block';
+  await Promise.all([loadStats(), loadBusinesses()]);
+}
+
+async function loadStats() {
+  const s = await apiFetch(`${API_BASE}/api/admin/stats`).then(r => r.json());
+  document.getElementById('stat-businesses').textContent = s.totalBusinesses;
+  document.getElementById('stat-new').textContent = s.newBusinessesThisWeek;
+  document.getElementById('stat-orders').textContent = s.totalOrders;
+  document.getElementById('stat-revenue').textContent = naira(s.totalRevenue);
+}
+
+async function loadBusinesses() {
+  const businesses = await apiFetch(`${API_BASE}/api/admin/businesses`).then(r => r.json());
+  document.getElementById('biz-count').textContent = `(${businesses.length})`;
+
+  if (!businesses.length) {
+    document.getElementById('biz-tbody').innerHTML = `<tr><td colspan="7" class="empty-state">No businesses have signed up yet.</td></tr>`;
+    return;
+  }
+
+  document.getElementById('biz-tbody').innerHTML = businesses.map(b => `
+    <tr>
+      <td><div class="biz-name">${b.name}</div><div class="biz-email">${b.ownerEmail}</div></td>
+      <td>${new Date(b.createdAt).toLocaleDateString()}</td>
+      <td>${b.productCount}</td>
+      <td>${b.customerCount}</td>
+      <td>${b.orderCount}</td>
+      <td>${naira(b.totalRevenue)}</td>
+      <td><button class="del-btn" onclick="deleteBusiness(${b.id}, '${b.name.replace(/'/g, "\\'")}')">Delete</button></td>
+    </tr>
+  `).join('');
+}
+
+async function deleteBusiness(id, name) {
+  if (!confirm(`Delete "${name}" and ALL of its data (products, orders, customers, payments)? This cannot be undone.`)) return;
+  try {
+    await apiFetch(`${API_BASE}/api/admin/businesses/${id}`, { method: 'DELETE' });
+    await Promise.all([loadStats(), loadBusinesses()]);
+  } catch (err) {
+    alert('Could not delete this business.');
+  }
+}
+
+// On load: skip straight to the admin panel if we already have a token
+if (localStorage.getItem('bizflow_admin_token')) {
+  enterAdmin();
+}
+</script>
+</body>
+</html>
