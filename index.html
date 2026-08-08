@@ -127,6 +127,32 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
 .pw-wrap{position:relative}
 .pw-toggle{position:absolute;right:11px;top:50%;transform:translateY(-50%);cursor:pointer;color:#8AA098;font-size:15px;background:none;border:none;padding:2px}
 .pw-toggle:hover{color:#1D9E75}
+
+/* Modal system — shared styling so every popup (New Order, Add Product,
+   Mark as Paid, Edit, etc) looks consistent and matches the auth screen,
+   instead of each one being plain unstyled inputs. */
+.modal-title{font-size:17px;font-weight:600;color:#16241F;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.modal-sub{font-size:12.5px;color:#75887F;margin-bottom:20px}
+.modal-label{font-size:12px;font-weight:500;color:#4A5B54;margin-bottom:6px;display:block}
+.modal-field{margin-bottom:14px}
+.modal-input,.modal-select{font-size:13px;padding:10px 12px;border:1px solid #E2E8E5;border-radius:8px;background:#fff;color:#1A2B25;outline:none;width:100%;transition:border-color 0.15s,box-shadow 0.15s;font-family:var(--font-sans)}
+.modal-input:focus,.modal-select:focus{border-color:#1D9E75;box-shadow:0 0 0 3px rgba(29,158,117,0.12)}
+.modal-row{display:flex;gap:10px}
+.modal-row>div{flex:1}
+.modal-error{color:#C0392B;font-size:12px;min-height:14px;margin-bottom:4px}
+.modal-actions{display:flex;gap:8px;margin-top:18px}
+.modal-btn{flex:1;padding:11px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:opacity 0.15s;text-align:center}
+.modal-btn-primary{background:linear-gradient(135deg,#1D9E75,#0F6E56);color:#fff;box-shadow:0 2px 8px rgba(15,110,86,0.2)}
+.modal-btn-primary:hover{opacity:0.92}
+.modal-btn-secondary{background:#F4F8F6;color:#4A5B54;border:1px solid #E2E8E5}
+.modal-btn-secondary:hover{background:#EDF3EF}
+.modal-btn-danger{background:#FDF0EF;color:#C0392B;border:1px solid #F5D6D3}
+.modal-btn-danger:hover{background:#FBE4E2}
+.modal-info-box{background:#F4F8F6;border-radius:9px;padding:12px 14px;font-size:12.5px;color:#4A5B54;line-height:1.7;margin-bottom:16px}
+.modal-info-box strong{color:#16241F}
+.modal-divider{height:1px;background:#EEF2F0;margin:16px 0}
+.modal-list-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #EEF2F0;font-size:13px}
+.modal-list-row:last-child{border-bottom:none}
 </style>
 </head>
 <body>
@@ -253,7 +279,7 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
 
 <div class="app">
   <div id="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:100;align-items:center;justify-content:center" onclick="if(event.target===this)closeModal()">
-    <div id="modal-box" style="background:#fff;border-radius:12px;padding:20px;width:420px;max-width:90vw;max-height:85vh;overflow-y:auto;font-family:var(--font-sans)"></div>
+    <div id="modal-box" style="background:#fff;border-radius:14px;padding:26px;width:440px;max-width:90vw;max-height:85vh;overflow-y:auto;font-family:var(--font-sans);box-shadow:0 24px 60px rgba(11,84,66,0.25)"></div>
   </div>
   <div class="sidebar">
     <div class="s-logo">
@@ -271,9 +297,9 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
       <div class="s-section">OVERVIEW</div>
       <div class="s-item on" onclick="go('dashboard',this)"><i class="ti ti-layout-dashboard" aria-hidden="true"></i> Dashboard</div>
       <div class="s-section">MANAGE</div>
-      <div class="s-item" onclick="go('orders',this)"><i class="ti ti-shopping-bag" aria-hidden="true"></i> Orders <span class="badge">14</span></div>
+      <div class="s-item" onclick="go('orders',this)"><i class="ti ti-shopping-bag" aria-hidden="true"></i> Orders <span class="badge" id="s-badge-orders" style="display:none">0</span></div>
       <div class="s-item" onclick="go('customers',this)"><i class="ti ti-users" aria-hidden="true"></i> Customers</div>
-      <div class="s-item" onclick="go('inventory',this)"><i class="ti ti-box" aria-hidden="true"></i> Inventory <span class="badge" style="background:rgba(231,76,60,0.25);color:#f5a09a">3</span></div>
+      <div class="s-item" onclick="go('inventory',this)"><i class="ti ti-box" aria-hidden="true"></i> Inventory <span class="badge" id="s-badge-inventory" style="background:rgba(231,76,60,0.25);color:#f5a09a;display:none">0</span></div>
       <div class="s-item" onclick="go('payments',this)"><i class="ti ti-credit-card" aria-hidden="true"></i> Payments</div>
       <div class="s-section">GROWTH</div>
       <div class="s-item" style="opacity:0.45;cursor:default"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i> WhatsApp <span class="badge">Soon</span></div>
@@ -292,7 +318,7 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
     <div class="topbar">
       <div class="topbar-left">
         <div class="tb-title" id="pg-title">Dashboard</div>
-        <div class="tb-date" style="padding-left:8px;border-left:0.5px solid var(--color-border-tertiary);margin-left:4px">Tue, 9 Jun 2026</div>
+        <div class="tb-date" id="tb-date" style="padding-left:8px;border-left:0.5px solid var(--color-border-tertiary);margin-left:4px">—</div>
       </div>
       <div class="topbar-right">
         <button class="btn" onclick="showBusinessSummary()"><i class="ti ti-sparkles" style="font-size:13px" aria-hidden="true"></i> Business summary</button>
@@ -651,13 +677,36 @@ function logout() {
   location.reload(); // simplest way to reset all in-memory state back to a clean slate
 }
 
+// Keeps the sidebar's "Orders" and "Inventory" badges honest — these were
+// hardcoded (14, 3) in the original mockup; now they reflect real data.
+async function updateOrdersBadge() {
+  try {
+    const orders = await apiFetch(`${API_BASE}/api/orders`).then(r => r.json());
+    const badge = document.getElementById('s-badge-orders');
+    badge.textContent = orders.length;
+    badge.style.display = orders.length > 0 ? 'inline-block' : 'none';
+  } catch (err) { /* leave badge as-is if this fails — non-critical */ }
+}
+async function updateInventoryBadge() {
+  try {
+    const summary = await apiFetch(`${API_BASE}/api/products/summary`).then(r => r.json());
+    const needsAttention = summary.lowStockCount + summary.outOfStockCount;
+    const badge = document.getElementById('s-badge-inventory');
+    badge.textContent = needsAttention;
+    badge.style.display = needsAttention > 0 ? 'inline-block' : 'none';
+  } catch (err) { /* leave badge as-is if this fails — non-critical */ }
+}
+
 function enterApp() {
   document.getElementById('auth-screen').style.display = 'none';
   const businessName = localStorage.getItem('bizflow_business') || 'My Business';
   document.getElementById('s-mname').textContent = businessName;
   document.getElementById('s-memail').textContent = localStorage.getItem('bizflow_email') || '';
   document.getElementById('s-av').textContent = businessName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  document.getElementById('tb-date').textContent = new Date().toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
   loadDashboard();
+  updateOrdersBadge();
+  updateInventoryBadge();
 }
 
 // On page load: if we already have a saved token, skip straight to the app.
@@ -946,30 +995,35 @@ async function loadInventory() {
 // Real modal form — replaces the old browser prompt() chain
 function openAddProductModal() {
   openModal(`
-    <h3 style="margin-bottom:14px;font-size:16px">Add product</h3>
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <label style="font-size:11px;color:var(--color-text-secondary)">Product name
-        <input id="ap-name" type="text" style="width:100%;margin-top:4px" placeholder="e.g. Velvet Oud 50ml">
-      </label>
-      <label style="font-size:11px;color:var(--color-text-secondary)">Category
-        <input id="ap-category" type="text" style="width:100%;margin-top:4px" placeholder="e.g. Oud">
-      </label>
-      <div style="display:flex;gap:8px">
-        <label style="font-size:11px;color:var(--color-text-secondary);flex:1">Cost price (₦)
-          <input id="ap-cost" type="number" style="width:100%;margin-top:4px" value="5000">
-        </label>
-        <label style="font-size:11px;color:var(--color-text-secondary);flex:1">Selling price (₦)
-          <input id="ap-price" type="number" style="width:100%;margin-top:4px" value="10000">
-        </label>
+    <div class="modal-title"><i class="ti ti-package" style="color:#1D9E75" aria-hidden="true"></i> Add product</div>
+    <div class="modal-sub">Add a new item to your inventory</div>
+
+    <div class="modal-field">
+      <label class="modal-label">Product name</label>
+      <input id="ap-name" type="text" class="modal-input" placeholder="e.g. Velvet Oud 50ml">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Category</label>
+      <input id="ap-category" type="text" class="modal-input" placeholder="e.g. Oud">
+    </div>
+    <div class="modal-row modal-field">
+      <div>
+        <label class="modal-label">Cost price (₦)</label>
+        <input id="ap-cost" type="number" class="modal-input" value="5000">
       </div>
-      <label style="font-size:11px;color:var(--color-text-secondary)">Starting quantity
-        <input id="ap-qty" type="number" style="width:100%;margin-top:4px" value="10">
-      </label>
-      <div id="ap-error" style="color:#A32D2D;font-size:12px"></div>
-      <div style="display:flex;gap:8px;margin-top:6px">
-        <button class="btn" style="flex:1;justify-content:center" onclick="closeModal()">Cancel</button>
-        <button class="btn btn-g" style="flex:1;justify-content:center" onclick="submitAddProduct()">Add product</button>
+      <div>
+        <label class="modal-label">Selling price (₦)</label>
+        <input id="ap-price" type="number" class="modal-input" value="10000">
       </div>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Starting quantity</label>
+      <input id="ap-qty" type="number" class="modal-input" value="10">
+    </div>
+    <div id="ap-error" class="modal-error"></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="modal-btn modal-btn-primary" onclick="submitAddProduct()">Add product</button>
     </div>
   `);
 }
@@ -992,6 +1046,7 @@ async function submitAddProduct() {
     if (!response.ok) throw new Error((await response.json()).error || 'Request failed');
     closeModal();
     loadInventory(); // refresh so the new product appears immediately
+    updateInventoryBadge();
   } catch (err) {
     document.getElementById('ap-error').textContent = 'Could not add product: ' + err.message;
   }
@@ -1001,32 +1056,37 @@ async function submitAddProduct() {
 async function showEditProduct(productId) {
   const p = await apiFetch(`${API_BASE}/api/products/${productId}`).then(r => r.json());
   openModal(`
-    <h3 style="margin-bottom:14px;font-size:16px">Edit ${p.name}</h3>
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <label style="font-size:11px;color:var(--color-text-secondary)">Product name
-        <input id="ep-name" type="text" value="${p.name}" style="width:100%;margin-top:4px">
-      </label>
-      <div style="display:flex;gap:8px">
-        <label style="font-size:11px;color:var(--color-text-secondary);flex:1">Cost price (₦)
-          <input id="ep-cost" type="number" value="${p.cost}" style="width:100%;margin-top:4px">
-        </label>
-        <label style="font-size:11px;color:var(--color-text-secondary);flex:1">Selling price (₦)
-          <input id="ep-price" type="number" value="${p.price}" style="width:100%;margin-top:4px">
-        </label>
+    <div class="modal-title"><i class="ti ti-edit" style="color:#1D9E75" aria-hidden="true"></i> Edit product</div>
+    <div class="modal-sub">${p.name}</div>
+
+    <div class="modal-field">
+      <label class="modal-label">Product name</label>
+      <input id="ep-name" type="text" value="${p.name}" class="modal-input">
+    </div>
+    <div class="modal-row modal-field">
+      <div>
+        <label class="modal-label">Cost price (₦)</label>
+        <input id="ep-cost" type="number" value="${p.cost}" class="modal-input">
       </div>
-      <div style="display:flex;gap:8px">
-        <label style="font-size:11px;color:var(--color-text-secondary);flex:1">Quantity in stock
-          <input id="ep-qty" type="number" value="${p.quantity}" style="width:100%;margin-top:4px">
-        </label>
-        <label style="font-size:11px;color:var(--color-text-secondary);flex:1">Low-stock threshold
-          <input id="ep-threshold" type="number" value="${p.threshold}" style="width:100%;margin-top:4px">
-        </label>
+      <div>
+        <label class="modal-label">Selling price (₦)</label>
+        <input id="ep-price" type="number" value="${p.price}" class="modal-input">
       </div>
-      <div id="ep-error" style="color:#A32D2D;font-size:12px"></div>
-      <div style="display:flex;gap:8px;margin-top:6px">
-        <button class="btn" style="flex:1;justify-content:center" onclick="closeModal()">Cancel</button>
-        <button class="btn btn-g" style="flex:1;justify-content:center" onclick="submitEditProduct('${p.id}')">Save</button>
+    </div>
+    <div class="modal-row modal-field">
+      <div>
+        <label class="modal-label">Quantity in stock</label>
+        <input id="ep-qty" type="number" value="${p.quantity}" class="modal-input">
       </div>
+      <div>
+        <label class="modal-label">Low-stock threshold</label>
+        <input id="ep-threshold" type="number" value="${p.threshold}" class="modal-input">
+      </div>
+    </div>
+    <div id="ep-error" class="modal-error"></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="modal-btn modal-btn-primary" onclick="submitEditProduct('${p.id}')">Save changes</button>
     </div>
   `);
 }
@@ -1046,6 +1106,7 @@ async function submitEditProduct(productId) {
     if (!response.ok) throw new Error('Request failed');
     closeModal();
     loadInventory();
+    updateInventoryBadge();
   } catch (err) {
     document.getElementById('ep-error').textContent = 'Could not save changes: ' + err.message;
   }
@@ -1056,6 +1117,7 @@ async function deleteProduct(productId) {
   try {
     await apiFetch(`${API_BASE}/api/products/${productId}`, { method: 'DELETE' });
     loadInventory();
+    updateInventoryBadge();
   } catch (err) {
     alert('Could not delete product.');
   }
@@ -1120,27 +1182,33 @@ async function loadPayments() {
 async function openMarkPaidModal() {
   const orders = await apiFetch(`${API_BASE}/api/orders?paymentStatus=Awaiting`).then(r => r.json());
   if (!orders.length) {
-    openModal(`<h3 style="margin-bottom:10px;font-size:16px">Mark as paid</h3><p style="font-size:13px;color:var(--color-text-secondary)">No unpaid orders right now — nothing to mark.</p><button class="btn" style="margin-top:12px" onclick="closeModal()">Close</button>`);
+    openModal(`
+      <div class="modal-title"><i class="ti ti-check" style="color:#1D9E75" aria-hidden="true"></i> Mark as paid</div>
+      <p style="font-size:13px;color:#75887F;margin-bottom:16px">No unpaid orders right now — nothing to mark.</p>
+      <button class="modal-btn modal-btn-secondary" style="width:100%" onclick="closeModal()">Close</button>
+    `);
     return;
   }
   openModal(`
-    <h3 style="margin-bottom:14px;font-size:16px">Mark as paid</h3>
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <label style="font-size:11px;color:var(--color-text-secondary)">Which order was paid?
-        <select id="mp-order" style="width:100%;margin-top:4px">
-          ${orders.map(o => `<option value="${o.id}">${o.id} — ${o.customerName} — ${naira(o.amount)}</option>`).join('')}
-        </select>
-      </label>
-      <label style="font-size:11px;color:var(--color-text-secondary)">Payment method
-        <select id="mp-method" style="width:100%;margin-top:4px">
-          <option>Transfer</option><option>POS</option><option>Cash</option>
-        </select>
-      </label>
-      <div id="mp-error" style="color:#A32D2D;font-size:12px"></div>
-      <div style="display:flex;gap:8px;margin-top:6px">
-        <button class="btn" style="flex:1;justify-content:center" onclick="closeModal()">Cancel</button>
-        <button class="btn btn-g" style="flex:1;justify-content:center" onclick="submitMarkPaid()">Confirm payment</button>
-      </div>
+    <div class="modal-title"><i class="ti ti-check" style="color:#1D9E75" aria-hidden="true"></i> Mark as paid</div>
+    <div class="modal-sub">Record a payment for one of your unpaid orders</div>
+
+    <div class="modal-field">
+      <label class="modal-label">Which order was paid?</label>
+      <select id="mp-order" class="modal-select">
+        ${orders.map(o => `<option value="${o.id}">${o.id} — ${o.customerName} — ${naira(o.amount)}</option>`).join('')}
+      </select>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Payment method</label>
+      <select id="mp-method" class="modal-select">
+        <option>Transfer</option><option>POS</option><option>Cash</option>
+      </select>
+    </div>
+    <div id="mp-error" class="modal-error"></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="modal-btn modal-btn-primary" onclick="submitMarkPaid()">Confirm payment</button>
     </div>
   `);
 }
@@ -1273,35 +1341,41 @@ async function openNewOrderModal() {
   const inStock = products.filter(p => p.quantity > 0);
 
   openModal(`
-    <h3 style="margin-bottom:14px;font-size:16px">New order</h3>
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <label style="font-size:11px;color:var(--color-text-secondary)">Customer
-        <select id="no-customer" style="width:100%;margin-top:4px" onchange="document.getElementById('no-new-customer-fields').style.display = this.value === 'new' ? 'flex' : 'none'">
-          <option value="new">+ New customer</option>
-          ${customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+    <div class="modal-title"><i class="ti ti-shopping-bag-plus" style="color:#1D9E75" aria-hidden="true"></i> New order</div>
+    <div class="modal-sub">Create an order for an existing or new customer</div>
+
+    <div class="modal-field">
+      <label class="modal-label">Customer</label>
+      <select id="no-customer" class="modal-select" onchange="document.getElementById('no-new-customer-fields').style.display = this.value === 'new' ? 'flex' : 'none'">
+        <option value="new">+ New customer</option>
+        ${customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+      </select>
+    </div>
+    <div id="no-new-customer-fields" style="display:flex;flex-direction:column;gap:10px;background:#F4F8F6;padding:12px;border-radius:9px;margin-bottom:14px">
+      <input id="no-new-name" type="text" class="modal-input" placeholder="Customer name">
+      <input id="no-new-phone" type="text" class="modal-input" placeholder="Phone (e.g. +234 800 000 0000)">
+      <input id="no-new-location" type="text" class="modal-input" placeholder="Delivery location">
+    </div>
+    <div class="modal-row modal-field">
+      <div>
+        <label class="modal-label">Product</label>
+        <select id="no-product" class="modal-select">
+          ${inStock.map(p => `<option value="${p.id}">${p.name} — ${naira(p.price)}</option>`).join('')}
         </select>
-      </label>
-      <div id="no-new-customer-fields" style="display:flex;flex-direction:column;gap:8px;background:var(--color-background-secondary);padding:10px;border-radius:8px">
-        <input id="no-new-name" type="text" placeholder="Customer name" style="width:100%">
-        <input id="no-new-phone" type="text" placeholder="Phone (e.g. +234 800 000 0000)" style="width:100%">
-        <input id="no-new-location" type="text" placeholder="Delivery location" style="width:100%">
       </div>
-      <label style="font-size:11px;color:var(--color-text-secondary)">Product
-        <select id="no-product" style="width:100%;margin-top:4px">
-          ${inStock.map(p => `<option value="${p.id}">${p.name} — ${naira(p.price)} (${p.quantity} in stock)</option>`).join('')}
-        </select>
-      </label>
-      <label style="font-size:11px;color:var(--color-text-secondary)">Quantity
-        <input id="no-qty" type="number" value="1" min="1" style="width:100%;margin-top:4px">
-      </label>
-      <label style="font-size:11px;color:var(--color-text-secondary)">Delivery location (existing customers)
-        <input id="no-delivery" type="text" placeholder="Optional" style="width:100%;margin-top:4px">
-      </label>
-      <div id="no-error" style="color:#A32D2D;font-size:12px"></div>
-      <div style="display:flex;gap:8px;margin-top:6px">
-        <button class="btn" style="flex:1;justify-content:center" onclick="closeModal()">Cancel</button>
-        <button class="btn btn-g" style="flex:1;justify-content:center" onclick="submitNewOrder()">Create order</button>
+      <div style="flex:0 0 90px">
+        <label class="modal-label">Qty</label>
+        <input id="no-qty" type="number" value="1" min="1" class="modal-input">
       </div>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Delivery location <span style="font-weight:400;color:#A3B3AC">(existing customers)</span></label>
+      <input id="no-delivery" type="text" class="modal-input" placeholder="Optional">
+    </div>
+    <div id="no-error" class="modal-error"></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="modal-btn modal-btn-primary" onclick="submitNewOrder()">Create order</button>
     </div>
   `);
 }
@@ -1333,6 +1407,7 @@ async function submitNewOrder() {
     const order = await response.json();
     closeModal();
     if (window._ordersDone) loadOrders();
+    updateOrdersBadge();
     alert(`Order ${order.id} created — ${naira(order.amount)}`);
   } catch (err) {
     errorEl.textContent = 'Could not create order: ' + err.message;
@@ -1343,21 +1418,23 @@ async function submitNewOrder() {
 async function showOrderDetail(orderId) {
   try {
     const o = await apiFetch(`${API_BASE}/api/orders/${orderId}`).then(r => r.json());
+    const paymentPill = { Paid: 'p-green', Awaiting: 'p-amber', Cancelled: 'p-red' };
+    const statusPill = { New: 'p-blue', Processing: 'p-blue', Shipped: 'p-purple', Delivered: 'p-green', Cancelled: 'p-red' };
     openModal(`
-      <h3 style="margin-bottom:4px;font-size:16px">${o.id}</h3>
-      <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:14px">${new Date(o.date).toLocaleString()}</div>
-      <div style="font-size:13px;line-height:1.8">
-        <div><strong>Customer:</strong> ${o.customerName}</div>
-        <div><strong>Items:</strong> ${o.items.map(i => `${i.name} × ${i.qty}`).join(', ')}</div>
-        <div><strong>Amount:</strong> ${naira(o.amount)}</div>
-        <div><strong>Payment:</strong> ${o.paymentStatus}</div>
-        <div><strong>Status:</strong> ${o.status}</div>
-        <div><strong>Delivery:</strong> ${o.delivery || '—'}</div>
-      </div>
-      <div style="display:flex;gap:8px;margin-top:16px">
-        <button class="btn" style="flex:1;justify-content:center" onclick="closeModal()">Close</button>
-        <button class="btn" style="flex:1;justify-content:center" onclick="showEditOrder('${o.id}')">Edit</button>
-        <button class="btn" style="flex:1;justify-content:center;color:#A32D2D" onclick="deleteOrder('${o.id}')">Delete</button>
+      <div class="modal-title">${o.id}</div>
+      <div class="modal-sub">${new Date(o.date).toLocaleString()}</div>
+
+      <div class="modal-list-row"><span style="color:#75887F">Customer</span><strong>${o.customerName}</strong></div>
+      <div class="modal-list-row"><span style="color:#75887F">Items</span><span style="text-align:right">${o.items.map(i => `${i.name} × ${i.qty}`).join(', ')}</span></div>
+      <div class="modal-list-row"><span style="color:#75887F">Amount</span><strong>${naira(o.amount)}</strong></div>
+      <div class="modal-list-row"><span style="color:#75887F">Payment</span><span class="pill ${paymentPill[o.paymentStatus] || 'p-gray'}">${o.paymentStatus}</span></div>
+      <div class="modal-list-row"><span style="color:#75887F">Status</span><span class="pill ${statusPill[o.status] || 'p-gray'}">${o.status}</span></div>
+      <div class="modal-list-row"><span style="color:#75887F">Delivery</span><span>${o.delivery || '—'}</span></div>
+
+      <div class="modal-actions">
+        <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button>
+        <button class="modal-btn modal-btn-secondary" onclick="showEditOrder('${o.id}')"><i class="ti ti-edit" aria-hidden="true"></i> Edit</button>
+        <button class="modal-btn modal-btn-danger" onclick="deleteOrder('${o.id}')"><i class="ti ti-trash" aria-hidden="true"></i> Delete</button>
       </div>
     `);
   } catch (err) {
@@ -1371,26 +1448,29 @@ async function showEditOrder(orderId) {
   const statuses = ['New', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
   const paymentStatuses = ['Awaiting', 'Paid', 'Cancelled'];
   openModal(`
-    <h3 style="margin-bottom:14px;font-size:16px">Edit ${o.id}</h3>
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <label style="font-size:11px;color:var(--color-text-secondary)">Order status
-        <select id="eo-status" style="width:100%;margin-top:4px">
-          ${statuses.map(s => `<option ${s === o.status ? 'selected' : ''}>${s}</option>`).join('')}
-        </select>
-      </label>
-      <label style="font-size:11px;color:var(--color-text-secondary)">Payment status
-        <select id="eo-payment" style="width:100%;margin-top:4px">
-          ${paymentStatuses.map(s => `<option ${s === o.paymentStatus ? 'selected' : ''}>${s}</option>`).join('')}
-        </select>
-      </label>
-      <label style="font-size:11px;color:var(--color-text-secondary)">Delivery courier
-        <input id="eo-delivery" type="text" value="${o.delivery || ''}" style="width:100%;margin-top:4px">
-      </label>
-      <div id="eo-error" style="color:#A32D2D;font-size:12px"></div>
-      <div style="display:flex;gap:8px;margin-top:6px">
-        <button class="btn" style="flex:1;justify-content:center" onclick="showOrderDetail('${o.id}')">Back</button>
-        <button class="btn btn-g" style="flex:1;justify-content:center" onclick="submitEditOrder('${o.id}')">Save</button>
-      </div>
+    <div class="modal-title"><i class="ti ti-edit" style="color:#1D9E75" aria-hidden="true"></i> Edit ${o.id}</div>
+    <div class="modal-sub">${o.customerName}</div>
+
+    <div class="modal-field">
+      <label class="modal-label">Order status</label>
+      <select id="eo-status" class="modal-select">
+        ${statuses.map(s => `<option ${s === o.status ? 'selected' : ''}>${s}</option>`).join('')}
+      </select>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Payment status</label>
+      <select id="eo-payment" class="modal-select">
+        ${paymentStatuses.map(s => `<option ${s === o.paymentStatus ? 'selected' : ''}>${s}</option>`).join('')}
+      </select>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Delivery courier</label>
+      <input id="eo-delivery" type="text" value="${o.delivery || ''}" class="modal-input">
+    </div>
+    <div id="eo-error" class="modal-error"></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-secondary" onclick="showOrderDetail('${o.id}')">Back</button>
+      <button class="modal-btn modal-btn-primary" onclick="submitEditOrder('${o.id}')">Save changes</button>
     </div>
   `);
 }
@@ -1407,6 +1487,7 @@ async function submitEditOrder(orderId) {
     if (!response.ok) throw new Error('Request failed');
     closeModal();
     if (window._ordersDone) loadOrders();
+    updateOrdersBadge();
   } catch (err) {
     document.getElementById('eo-error').textContent = 'Could not save changes: ' + err.message;
   }
@@ -1418,6 +1499,7 @@ async function deleteOrder(orderId) {
     await apiFetch(`${API_BASE}/api/orders/${orderId}`, { method: 'DELETE' });
     closeModal();
     if (window._ordersDone) loadOrders();
+    updateOrdersBadge();
   } catch (err) {
     alert('Could not delete order.');
   }
@@ -1428,22 +1510,26 @@ function showRestockRecommendation() {
   const products = window._lastProducts || [];
   const needsRestock = products.filter(p => p.quantity <= p.threshold);
   if (!needsRestock.length) {
-    openModal(`<h3 style="margin-bottom:10px;font-size:16px">Restock recommendation</h3><p style="font-size:13px;color:var(--color-text-secondary)">Everything is above its threshold — nothing needs restocking right now.</p><button class="btn" style="margin-top:12px" onclick="closeModal()">Close</button>`);
+    openModal(`
+      <div class="modal-title"><i class="ti ti-box" style="color:#1D9E75" aria-hidden="true"></i> Restock recommendation</div>
+      <p style="font-size:13px;color:#75887F;margin-bottom:16px">Everything is above its threshold — nothing needs restocking right now.</p>
+      <button class="modal-btn modal-btn-secondary" style="width:100%" onclick="closeModal()">Close</button>
+    `);
     return;
   }
   const rows = needsRestock.map(p => {
     const target = p.threshold * 3;
     const suggested = Math.max(target - p.quantity, p.threshold);
-    return `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--color-border-tertiary);font-size:13px">
-      <span>${p.name} <span style="color:var(--color-text-secondary);font-size:11px">(${p.quantity} left)</span></span>
-      <strong>+${suggested} units</strong>
+    return `<div class="modal-list-row">
+      <span>${p.name} <span style="color:#A3B3AC;font-size:11px">(${p.quantity} left)</span></span>
+      <strong style="color:#0F6E56">+${suggested} units</strong>
     </div>`;
   }).join('');
   openModal(`
-    <h3 style="margin-bottom:4px;font-size:16px">Restock recommendation</h3>
-    <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:12px">Based on current stock vs. each product's threshold (target: 3× threshold)</div>
+    <div class="modal-title"><i class="ti ti-box" style="color:#1D9E75" aria-hidden="true"></i> Restock recommendation</div>
+    <div class="modal-sub">Based on current stock vs. each product's threshold (target: 3× threshold)</div>
     ${rows}
-    <button class="btn" style="margin-top:14px;width:100%;justify-content:center" onclick="closeModal()">Close</button>
+    <div class="modal-actions"><button class="modal-btn modal-btn-secondary" style="width:100%" onclick="closeModal()">Close</button></div>
   `);
 }
 
@@ -1462,15 +1548,31 @@ function showBusinessSummary() {
   const top = window._lastTopProducts || [];
   if (!s) { alert('Dashboard data is still loading — try again in a second.'); return; }
   openModal(`
-    <h3 style="margin-bottom:14px;font-size:16px">Business summary</h3>
-    <div style="font-size:13px;line-height:1.9">
-      <div>💰 Revenue today: <strong>${naira(s.revenueToday)}</strong>${s.revenueChangePct !== null ? ` (${s.revenueChangePct > 0 ? '+' : ''}${s.revenueChangePct}% vs yesterday)` : ''}</div>
-      <div>📦 Orders today: <strong>${s.ordersToday}</strong></div>
-      <div>⏳ Unpaid: <strong>${naira(s.unpaidAmount)}</strong> across ${s.unpaidCount} order(s)</div>
-      <div>⚠️ Low/out of stock items: <strong>${s.lowStockCount}</strong></div>
-      ${top.length ? `<div style="margin-top:8px">🏆 Top product: <strong>${top[0].name}</strong> (${top[0].units} units sold)</div>` : ''}
+    <div class="modal-title"><i class="ti ti-report-analytics" style="color:#1D9E75" aria-hidden="true"></i> Business summary</div>
+    <div class="modal-sub">A quick read on how things stand right now</div>
+
+    <div class="modal-list-row">
+      <span style="display:flex;align-items:center;gap:8px;color:#4A5B54"><i class="ti ti-trending-up" style="color:#0F6E56" aria-hidden="true"></i> Revenue today</span>
+      <strong>${naira(s.revenueToday)}${s.revenueChangePct !== null ? ` <span style="font-weight:400;font-size:11px;color:${s.revenueChangePct > 0 ? '#0F6E56' : '#A32D2D'}">(${s.revenueChangePct > 0 ? '+' : ''}${s.revenueChangePct}%)</span>` : ''}</strong>
     </div>
-    <button class="btn" style="margin-top:16px;width:100%;justify-content:center" onclick="closeModal()">Close</button>
+    <div class="modal-list-row">
+      <span style="display:flex;align-items:center;gap:8px;color:#4A5B54"><i class="ti ti-shopping-bag" style="color:#4A5B54" aria-hidden="true"></i> Orders today</span>
+      <strong>${s.ordersToday}</strong>
+    </div>
+    <div class="modal-list-row">
+      <span style="display:flex;align-items:center;gap:8px;color:#4A5B54"><i class="ti ti-clock" style="color:#BA7517" aria-hidden="true"></i> Unpaid</span>
+      <strong>${naira(s.unpaidAmount)} <span style="font-weight:400;font-size:11px;color:#75887F">(${s.unpaidCount} order${s.unpaidCount !== 1 ? 's' : ''})</span></strong>
+    </div>
+    <div class="modal-list-row">
+      <span style="display:flex;align-items:center;gap:8px;color:#4A5B54"><i class="ti ti-alert-triangle" style="color:#A32D2D" aria-hidden="true"></i> Needs restocking</span>
+      <strong>${s.lowStockCount} item${s.lowStockCount !== 1 ? 's' : ''}</strong>
+    </div>
+    ${top.length ? `<div class="modal-list-row">
+      <span style="display:flex;align-items:center;gap:8px;color:#4A5B54"><i class="ti ti-trophy" style="color:#EF9F27" aria-hidden="true"></i> Top product</span>
+      <strong>${top[0].name} <span style="font-weight:400;font-size:11px;color:#75887F">(${top[0].units} sold)</span></strong>
+    </div>` : ''}
+
+    <div class="modal-actions"><button class="modal-btn modal-btn-secondary" style="width:100%" onclick="closeModal()">Close</button></div>
   `);
 }
 
