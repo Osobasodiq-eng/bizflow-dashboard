@@ -153,15 +153,54 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
 .modal-divider{height:1px;background:#EEF2F0;margin:16px 0}
 .modal-list-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #EEF2F0;font-size:13px}
 .modal-list-row:last-child{border-bottom:none}
+
+/* ================================================================
+   RESPONSIVE / MOBILE
+   The original design was a fixed desktop layout (760px-tall "app"
+   box, always-visible 210px sidebar, 4-column KPI grids, side-by-side
+   charts). Below adapts it to real phone/tablet screens: the sidebar
+   becomes a slide-in drawer behind a hamburger button, grids collapse
+   to fewer columns, and wide tables scroll horizontally instead of
+   getting crushed.
+   ================================================================ */
+.mobile-menu-btn{display:none;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);cursor:pointer;color:var(--color-text-primary);font-size:16px}
+#mobile-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:90}
+.btn-text{display:inline}
+
+@media (max-width: 860px){
+  .app{height:100vh;border-radius:0;border:none}
+  .mobile-menu-btn{display:flex}
+  .sidebar{position:fixed;top:0;left:0;height:100vh;z-index:110;width:240px;transform:translateX(-100%);transition:transform 0.22s ease;box-shadow:6px 0 30px rgba(0,0,0,0.3)}
+  .sidebar.mobile-open{transform:translateX(0)}
+  #mobile-overlay.active{display:block}
+  .kpi-row{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .row2b{grid-template-columns:1fr!important}
+  table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap}
+  .topbar-right .btn-text{display:none}
+  .topbar-right .btn{padding:8px 10px}
+  .scroll{padding:12px}
+  .orders-toolbar{flex-wrap:wrap}
+  .orders-toolbar input{flex:1 1 100%}
+  #modal-box{width:94vw!important;padding:20px!important;max-height:88vh!important}
+  .auth-panels{flex-direction:column;max-width:420px!important;margin:20px auto!important}
+  .auth-brand-panel{display:none}
+  .auth-form-panel{padding:36px 26px!important}
+}
+
+@media (max-width: 480px){
+  .kpi-row{grid-template-columns:1fr!important}
+  .tb-date{display:none}
+  #modal-box{padding:16px!important}
+}
 </style>
 </head>
 <body>
 
-<div id="auth-screen" style="position:fixed;inset:0;background:#F4F8F6;z-index:200;display:flex;align-items:stretch;justify-content:center;font-family:var(--font-sans)">
-  <div style="display:flex;width:100%;max-width:920px;margin:auto;box-shadow:0 20px 60px rgba(11,84,66,0.15);border-radius:20px;overflow:hidden">
+<div id="auth-screen" style="position:fixed;inset:0;background:#F4F8F6;z-index:200;display:flex;align-items:stretch;justify-content:center;font-family:var(--font-sans);overflow-y:auto">
+  <div class="auth-panels" style="display:flex;width:100%;max-width:920px;margin:auto;box-shadow:0 20px 60px rgba(11,84,66,0.15);border-radius:20px;overflow:hidden">
 
     <!-- Left brand panel -->
-    <div style="flex:1;background:linear-gradient(160deg,#0F6E56 0%,#0B5442 55%,#083D30 100%);padding:48px 40px;display:flex;flex-direction:column;justify-content:space-between;color:#fff;min-width:280px">
+    <div class="auth-brand-panel" style="flex:1;background:linear-gradient(160deg,#0F6E56 0%,#0B5442 55%,#083D30 100%);padding:48px 40px;display:flex;flex-direction:column;justify-content:space-between;color:#fff;min-width:280px">
       <div style="display:flex;align-items:center;gap:10px">
         <svg width="34" height="34" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
           <rect width="40" height="40" rx="10" fill="rgba(255,255,255,0.16)"/>
@@ -180,7 +219,7 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
     </div>
 
     <!-- Right form panel -->
-    <div style="flex:1.15;background:#fff;padding:48px 44px;display:flex;flex-direction:column;justify-content:center;min-width:320px">
+    <div class="auth-form-panel" style="flex:1.15;background:#fff;padding:48px 44px;display:flex;flex-direction:column;justify-content:center;min-width:320px">
 
       <div id="auth-login">
         <h2 style="font-size:20px;font-weight:600;color:#132621;margin-bottom:4px">Welcome back</h2>
@@ -281,7 +320,7 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
   <div id="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:100;align-items:center;justify-content:center" onclick="if(event.target===this)closeModal()">
     <div id="modal-box" style="background:#fff;border-radius:14px;padding:26px;width:440px;max-width:90vw;max-height:85vh;overflow-y:auto;font-family:var(--font-sans);box-shadow:0 24px 60px rgba(11,84,66,0.25)"></div>
   </div>
-  <div class="sidebar">
+  <div class="sidebar" id="sidebar">
     <div class="s-logo">
       <div class="s-logo-icon">
         <svg width="19" height="19" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
@@ -317,15 +356,17 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
   <div class="main">
     <div class="topbar">
       <div class="topbar-left">
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Open menu"><i class="ti ti-menu-2" aria-hidden="true"></i></button>
         <div class="tb-title" id="pg-title">Dashboard</div>
         <div class="tb-date" id="tb-date" style="padding-left:8px;border-left:0.5px solid var(--color-border-tertiary);margin-left:4px">—</div>
       </div>
       <div class="topbar-right">
-        <button class="btn" onclick="showBusinessSummary()"><i class="ti ti-sparkles" style="font-size:13px" aria-hidden="true"></i> Business summary</button>
-        <button class="btn btn-g" onclick="openNewOrderModal()"><i class="ti ti-plus" style="font-size:13px" aria-hidden="true"></i> New Order</button>
+        <button class="btn" onclick="showBusinessSummary()"><i class="ti ti-sparkles" style="font-size:13px" aria-hidden="true"></i> <span class="btn-text">Business summary</span></button>
+        <button class="btn btn-g" onclick="openNewOrderModal()"><i class="ti ti-plus" style="font-size:13px" aria-hidden="true"></i> <span class="btn-text">New Order</span></button>
       </div>
     </div>
 
+    <div id="mobile-overlay" onclick="closeMobileMenu()"></div>
     <div class="scroll">
 
       <div id="p-dashboard" class="panel on">
@@ -406,7 +447,7 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
       </div>
 
       <div id="p-orders" class="panel">
-        <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center">
+        <div class="orders-toolbar" style="display:flex;gap:8px;margin-bottom:14px;align-items:center">
           <input type="text" id="order-search" placeholder="Search by customer or order..." style="flex:1">
           <select id="order-status-filter"><option value="">All statuses</option><option value="New">New</option><option value="Processing">Processing</option><option value="Shipped">Shipped</option><option value="Delivered">Delivered</option><option value="Cancelled">Cancelled</option></select>
           <button class="btn btn-g" style="font-size:12px" onclick="openNewOrderModal()"><i class="ti ti-plus" style="font-size:13px" aria-hidden="true"></i> New Order</button>
@@ -531,6 +572,18 @@ function go(name, el) {
   if (name === 'inventory' && !window._invDone) { loadInventory(); window._invDone = true; }
   if (name === 'payments' && !window._payDone) { loadPayments(); window._payDone = true; }
   if (name === 'whatsapp' && !window._waDone) { loadWhatsapp(); window._waDone = true; }
+  closeMobileMenu(); // picking a page on a phone should close the drawer, not leave it open
+}
+
+// Mobile sidebar drawer — the sidebar is always-visible on desktop, but on
+// narrow screens it's hidden behind this hamburger toggle instead.
+function toggleMobileMenu() {
+  document.getElementById('sidebar').classList.toggle('mobile-open');
+  document.getElementById('mobile-overlay').classList.toggle('active');
+}
+function closeMobileMenu() {
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  document.getElementById('mobile-overlay').classList.remove('active');
 }
 
 const G = '#0F6E56', G2 = '#1D9E75', G3 = '#9FE1CB', AMB = '#EF9F27', RED = '#E24B4A';
