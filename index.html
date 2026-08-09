@@ -340,6 +340,7 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
       <div class="s-item" id="s-nav-customers" onclick="go('customers',this)"><i class="ti ti-users" aria-hidden="true"></i> Customers</div>
       <div class="s-item" id="s-nav-orders" onclick="go('orders',this)"><i class="ti ti-shopping-bag" aria-hidden="true"></i> Orders <span class="badge" id="s-badge-orders" style="display:none">0</span></div>
       <div class="s-item" id="s-nav-payments" onclick="go('payments',this)"><i class="ti ti-credit-card" aria-hidden="true"></i> Payments</div>
+      <div class="s-item" id="s-nav-expenses" onclick="go('expenses',this)"><i class="ti ti-receipt-2" aria-hidden="true"></i> Expenses</div>
       <div class="s-section">GROWTH</div>
       <div class="s-item" style="opacity:0.45;cursor:default"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i> WhatsApp <span class="badge">Soon</span></div>
       <div class="s-item" style="opacity:0.45;cursor:default"><i class="ti ti-chart-line" aria-hidden="true"></i> Analytics <span class="badge">Soon</span></div>
@@ -538,6 +539,38 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
         </div>
       </div>
 
+      <div id="p-expenses" class="panel">
+        <div class="kpi-row">
+          <div class="kpi"><div class="kpi-label">This month</div><div class="kpi-val" id="exp-kpi-month">—</div><div class="kpi-foot" style="color:var(--color-text-secondary)" id="exp-kpi-month-foot">Loading…</div></div>
+          <div class="kpi"><div class="kpi-label">This week</div><div class="kpi-val" id="exp-kpi-week">—</div><div class="kpi-foot" style="color:var(--color-text-secondary)">Last 7 days</div></div>
+          <div class="kpi"><div class="kpi-label">Revenue this month</div><div class="kpi-val" id="exp-kpi-revenue">—</div><div class="kpi-foot up">From confirmed payments</div></div>
+          <div class="kpi"><div class="kpi-label">Net profit this month</div><div class="kpi-val" id="exp-kpi-profit">—</div><div class="kpi-foot" id="exp-kpi-profit-foot">Revenue − expenses</div></div>
+        </div>
+        <div class="row2b">
+          <div class="card">
+            <div class="card-head"><div class="card-title">Expenses by category</div></div>
+            <div style="position:relative;width:100%;height:160px">
+              <canvas id="expChart" role="img" aria-label="Bar chart of expenses by category this month">Expenses by category this month.</canvas>
+            </div>
+          </div>
+          <div class="card" style="display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:8px">
+            <i class="ti ti-scale" style="font-size:32px;color:#0F6E56" aria-hidden="true"></i>
+            <div style="font-size:12px;color:var(--color-text-secondary)">Net profit this month</div>
+            <div style="font-size:24px;font-weight:600" id="exp-profit-big">—</div>
+            <div style="font-size:11px;color:var(--color-text-secondary)" id="exp-profit-detail">Loading…</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">Expense log</div><div style="display:flex;gap:8px"><button class="btn" style="font-size:12px" onclick="openImportModal('expenses')"><i class="ti ti-upload" style="font-size:12px" aria-hidden="true"></i> Import CSV</button><button class="btn" style="font-size:12px" onclick="exportExpensesCSV()"><i class="ti ti-download" style="font-size:12px" aria-hidden="true"></i> Export CSV</button><button class="btn btn-g" style="font-size:12px" onclick="openAddExpenseModal()"><i class="ti ti-plus" style="font-size:12px" aria-hidden="true"></i> Add expense</button></div></div>
+          <table>
+            <thead><tr><th>Description</th><th>Category</th><th>Amount</th><th>Date</th><th></th></tr></thead>
+            <tbody id="expenses-tbody">
+              <tr><td colspan="5" style="padding:14px;text-align:center;color:var(--color-text-secondary)">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div id="p-whatsapp" class="panel">
         <div class="row2b">
           <div class="card">
@@ -568,12 +601,13 @@ function go(name, el) {
   const p = document.getElementById('p-' + name);
   if (p) p.classList.add('on');
   if (el) el.classList.add('on');
-  const titles = {dashboard:'Dashboard',orders:'Orders',customers:'Customers',inventory:'Inventory',payments:'Payments',whatsapp:'WhatsApp'};
+  const titles = {dashboard:'Dashboard',orders:'Orders',customers:'Customers',inventory:'Inventory',payments:'Payments',expenses:'Expenses',whatsapp:'WhatsApp'};
   document.getElementById('pg-title').textContent = titles[name] || name;
   if (name === 'orders' && !window._ordersDone) { loadOrders(); window._ordersDone = true; }
   if (name === 'customers' && !window._custDone) { loadCustomers(); window._custDone = true; }
   if (name === 'inventory' && !window._invDone) { loadInventory(); window._invDone = true; }
   if (name === 'payments' && !window._payDone) { loadPayments(); window._payDone = true; }
+  if (name === 'expenses' && !window._expDone) { loadExpenses(); window._expDone = true; }
   if (name === 'whatsapp' && !window._waDone) { loadWhatsapp(); window._waDone = true; }
   closeMobileMenu(); // picking a page on a phone should close the drawer, not leave it open
 }
@@ -905,9 +939,7 @@ function renderOrders(orders) {
     tbody.innerHTML = `<tr><td colspan="7" style="padding:14px;text-align:center;color:var(--color-text-secondary)">No orders match.</td></tr>`;
     return;
   }
-  const paymentPill = { Paid: 'p-green', Awaiting: 'p-amber', Cancelled: 'p-red' };
-  const statusPill = { New: 'p-blue', Processing: 'p-blue', Shipped: 'p-purple', Delivered: 'p-green', Cancelled: 'p-red' };
-  const initials = name => name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  const paymentPill = { Paid: 'p-green', Partial: 'p-blue', Awaiting: 'p-amber', Cancelled: 'p-red' };
 
   tbody.innerHTML = orders.map(o => `
     <tr style="cursor:pointer" onclick="showOrderDetail('${o.id}')">
@@ -1160,6 +1192,12 @@ async function exportPaymentsCSV() {
 // ================================================================
 
 const IMPORT_CONFIG = {
+  expenses: {
+    title: 'Import expenses', endpoint: '/api/expenses/import',
+    columns: ['description', 'category', 'amount', 'date'],
+    sample: 'description,category,amount,date\nShop rent — August,Rent,50000,2026-08-01\n',
+    onDone: () => { loadExpenses(); },
+  },
   products: {
     title: 'Import products', endpoint: '/api/products/import',
     columns: ['name', 'category', 'cost', 'price', 'quantity', 'threshold'],
@@ -1446,9 +1484,137 @@ async function loadPayments() {
   }
 }
 
+// ================================================================
+// EXPENSES — money going OUT of the business
+// ================================================================
+
+async function loadExpenses() {
+  try {
+    const [summary, expenses, payments] = await Promise.all([
+      apiFetch(`${API_BASE}/api/expenses/summary`).then(r => r.json()),
+      apiFetch(`${API_BASE}/api/expenses`).then(r => r.json()),
+      apiFetch(`${API_BASE}/api/payments/summary`).then(r => r.json()),
+    ]);
+
+    const profit = payments.monthTotal - summary.totalThisMonth;
+
+    document.getElementById('exp-kpi-month').textContent = naira(summary.totalThisMonth);
+    document.getElementById('exp-kpi-month-foot').textContent = `${summary.countThisMonth} expense(s)`;
+    document.getElementById('exp-kpi-week').textContent = naira(summary.totalThisWeek);
+    document.getElementById('exp-kpi-revenue').textContent = naira(payments.monthTotal);
+    document.getElementById('exp-kpi-profit').textContent = naira(profit);
+    document.getElementById('exp-kpi-profit-foot').textContent = profit >= 0 ? 'Profitable this month' : 'Running at a loss this month';
+    document.getElementById('exp-kpi-profit').style.color = profit >= 0 ? '#0F6E56' : '#A32D2D';
+
+    document.getElementById('exp-profit-big').textContent = naira(profit);
+    document.getElementById('exp-profit-big').style.color = profit >= 0 ? '#0F6E56' : '#A32D2D';
+    document.getElementById('exp-profit-detail').textContent = `${naira(payments.monthTotal)} revenue − ${naira(summary.totalThisMonth)} expenses`;
+
+    new Chart(document.getElementById('expChart'), {
+      type: 'bar',
+      data: {
+        labels: summary.byCategory.map(c => c.category),
+        datasets: [{ data: summary.byCategory.map(c => c.amount), backgroundColor: [AMB, '#534AB7', RED, G, G2, G3, '#888'], borderRadius: 4 }]
+      },
+      options: { ...baseOpts,
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#888' } },
+          y: { grid: { color: BORDER }, ticks: { font: { size: 10 }, color: '#888', callback: v => '₦' + (v/1000).toFixed(0) + 'k' }, beginAtZero: true }
+        }
+      }
+    });
+
+    document.getElementById('expenses-tbody').innerHTML = expenses.length ? expenses.map(e => `
+      <tr>
+        <td>${e.description}</td>
+        <td><span class="pill p-gray">${e.category}</span></td>
+        <td class="amt">${naira(e.amount)}</td>
+        <td style="font-size:11px;color:var(--color-text-secondary)">${new Date(e.date).toLocaleDateString()}</td>
+        <td><button class="btn" style="font-size:11px;padding:5px 8px;color:#A32D2D" onclick="deleteExpense(${e.id})" title="Delete"><i class="ti ti-trash" style="font-size:12px" aria-hidden="true"></i></button></td>
+      </tr>
+    `).join('') : `<tr><td colspan="5" style="padding:14px;text-align:center;color:var(--color-text-secondary)">No expenses logged yet.</td></tr>`;
+  } catch (err) {
+    console.error('Failed to load expenses:', err);
+  }
+}
+
+function openAddExpenseModal() {
+  openModal(`
+    <div class="modal-title"><i class="ti ti-receipt-2" style="color:#1D9E75" aria-hidden="true"></i> Add expense</div>
+    <div class="modal-sub">Log money spent running your business</div>
+
+    <div class="modal-field">
+      <label class="modal-label">Description</label>
+      <input id="ae-description" type="text" class="modal-input" placeholder="e.g. Shop rent — August">
+    </div>
+    <div class="modal-row modal-field">
+      <div>
+        <label class="modal-label">Category</label>
+        <select id="ae-category" class="modal-select">
+          <option>Rent</option><option>Transport</option><option>Supplies</option><option>Salaries</option><option>Utilities</option><option>Marketing</option><option selected>Other</option>
+        </select>
+      </div>
+      <div>
+        <label class="modal-label">Amount (₦)</label>
+        <input id="ae-amount" type="number" class="modal-input" placeholder="e.g. 15000">
+      </div>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Date <span style="font-weight:400;color:#A3B3AC">(optional, defaults to today)</span></label>
+      <input id="ae-date" type="date" class="modal-input">
+    </div>
+    <div id="ae-error" class="modal-error"></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="modal-btn modal-btn-primary" onclick="submitAddExpense()">Add expense</button>
+    </div>
+  `);
+}
+
+async function submitAddExpense() {
+  const description = document.getElementById('ae-description').value.trim();
+  const category = document.getElementById('ae-category').value;
+  const amount = document.getElementById('ae-amount').value;
+  const date = document.getElementById('ae-date').value;
+  const errorEl = document.getElementById('ae-error');
+
+  if (!description || !amount) { errorEl.textContent = 'Description and amount are both required.'; return; }
+
+  try {
+    const response = await apiFetch(`${API_BASE}/api/expenses`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ description, category, amount: Number(amount), date: date || undefined })
+    });
+    if (!response.ok) throw new Error((await response.json()).error || 'Request failed');
+    closeModal();
+    loadExpenses();
+  } catch (err) {
+    errorEl.textContent = 'Could not add expense: ' + err.message;
+  }
+}
+
+async function deleteExpense(id) {
+  if (!confirm('Delete this expense? This cannot be undone.')) return;
+  try {
+    await apiFetch(`${API_BASE}/api/expenses/${id}`, { method: 'DELETE' });
+    loadExpenses();
+  } catch (err) {
+    alert('Could not delete expense.');
+  }
+}
+
+async function exportExpensesCSV() {
+  const expenses = await apiFetch(`${API_BASE}/api/expenses`).then(r => r.json());
+  downloadCSV('expenses.csv', [
+    { key: 'description', label: 'Description' }, { key: 'category', label: 'Category' },
+    { key: 'amount', label: 'Amount' }, { key: 'date', label: 'Date' },
+  ], expenses);
+}
+
 // Real modal form — replaces the old browser prompt() chain
 async function openMarkPaidModal() {
-  const orders = await apiFetch(`${API_BASE}/api/orders?paymentStatus=Awaiting`).then(r => r.json());
+  const allOrders = await apiFetch(`${API_BASE}/api/orders`).then(r => r.json());
+  const orders = allOrders.filter(o => o.paymentStatus === 'Awaiting' || o.paymentStatus === 'Partial');
   if (!orders.length) {
     openModal(`
       <div class="modal-title"><i class="ti ti-check" style="color:#1D9E75" aria-hidden="true"></i> Mark as paid</div>
@@ -1459,13 +1625,18 @@ async function openMarkPaidModal() {
   }
   openModal(`
     <div class="modal-title"><i class="ti ti-check" style="color:#1D9E75" aria-hidden="true"></i> Mark as paid</div>
-    <div class="modal-sub">Record a payment for one of your unpaid orders</div>
+    <div class="modal-sub">Record a full or partial payment for an order</div>
 
     <div class="modal-field">
       <label class="modal-label">Which order was paid?</label>
-      <select id="mp-order" class="modal-select">
-        ${orders.map(o => `<option value="${o.id}">${o.id} — ${o.customerName} — ${naira(o.amount)}</option>`).join('')}
+      <select id="mp-order" class="modal-select" onchange="prefillMarkPaidAmount()">
+        ${orders.map(o => `<option value="${o.id}">${o.id} — ${o.customerName} — ${naira(o.amount)}${o.paymentStatus === 'Partial' ? ' (Partial)' : ''}</option>`).join('')}
       </select>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Amount received now (₦)</label>
+      <input id="mp-amount" type="number" class="modal-input" placeholder="Loading balance…">
+      <div id="mp-balance-hint" style="font-size:11px;color:#75887F;margin-top:4px"></div>
     </div>
     <div class="modal-field">
       <label class="modal-label">Payment method</label>
@@ -1479,16 +1650,33 @@ async function openMarkPaidModal() {
       <button class="modal-btn modal-btn-primary" onclick="submitMarkPaid()">Confirm payment</button>
     </div>
   `);
+  prefillMarkPaidAmount(); // fill in the balance for whichever order is selected first
+}
+
+// Fetches the real remaining balance for the currently-selected order and
+// pre-fills the amount field with it — so "Mark as paid" defaults to
+// "pay everything left," but the field stays editable for a smaller
+// installment amount.
+async function prefillMarkPaidAmount() {
+  const orderId = document.getElementById('mp-order').value;
+  try {
+    const o = await apiFetch(`${API_BASE}/api/orders/${orderId}`).then(r => r.json());
+    document.getElementById('mp-amount').value = o.balanceRemaining;
+    document.getElementById('mp-balance-hint').textContent = `${naira(o.amountPaid)} already paid of ${naira(o.amount)} total`;
+  } catch (err) {
+    document.getElementById('mp-balance-hint').textContent = '';
+  }
 }
 
 async function submitMarkPaid() {
   const orderId = document.getElementById('mp-order').value;
   const method = document.getElementById('mp-method').value;
+  const amount = document.getElementById('mp-amount').value;
   try {
     const response = await apiFetch(`${API_BASE}/api/payments/${orderId}/mark-paid`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ method })
+      body: JSON.stringify({ method, amount: amount || undefined })
     });
     if (!response.ok) throw new Error((await response.json()).error || 'Request failed');
     closeModal();
@@ -1686,7 +1874,7 @@ async function submitNewOrder() {
 async function showOrderDetail(orderId) {
   try {
     const o = await apiFetch(`${API_BASE}/api/orders/${orderId}`).then(r => r.json());
-    const paymentPill = { Paid: 'p-green', Awaiting: 'p-amber', Cancelled: 'p-red' };
+    const paymentPill = { Paid: 'p-green', Partial: 'p-blue', Awaiting: 'p-amber', Cancelled: 'p-red' };
     const statusPill = { New: 'p-blue', Processing: 'p-blue', Shipped: 'p-purple', Delivered: 'p-green', Cancelled: 'p-red' };
     openModal(`
       <div class="modal-title">${o.id}</div>
@@ -1695,13 +1883,18 @@ async function showOrderDetail(orderId) {
       <div class="modal-list-row"><span style="color:#75887F">Customer</span><strong>${o.customerName}</strong></div>
       <div class="modal-list-row"><span style="color:#75887F">Items</span><span style="text-align:right">${o.items.map(i => `${i.name} × ${i.qty}`).join(', ')}</span></div>
       <div class="modal-list-row"><span style="color:#75887F">Amount</span><strong>${naira(o.amount)}</strong></div>
+      ${o.paymentStatus === 'Partial' || (o.amountPaid > 0 && o.amountPaid < o.amount) ? `
+      <div class="modal-list-row"><span style="color:#75887F">Paid so far</span><span style="color:#0F6E56">${naira(o.amountPaid)}</span></div>
+      <div class="modal-list-row"><span style="color:#75887F">Balance remaining</span><strong style="color:#BA7517">${naira(o.balanceRemaining)}</strong></div>
+      ` : ''}
       <div class="modal-list-row"><span style="color:#75887F">Payment</span><span class="pill ${paymentPill[o.paymentStatus] || 'p-gray'}">${o.paymentStatus}</span></div>
       <div class="modal-list-row"><span style="color:#75887F">Status</span><span class="pill ${statusPill[o.status] || 'p-gray'}">${o.status}</span></div>
       <div class="modal-list-row"><span style="color:#75887F">Delivery</span><span>${o.delivery || '—'}</span></div>
 
-      <div class="modal-actions">
+      <div class="modal-actions" style="flex-wrap:wrap">
         <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button>
         <button class="modal-btn modal-btn-secondary" onclick="showEditOrder('${o.id}')"><i class="ti ti-edit" aria-hidden="true"></i> Edit</button>
+        <button class="modal-btn modal-btn-primary" onclick="openReceipt('${o.id}')"><i class="ti ti-receipt" aria-hidden="true"></i> Receipt</button>
         <button class="modal-btn modal-btn-danger" onclick="deleteOrder('${o.id}')"><i class="ti ti-trash" aria-hidden="true"></i> Delete</button>
       </div>
     `);
@@ -1714,7 +1907,7 @@ async function showOrderDetail(orderId) {
 async function showEditOrder(orderId) {
   const o = await apiFetch(`${API_BASE}/api/orders/${orderId}`).then(r => r.json());
   const statuses = ['New', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
-  const paymentStatuses = ['Awaiting', 'Paid', 'Cancelled'];
+  const paymentStatuses = ['Awaiting', 'Partial', 'Paid', 'Cancelled'];
   openModal(`
     <div class="modal-title"><i class="ti ti-edit" style="color:#1D9E75" aria-hidden="true"></i> Edit ${o.id}</div>
     <div class="modal-sub">${o.customerName}</div>
@@ -1770,6 +1963,70 @@ async function deleteOrder(orderId) {
     updateOrdersBadge();
   } catch (err) {
     alert('Could not delete order.');
+  }
+}
+
+// --- Receipt — opens a clean, print-ready receipt in a new tab. "Shareable"
+// here means: the browser's own Print dialog lets the business owner save it
+// as a PDF or print it physically to hand to the customer. No PDF library
+// needed — window.print() covers both cases.
+async function openReceipt(orderId) {
+  try {
+    const o = await apiFetch(`${API_BASE}/api/orders/${orderId}`).then(r => r.json());
+    const businessName = localStorage.getItem('bizflow_business') || 'My Business';
+    const itemRows = o.items.map(i => `
+      <tr>
+        <td style="padding:8px 0">${i.name}</td>
+        <td style="padding:8px 0;text-align:center">${i.qty}</td>
+        <td style="padding:8px 0;text-align:right">${naira(i.qty > 0 ? o.amount / o.items.reduce((s, x) => s + x.qty, 0) * i.qty : 0)}</td>
+      </tr>`).join('');
+
+    const receiptHtml = `
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Receipt — ${o.id}</title>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:420px;margin:40px auto;color:#16241F;padding:0 20px}
+  .header{text-align:center;margin-bottom:24px}
+  .biz-name{font-size:19px;font-weight:700;margin-bottom:2px}
+  .receipt-label{font-size:12px;color:#75887F;letter-spacing:1px;text-transform:uppercase;margin-top:6px}
+  .meta-row{display:flex;justify-content:space-between;font-size:13px;color:#4A5B54;padding:4px 0}
+  hr{border:none;border-top:1px dashed #D9E4DF;margin:16px 0}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;font-size:10.5px;text-transform:uppercase;color:#75887F;padding-bottom:6px;border-bottom:1px solid #E2E8E5}
+  th:nth-child(2){text-align:center} th:nth-child(3){text-align:right}
+  .total-row{display:flex;justify-content:space-between;font-size:17px;font-weight:700;margin-top:14px;padding-top:14px;border-top:2px solid #16241F}
+  .status-badge{display:inline-block;margin-top:10px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600}
+  .footer{text-align:center;margin-top:32px;font-size:12px;color:#75887F}
+  .print-btn{display:block;width:100%;margin-top:28px;padding:12px;border:none;border-radius:9px;background:#0F6E56;color:#fff;font-size:14px;font-weight:600;cursor:pointer}
+  @media print{.print-btn{display:none}}
+</style></head>
+<body>
+  <div class="header">
+    <div class="biz-name">${businessName}</div>
+    <div class="receipt-label">Receipt</div>
+  </div>
+  <div class="meta-row"><span>Receipt #</span><strong>${o.id}</strong></div>
+  <div class="meta-row"><span>Date</span><span>${new Date(o.date).toLocaleString()}</span></div>
+  <div class="meta-row"><span>Customer</span><span>${o.customerName}</span></div>
+  <hr>
+  <table>
+    <thead><tr><th>Item</th><th>Qty</th><th>Amount</th></tr></thead>
+    <tbody>${itemRows}</tbody>
+  </table>
+  <div class="total-row"><span>Total</span><span>${naira(o.amount)}</span></div>
+  <div style="text-align:center">
+    <span class="status-badge" style="background:${o.paymentStatus === 'Paid' ? '#E1F5EE;color:#085041' : o.paymentStatus === 'Partial' ? '#FAEEDA;color:#633806' : '#FCEBEB;color:#791F1F'}">${o.paymentStatus === 'Paid' ? 'PAID IN FULL' : o.paymentStatus === 'Partial' ? 'PARTIALLY PAID' : 'PAYMENT PENDING'}</span>
+  </div>
+  <div class="footer">Thank you for your business!</div>
+  <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+</body></html>`;
+
+    const receiptWindow = window.open('', '_blank');
+    if (!receiptWindow) { alert('Please allow popups to view the receipt.'); return; }
+    receiptWindow.document.write(receiptHtml);
+    receiptWindow.document.close();
+  } catch (err) {
+    alert('Could not generate the receipt.');
   }
 }
 
