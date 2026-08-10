@@ -457,7 +457,7 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
         </div>
         <div class="card" style="padding:0;overflow:hidden">
           <table style="table-layout:fixed">
-            <thead><tr><th style="padding:12px 14px;width:90px">Order</th><th style="padding:12px 6px;width:130px">Customer</th><th style="padding:12px 6px">Item(s)</th><th style="padding:12px 6px;width:90px">Amount</th><th style="padding:12px 6px;width:80px">Payment</th><th style="padding:12px 6px;width:85px">Status</th><th style="padding:12px 6px;width:75px">Delivery</th></tr></thead>
+            <thead><tr><th style="padding:12px 14px;width:90px">Order</th><th style="padding:12px 6px;width:130px">Customer</th><th style="padding:12px 6px">Item(s)</th><th style="padding:12px 6px;width:90px">Amount</th><th style="padding:12px 6px;width:80px">Payment</th><th style="padding:12px 6px;width:85px">Status</th><th style="padding:12px 6px;width:75px">Delivery</th><th style="padding:12px 6px;width:60px"></th></tr></thead>
             <tbody id="orders-tbody">
               <tr><td colspan="7" style="padding:14px;text-align:center;color:var(--color-text-secondary)">Loading…</td></tr>
             </tbody>
@@ -952,6 +952,7 @@ function renderOrders(orders) {
       <td style="padding:10px 6px"><span class="pill ${paymentPill[o.paymentStatus] || 'p-gray'}">${o.paymentStatus}</span></td>
       <td style="padding:10px 6px"><span class="pill ${statusPill[o.status] || 'p-gray'}">${o.status}</span></td>
       <td style="padding:10px 6px;font-size:11px;color:var(--color-text-secondary)">${o.delivery || '—'}</td>
+      <td style="padding:10px 6px">${(o.paymentStatus === 'Awaiting' || o.paymentStatus === 'Partial') ? `<button class="btn" style="font-size:10.5px;padding:5px 8px" onclick="event.stopPropagation();quickMarkPaid('${o.id}')" title="Mark paid without opening this order"><i class="ti ti-check" style="font-size:11px" aria-hidden="true"></i> Paid</button>` : ''}</td>
     </tr>
   `).join('');
 }
@@ -1963,6 +1964,58 @@ function toggleEditPaymentFields() {
   document.getElementById('eo-payment-fields').style.display = (status === 'Paid' || status === 'Partial') ? 'block' : 'none';
 }
 
+// Quick "mark paid" straight from the Orders table row — no need to open
+// the order detail popup first. Scoped to one specific order (unlike the
+// Payments panel's "Mark as paid" button, which lets you pick from a list).
+async function quickMarkPaid(orderId) {
+  try {
+    const o = await apiFetch(`${API_BASE}/api/orders/${orderId}`).then(r => r.json());
+    openModal(`
+      <div class="modal-title"><i class="ti ti-check" style="color:#1D9E75" aria-hidden="true"></i> Mark ${o.id} as paid</div>
+      <div class="modal-sub">${o.customerName} · ${naira(o.amountPaid)} paid of ${naira(o.amount)} so far</div>
+
+      <div class="modal-field">
+        <label class="modal-label">Amount received now (₦)</label>
+        <input id="qmp-amount" type="number" class="modal-input" value="${o.balanceRemaining}">
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">Method</label>
+        <select id="qmp-method" class="modal-select">
+          <option>Transfer</option><option>POS</option><option>Cash</option>
+        </select>
+      </div>
+      <div id="qmp-error" class="modal-error"></div>
+      <div class="modal-actions">
+        <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="modal-btn modal-btn-primary" onclick="submitQuickMarkPaid('${o.id}')">Confirm payment</button>
+      </div>
+    `);
+  } catch (err) {
+    alert('Could not load this order.');
+  }
+}
+
+async function submitQuickMarkPaid(orderId) {
+  const amount = document.getElementById('qmp-amount').value;
+  const method = document.getElementById('qmp-method').value;
+  const errorEl = document.getElementById('qmp-error');
+  if (!amount || Number(amount) <= 0) { errorEl.textContent = 'Enter an amount greater than zero.'; return; }
+
+  try {
+    const response = await apiFetch(`${API_BASE}/api/payments/${orderId}/mark-paid`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount, method })
+    });
+    if (!response.ok) throw new Error((await response.json()).error || 'Request failed');
+    closeModal();
+    if (window._ordersDone) loadOrders();
+    updateOrdersBadge();
+    if (window._payDone) loadPayments();
+  } catch (err) {
+    errorEl.textContent = 'Could not record payment: ' + err.message;
+  }
+}
+
 async function submitEditOrder(orderId) {
   const original = window._editOrderData;
   const status = document.getElementById('eo-status').value;
@@ -2065,6 +2118,10 @@ async function openReceipt(orderId) {
     <tbody>${itemRows}</tbody>
   </table>
   <div class="total-row"><span>Total</span><span>${naira(o.amount)}</span></div>
+  ${o.paymentStatus === 'Partial' || (o.amountPaid > 0 && o.amountPaid < o.amount) ? `
+  <div class="meta-row" style="margin-top:8px"><span>Amount paid</span><span style="color:#0F6E56;font-weight:600">${naira(o.amountPaid)}</span></div>
+  <div class="meta-row"><span>Balance due</span><span style="color:#BA7517;font-weight:600">${naira(o.balanceRemaining)}</span></div>
+  ` : ''}
   <div style="text-align:center">
     <span class="status-badge" style="background:${o.paymentStatus === 'Paid' ? '#E1F5EE;color:#085041' : o.paymentStatus === 'Partial' ? '#FAEEDA;color:#633806' : '#FCEBEB;color:#791F1F'}">${o.paymentStatus === 'Paid' ? 'PAID IN FULL' : o.paymentStatus === 'Partial' ? 'PARTIALLY PAID' : 'PAYMENT PENDING'}</span>
   </div>
