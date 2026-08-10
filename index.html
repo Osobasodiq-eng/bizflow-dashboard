@@ -940,6 +940,8 @@ function renderOrders(orders) {
     return;
   }
   const paymentPill = { Paid: 'p-green', Partial: 'p-blue', Awaiting: 'p-amber', Cancelled: 'p-red' };
+  const statusPill = { New: 'p-blue', Processing: 'p-blue', Shipped: 'p-purple', Delivered: 'p-green', Cancelled: 'p-red' };
+  const initials = name => name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 
   tbody.innerHTML = orders.map(o => `
     <tr style="cursor:pointer" onclick="showOrderDetail('${o.id}')">
