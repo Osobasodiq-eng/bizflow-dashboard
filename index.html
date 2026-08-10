@@ -1908,11 +1908,12 @@ async function showOrderDetail(orderId) {
 // --- Edit order (status / payment status / delivery) ---
 async function showEditOrder(orderId) {
   const o = await apiFetch(`${API_BASE}/api/orders/${orderId}`).then(r => r.json());
+  window._editOrderData = o; // stashed so submitEditOrder can compare against the ORIGINAL payment status
   const statuses = ['New', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
   const paymentStatuses = ['Awaiting', 'Partial', 'Paid', 'Cancelled'];
   openModal(`
     <div class="modal-title"><i class="ti ti-edit" style="color:#1D9E75" aria-hidden="true"></i> Edit ${o.id}</div>
-    <div class="modal-sub">${o.customerName}</div>
+    <div class="modal-sub">${o.customerName} · ${naira(o.amountPaid)} paid of ${naira(o.amount)}</div>
 
     <div class="modal-field">
       <label class="modal-label">Order status</label>
@@ -1922,9 +1923,24 @@ async function showEditOrder(orderId) {
     </div>
     <div class="modal-field">
       <label class="modal-label">Payment status</label>
-      <select id="eo-payment" class="modal-select">
+      <select id="eo-payment" class="modal-select" onchange="toggleEditPaymentFields()">
         ${paymentStatuses.map(s => `<option ${s === o.paymentStatus ? 'selected' : ''}>${s}</option>`).join('')}
       </select>
+    </div>
+    <div id="eo-payment-fields" style="display:none;background:#F4F8F6;border-radius:9px;padding:12px;margin-bottom:14px">
+      <div class="modal-info-box" style="margin-bottom:10px">Setting this to Paid/Partial records a real payment, so it shows up correctly in your Payments log and revenue totals.</div>
+      <div class="modal-row">
+        <div>
+          <label class="modal-label">Amount received now (₦)</label>
+          <input id="eo-amount" type="number" class="modal-input" value="${o.balanceRemaining}">
+        </div>
+        <div>
+          <label class="modal-label">Method</label>
+          <select id="eo-method" class="modal-select">
+            <option>Transfer</option><option>POS</option><option>Cash</option>
+          </select>
+        </div>
+      </div>
     </div>
     <div class="modal-field">
       <label class="modal-label">Delivery courier</label>
@@ -1936,23 +1952,56 @@ async function showEditOrder(orderId) {
       <button class="modal-btn modal-btn-primary" onclick="submitEditOrder('${o.id}')">Save changes</button>
     </div>
   `);
+  toggleEditPaymentFields(); // show/hide the amount+method block based on the order's current status
+}
+
+// Shows the Amount/Method fields only when the payment status dropdown is
+// set to Paid or Partial — Awaiting/Cancelled don't involve money changing
+// hands, so those stay a simple status edit.
+function toggleEditPaymentFields() {
+  const status = document.getElementById('eo-payment').value;
+  document.getElementById('eo-payment-fields').style.display = (status === 'Paid' || status === 'Partial') ? 'block' : 'none';
 }
 
 async function submitEditOrder(orderId) {
+  const original = window._editOrderData;
   const status = document.getElementById('eo-status').value;
   const paymentStatus = document.getElementById('eo-payment').value;
   const delivery = document.getElementById('eo-delivery').value.trim();
+  const errorEl = document.getElementById('eo-error');
+
   try {
+    // Paid/Partial always goes through the real mark-paid endpoint, so a
+    // genuine payment record gets created — this is what makes it actually
+    // show up in the Payments log and revenue totals, not just relabel the order.
+    if (paymentStatus === 'Paid' || paymentStatus === 'Partial') {
+      const amount = document.getElementById('eo-amount').value;
+      if (!amount || Number(amount) <= 0) throw new Error('Enter how much was actually received.');
+      const method = document.getElementById('eo-method').value;
+      const payResponse = await apiFetch(`${API_BASE}/api/payments/${orderId}/mark-paid`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount, method })
+      });
+      if (!payResponse.ok) throw new Error((await payResponse.json()).error || 'Could not record payment');
+    }
+
+    // Order status / delivery are plain fields with no money implication —
+    // Awaiting/Cancelled payment status also goes through here directly.
+    const body = { status, delivery: delivery || null };
+    if (paymentStatus === 'Awaiting' || paymentStatus === 'Cancelled') body.paymentStatus = paymentStatus;
+
     const response = await apiFetch(`${API_BASE}/api/orders/${orderId}`, {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status, paymentStatus, delivery: delivery || null })
+      body: JSON.stringify(body)
     });
     if (!response.ok) throw new Error('Request failed');
+
     closeModal();
     if (window._ordersDone) loadOrders();
     updateOrdersBadge();
+    if (window._payDone) loadPayments(); // keep the Payments panel in sync too, if it's already loaded
   } catch (err) {
-    document.getElementById('eo-error').textContent = 'Could not save changes: ' + err.message;
+    errorEl.textContent = 'Could not save changes: ' + err.message;
   }
 }
 
