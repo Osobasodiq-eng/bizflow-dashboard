@@ -506,7 +506,7 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
         </div>
         <div class="row2b">
           <div class="card" style="grid-column:1/-1">
-            <div class="card-head"><div class="card-title">Product inventory</div><div style="display:flex;gap:8px"><button class="btn" style="font-size:12px" onclick="openImportModal('products')"><i class="ti ti-upload" style="font-size:12px" aria-hidden="true"></i> Import CSV</button><button class="btn" style="font-size:12px" onclick="exportProductsCSV()"><i class="ti ti-download" style="font-size:12px" aria-hidden="true"></i> Export CSV</button><button class="btn btn-g" style="font-size:12px" onclick="openAddProductModal()"><i class="ti ti-plus" style="font-size:12px" aria-hidden="true"></i> Add product</button></div></div>
+            <div class="card-head"><div class="card-title">Product inventory</div><div style="display:flex;gap:8px"><button class="btn" style="font-size:12px" onclick="showInventoryHistory()"><i class="ti ti-history" style="font-size:12px" aria-hidden="true"></i> History</button><button class="btn" style="font-size:12px" onclick="openImportModal('products')"><i class="ti ti-upload" style="font-size:12px" aria-hidden="true"></i> Import CSV</button><button class="btn" style="font-size:12px" onclick="exportProductsCSV()"><i class="ti ti-download" style="font-size:12px" aria-hidden="true"></i> Export CSV</button><button class="btn btn-g" style="font-size:12px" onclick="openAddProductModal()"><i class="ti ti-plus" style="font-size:12px" aria-hidden="true"></i> Add product</button></div></div>
             <div id="inventory-list">
               <div class="inv-row">Loading…</div>
             </div>
@@ -1429,6 +1429,53 @@ async function deleteProduct(productId) {
     updateInventoryBadge();
   } catch (err) {
     alert('Could not delete product.');
+  }
+}
+
+// --- Inventory History — audit trail of every stock change, for accountability ---
+async function showInventoryHistory() {
+  openModal(`
+    <div class="modal-title"><i class="ti ti-history" style="color:#1D9E75" aria-hidden="true"></i> Inventory history</div>
+    <div class="modal-sub">Every stock change, most recent first</div>
+    <div id="ih-list" style="max-height:400px;overflow-y:auto">
+      <div style="padding:14px;text-align:center;color:#75887F;font-size:12px">Loading…</div>
+    </div>
+    <div class="modal-actions"><button class="modal-btn modal-btn-secondary" style="width:100%" onclick="closeModal()">Close</button></div>
+  `);
+
+  try {
+    const history = await apiFetch(`${API_BASE}/api/products/history`).then(r => r.json());
+    if (!history.length) {
+      document.getElementById('ih-list').innerHTML = `<div style="padding:14px;text-align:center;color:#75887F;font-size:12px">No stock changes recorded yet.</div>`;
+      return;
+    }
+
+    const typeIcon = {
+      'New product': 'ti-plus', 'Manual adjustment': 'ti-edit', 'Sale': 'ti-shopping-bag',
+      'CSV import': 'ti-upload', 'Product deleted': 'ti-trash',
+    };
+    document.getElementById('ih-list').innerHTML = history.map(h => {
+      const isIncrease = h.quantityChange > 0;
+      return `
+        <div class="modal-list-row" style="align-items:flex-start">
+          <div style="display:flex;gap:10px;align-items:flex-start">
+            <div style="width:26px;height:26px;border-radius:7px;background:${isIncrease ? '#E1F5EE' : '#FCEBEB'};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">
+              <i class="ti ${typeIcon[h.changeType] || 'ti-package'}" style="font-size:13px;color:${isIncrease ? '#0F6E56' : '#A32D2D'}" aria-hidden="true"></i>
+            </div>
+            <div>
+              <div style="font-size:12.5px"><strong>${h.productName}</strong> — ${h.changeType}</div>
+              <div style="font-size:11px;color:#75887F">${new Date(h.date).toLocaleString()}${h.note ? ' · ' + h.note : ''}</div>
+            </div>
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            <div style="font-size:13px;font-weight:600;color:${isIncrease ? '#0F6E56' : '#A32D2D'}">${isIncrease ? '+' : ''}${h.quantityChange}</div>
+            <div style="font-size:10.5px;color:#A3B3AC">${h.quantityBefore} → ${h.quantityAfter}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  } catch (err) {
+    document.getElementById('ih-list').innerHTML = `<div style="padding:14px;text-align:center;color:#A32D2D;font-size:12px">Could not load history.</div>`;
   }
 }
 
