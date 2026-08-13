@@ -491,6 +491,10 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
         </div>
         <div class="card">
           <div class="card-head"><div class="card-title">All customers</div><div style="display:flex;gap:10px;align-items:center"><button class="btn" style="font-size:12px" onclick="openImportModal('customers')"><i class="ti ti-upload" style="font-size:12px" aria-hidden="true"></i> Import CSV</button><button class="btn btn-g" style="font-size:12px" onclick="openAddCustomerModal()"><i class="ti ti-user-plus" style="font-size:12px" aria-hidden="true"></i> Add customer</button><div class="card-link" onclick="exportCustomersCSV()">Export CSV</div></div></div>
+          <div style="display:flex;gap:8px;margin-bottom:12px">
+            <input type="text" id="customer-search" placeholder="Search by name or phone..." style="flex:1" oninput="filterCustomers()">
+            <select id="customer-tag-filter" onchange="filterCustomers()"><option value="">All tags</option><option value="VIP">VIP</option><option value="Frequent">Frequent</option><option value="New">New</option><option value="At Risk">At Risk</option></select>
+          </div>
           <table>
             <thead><tr><th style="width:130px">Customer</th><th>Phone</th><th>Orders</th><th>Spend</th><th>Last order</th><th>Tag</th></tr></thead>
             <tbody id="customers-tbody">
@@ -510,6 +514,11 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
         <div class="row2b">
           <div class="card" style="grid-column:1/-1">
             <div class="card-head"><div class="card-title">Product inventory</div><div style="display:flex;gap:8px"><button class="btn" style="font-size:12px" onclick="showInventoryHistory()"><i class="ti ti-history" style="font-size:12px" aria-hidden="true"></i> History</button><button class="btn" style="font-size:12px" onclick="openImportModal('products')"><i class="ti ti-upload" style="font-size:12px" aria-hidden="true"></i> Import CSV</button><button class="btn" style="font-size:12px" onclick="exportProductsCSV()"><i class="ti ti-download" style="font-size:12px" aria-hidden="true"></i> Export CSV</button><button class="btn btn-g" style="font-size:12px" onclick="openAddProductModal()"><i class="ti ti-plus" style="font-size:12px" aria-hidden="true"></i> Add product</button></div></div>
+            <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+              <input type="text" id="inventory-search" placeholder="Search by product name..." style="flex:1;min-width:160px" oninput="filterInventory()">
+              <select id="inventory-category-filter" onchange="filterInventory()"><option value="">All categories</option></select>
+              <select id="inventory-stock-filter" onchange="filterInventory()"><option value="">All stock levels</option><option value="ok">In stock</option><option value="low">Low stock</option><option value="out">Out of stock</option></select>
+            </div>
             <div id="inventory-list">
               <div class="inv-row">Loading…</div>
             </div>
@@ -533,6 +542,10 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
         </div>
         <div class="card">
           <div class="card-head"><div class="card-title">Payment log</div><div style="display:flex;gap:8px"><button class="btn" style="font-size:12px" onclick="openImportModal('payments')"><i class="ti ti-upload" style="font-size:12px" aria-hidden="true"></i> Import CSV</button><button class="btn" style="font-size:12px" onclick="exportPaymentsCSV()"><i class="ti ti-download" style="font-size:12px" aria-hidden="true"></i> Export CSV</button><button class="btn btn-g" style="font-size:12px" onclick="openMarkPaidModal()"><i class="ti ti-check" style="font-size:12px" aria-hidden="true"></i> Mark as paid</button></div></div>
+          <div style="display:flex;gap:8px;margin-bottom:12px">
+            <input type="text" id="payment-search" placeholder="Search by customer or order..." style="flex:1" oninput="filterPayments()">
+            <select id="payment-method-filter" onchange="filterPayments()"><option value="">All methods</option><option value="Transfer">Transfer</option><option value="POS">POS</option><option value="Cash">Cash</option></select>
+          </div>
           <table>
             <thead><tr><th>Order</th><th>Customer</th><th>Amount</th><th>Method</th><th>Ref</th><th>Status</th><th>Date</th></tr></thead>
             <tbody id="payments-tbody">
@@ -565,6 +578,10 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
         </div>
         <div class="card">
           <div class="card-head"><div class="card-title">Expense log</div><div style="display:flex;gap:8px"><button class="btn" style="font-size:12px" onclick="openImportModal('expenses')"><i class="ti ti-upload" style="font-size:12px" aria-hidden="true"></i> Import CSV</button><button class="btn" style="font-size:12px" onclick="exportExpensesCSV()"><i class="ti ti-download" style="font-size:12px" aria-hidden="true"></i> Export CSV</button><button class="btn btn-g" style="font-size:12px" onclick="openAddExpenseModal()"><i class="ti ti-plus" style="font-size:12px" aria-hidden="true"></i> Add expense</button></div></div>
+          <div style="display:flex;gap:8px;margin-bottom:12px">
+            <input type="text" id="expense-search" placeholder="Search by description..." style="flex:1" oninput="filterExpenses()">
+            <select id="expense-category-filter" onchange="filterExpenses()"><option value="">All categories</option></select>
+          </div>
           <table>
             <thead><tr><th>Description</th><th>Category</th><th>Amount</th><th>Date</th><th></th></tr></thead>
             <tbody id="expenses-tbody">
@@ -985,6 +1002,36 @@ document.getElementById('order-status-filter').addEventListener('change', () => 
 // CUSTOMERS — segments chart + detail card + table
 // ================================================================
 
+const initials = name => name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+const tagPill = { VIP: 'p-amber', Frequent: 'p-blue', New: 'p-green', 'At Risk': 'p-red' };
+
+function renderCustomersTable(customers) {
+  document.getElementById('customers-tbody').innerHTML = customers.length ? customers.map(c => `
+    <tr>
+      <td><div class="cr"><div class="av">${initials(c.name)}</div>${c.name}</div></td>
+      <td style="color:var(--color-text-secondary);font-size:11px">${c.phone}</td>
+      <td>${c.orderCount}</td>
+      <td class="amt">${naira(c.spend)}</td>
+      <td style="font-size:11px;color:var(--color-text-secondary)">${c.lastOrderDate ? new Date(c.lastOrderDate).toLocaleDateString() : '—'}</td>
+      <td><span class="pill ${tagPill[c.tag] || 'p-gray'}">${c.tag}</span></td>
+    </tr>
+  `).join('') : `<tr><td colspan="6" style="padding:14px;text-align:center;color:var(--color-text-secondary)">No customers match.</td></tr>`;
+}
+
+// Re-filters the ALREADY-LOADED customer list — no new API call needed,
+// since the full list is cached in window._lastCustomers by loadCustomers().
+function filterCustomers() {
+  const search = document.getElementById('customer-search').value.trim().toLowerCase();
+  const tag = document.getElementById('customer-tag-filter').value;
+  const all = window._lastCustomers || [];
+  const filtered = all.filter(c => {
+    const matchesSearch = !search || c.name.toLowerCase().includes(search) || c.phone.toLowerCase().includes(search);
+    const matchesTag = !tag || c.tag === tag;
+    return matchesSearch && matchesTag;
+  });
+  renderCustomersTable(filtered);
+}
+
 async function loadCustomers() {
   try {
     const [segments, customers] = await Promise.all([
@@ -1006,9 +1053,6 @@ async function loadCustomers() {
       }
     });
 
-    const initials = name => name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-    const tagPill = { VIP: 'p-amber', Frequent: 'p-blue', New: 'p-green', 'At Risk': 'p-red' };
-
     // Show the highest-spending customer in the detail card
     const featured = [...customers].sort((a, b) => b.spend - a.spend)[0];
     window._lastCustomers = customers;
@@ -1026,16 +1070,7 @@ async function loadCustomers() {
         ? `Last order: ${featured.lastOrderItem}` : 'No orders yet';
     }
 
-    document.getElementById('customers-tbody').innerHTML = customers.map(c => `
-      <tr>
-        <td><div class="cr"><div class="av">${initials(c.name)}</div>${c.name}</div></td>
-        <td style="color:var(--color-text-secondary);font-size:11px">${c.phone}</td>
-        <td>${c.orderCount}</td>
-        <td class="amt">${naira(c.spend)}</td>
-        <td style="font-size:11px;color:var(--color-text-secondary)">${c.lastOrderDate ? new Date(c.lastOrderDate).toLocaleDateString() : '—'}</td>
-        <td><span class="pill ${tagPill[c.tag] || 'p-gray'}">${c.tag}</span></td>
-      </tr>
-    `).join('');
+    renderCustomersTable(customers);
   } catch (err) {
     console.error('Failed to load customers:', err);
   }
@@ -1044,6 +1079,62 @@ async function loadCustomers() {
 // ================================================================
 // INVENTORY — KPIs + product list + "Add product"
 // ================================================================
+
+function renderInventoryList(products) {
+  if (!products.length) {
+    document.getElementById('inventory-list').innerHTML = `<div style="padding:14px;text-align:center;color:var(--color-text-secondary)">No products match.</div>`;
+    return;
+  }
+  document.getElementById('inventory-list').innerHTML = products.map(p => {
+    const margin = Math.round(((p.price - p.cost) / p.price) * 100);
+    const pct = Math.min(100, Math.round((p.quantity / (p.threshold * 4)) * 100));
+    let color = '#1D9E75', label = `${p.quantity} units`, sub = `Threshold: ${p.threshold}`, subColor = 'var(--color-text-secondary)';
+    if (p.quantity === 0) { color = '#E24B4A'; subColor = '#A32D2D'; sub = 'Out of stock'; }
+    else if (p.quantity <= p.threshold) { color = '#EF9F27'; subColor = '#BA7517'; sub = 'Low stock'; }
+    return `
+      <div class="inv-row">
+        <div class="inv-top">
+          <div><div class="inv-name">${p.name} <span class="pill p-gray" style="margin-left:6px">${p.id}</span></div>
+          <div class="inv-meta">Cost ${naira(p.cost)} · Sells ${naira(p.price)} · Margin ${margin}%</div></div>
+          <div style="text-align:right;display:flex;align-items:center;gap:10px">
+            <div><div style="font-size:13px;font-weight:500;color:${p.quantity <= p.threshold ? (p.quantity === 0 ? '#A32D2D' : '#BA7517') : '#0F6E56'}">${label}</div><div style="font-size:10px;color:${subColor}">${sub}</div></div>
+            <button class="btn" style="font-size:11px;padding:5px 8px" onclick="showEditProduct('${p.id}')" title="Edit"><i class="ti ti-pencil" style="font-size:12px" aria-hidden="true"></i></button>
+            <button class="btn" style="font-size:11px;padding:5px 8px;color:#A32D2D" onclick="deleteProduct('${p.id}')" title="Delete"><i class="ti ti-trash" style="font-size:12px" aria-hidden="true"></i></button>
+          </div>
+        </div>
+        <div class="bar-wrap" style="margin-top:8px"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      </div>
+    `;
+  }).join('');
+}
+
+// Populates the category dropdown with whatever categories actually exist
+// in this business's inventory — not a hardcoded list.
+function populateCategoryFilter(products) {
+  const select = document.getElementById('inventory-category-filter');
+  const categories = [...new Set(products.map(p => p.category))].sort();
+  const current = select.value;
+  select.innerHTML = '<option value="">All categories</option>' + categories.map(c => `<option value="${c}">${c}</option>`).join('');
+  select.value = current; // preserve selection across refreshes
+}
+
+function filterInventory() {
+  const search = document.getElementById('inventory-search').value.trim().toLowerCase();
+  const category = document.getElementById('inventory-category-filter').value;
+  const stockStatus = document.getElementById('inventory-stock-filter').value;
+  const all = window._lastProducts || [];
+
+  const filtered = all.filter(p => {
+    const matchesSearch = !search || p.name.toLowerCase().includes(search);
+    const matchesCategory = !category || p.category === category;
+    let matchesStock = true;
+    if (stockStatus === 'out') matchesStock = p.quantity === 0;
+    else if (stockStatus === 'low') matchesStock = p.quantity > 0 && p.quantity <= p.threshold;
+    else if (stockStatus === 'ok') matchesStock = p.quantity > p.threshold;
+    return matchesSearch && matchesCategory && matchesStock;
+  });
+  renderInventoryList(filtered);
+}
 
 async function loadInventory() {
   try {
@@ -1060,27 +1151,8 @@ async function loadInventory() {
     document.getElementById('inv-kpi-out-names').textContent = summary.outOfStockNames.join(', ') || 'None';
     window._lastProducts = products;
 
-    document.getElementById('inventory-list').innerHTML = products.map(p => {
-      const margin = Math.round(((p.price - p.cost) / p.price) * 100);
-      const pct = Math.min(100, Math.round((p.quantity / (p.threshold * 4)) * 100));
-      let color = '#1D9E75', label = `${p.quantity} units`, sub = `Threshold: ${p.threshold}`, subColor = 'var(--color-text-secondary)';
-      if (p.quantity === 0) { color = '#E24B4A'; subColor = '#A32D2D'; sub = 'Out of stock'; }
-      else if (p.quantity <= p.threshold) { color = '#EF9F27'; subColor = '#BA7517'; sub = 'Low stock'; }
-      return `
-        <div class="inv-row">
-          <div class="inv-top">
-            <div><div class="inv-name">${p.name} <span class="pill p-gray" style="margin-left:6px">${p.id}</span></div>
-            <div class="inv-meta">Cost ${naira(p.cost)} · Sells ${naira(p.price)} · Margin ${margin}%</div></div>
-            <div style="text-align:right;display:flex;align-items:center;gap:10px">
-              <div><div style="font-size:13px;font-weight:500;color:${p.quantity <= p.threshold ? (p.quantity === 0 ? '#A32D2D' : '#BA7517') : '#0F6E56'}">${label}</div><div style="font-size:10px;color:${subColor}">${sub}</div></div>
-              <button class="btn" style="font-size:11px;padding:5px 8px" onclick="showEditProduct('${p.id}')" title="Edit"><i class="ti ti-pencil" style="font-size:12px" aria-hidden="true"></i></button>
-              <button class="btn" style="font-size:11px;padding:5px 8px;color:#A32D2D" onclick="deleteProduct('${p.id}')" title="Delete"><i class="ti ti-trash" style="font-size:12px" aria-hidden="true"></i></button>
-            </div>
-          </div>
-          <div class="bar-wrap" style="margin-top:8px"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
-        </div>
-      `;
-    }).join('');
+    populateCategoryFilter(products);
+    renderInventoryList(products);
   } catch (err) {
     console.error('Failed to load inventory:', err);
   }
@@ -1486,6 +1558,33 @@ async function showInventoryHistory() {
 // PAYMENTS — KPIs + collections chart + log + "Mark as paid"
 // ================================================================
 
+function renderPaymentsTable(payments) {
+  const statusPill = { Confirmed: 'p-green', Awaiting: 'p-amber' };
+  document.getElementById('payments-tbody').innerHTML = payments.length ? payments.map(p => `
+    <tr>
+      <td style="font-size:11px;color:var(--color-text-secondary)">${p.orderId}</td>
+      <td><div class="cr"><div class="av">${p.customerName.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}</div>${p.customerName}</div></td>
+      <td class="amt">${naira(p.amount)}</td>
+      <td>${p.method}</td>
+      <td style="font-size:11px;color:var(--color-text-secondary)">${p.ref || '—'}</td>
+      <td><span class="pill ${statusPill[p.status] || 'p-gray'}">${p.status}</span></td>
+      <td style="font-size:11px;color:var(--color-text-secondary)">${p.date ? new Date(p.date).toLocaleString() : 'Pending'}</td>
+    </tr>
+  `).join('') : `<tr><td colspan="7" style="padding:14px;text-align:center;color:var(--color-text-secondary)">No payments match.</td></tr>`;
+}
+
+function filterPayments() {
+  const search = document.getElementById('payment-search').value.trim().toLowerCase();
+  const method = document.getElementById('payment-method-filter').value;
+  const all = window._lastPayments || [];
+  const filtered = all.filter(p => {
+    const matchesSearch = !search || p.customerName.toLowerCase().includes(search) || p.orderId.toLowerCase().includes(search);
+    const matchesMethod = !method || p.method === method;
+    return matchesSearch && matchesMethod;
+  });
+  renderPaymentsTable(filtered);
+}
+
 async function loadPayments() {
   try {
     const [summary, collections, payments] = await Promise.all([
@@ -1520,18 +1619,8 @@ async function loadPayments() {
       }
     });
 
-    const statusPill = { Confirmed: 'p-green', Awaiting: 'p-amber' };
-    document.getElementById('payments-tbody').innerHTML = payments.map(p => `
-      <tr>
-        <td style="font-size:11px;color:var(--color-text-secondary)">${p.orderId}</td>
-        <td><div class="cr"><div class="av">${p.customerName.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}</div>${p.customerName}</div></td>
-        <td class="amt">${naira(p.amount)}</td>
-        <td>${p.method}</td>
-        <td style="font-size:11px;color:var(--color-text-secondary)">${p.ref || '—'}</td>
-        <td><span class="pill ${statusPill[p.status] || 'p-gray'}">${p.status}</span></td>
-        <td style="font-size:11px;color:var(--color-text-secondary)">${p.date ? new Date(p.date).toLocaleString() : 'Pending'}</td>
-      </tr>
-    `).join('');
+    window._lastPayments = payments;
+    renderPaymentsTable(payments);
   } catch (err) {
     console.error('Failed to load payments:', err);
   }
@@ -1540,6 +1629,38 @@ async function loadPayments() {
 // ================================================================
 // EXPENSES — money going OUT of the business
 // ================================================================
+
+function renderExpensesTable(expenses) {
+  document.getElementById('expenses-tbody').innerHTML = expenses.length ? expenses.map(e => `
+    <tr>
+      <td>${e.description}</td>
+      <td><span class="pill p-gray">${e.category}</span></td>
+      <td class="amt">${naira(e.amount)}</td>
+      <td style="font-size:11px;color:var(--color-text-secondary)">${new Date(e.date).toLocaleDateString()}</td>
+      <td><button class="btn" style="font-size:11px;padding:5px 8px;color:#A32D2D" onclick="deleteExpense(${e.id})" title="Delete"><i class="ti ti-trash" style="font-size:12px" aria-hidden="true"></i></button></td>
+    </tr>
+  `).join('') : `<tr><td colspan="5" style="padding:14px;text-align:center;color:var(--color-text-secondary)">No expenses match.</td></tr>`;
+}
+
+function populateExpenseCategoryFilter(expenses) {
+  const select = document.getElementById('expense-category-filter');
+  const categories = [...new Set(expenses.map(e => e.category))].sort();
+  const current = select.value;
+  select.innerHTML = '<option value="">All categories</option>' + categories.map(c => `<option value="${c}">${c}</option>`).join('');
+  select.value = current;
+}
+
+function filterExpenses() {
+  const search = document.getElementById('expense-search').value.trim().toLowerCase();
+  const category = document.getElementById('expense-category-filter').value;
+  const all = window._lastExpenses || [];
+  const filtered = all.filter(e => {
+    const matchesSearch = !search || e.description.toLowerCase().includes(search);
+    const matchesCategory = !category || e.category === category;
+    return matchesSearch && matchesCategory;
+  });
+  renderExpensesTable(filtered);
+}
 
 async function loadExpenses() {
   try {
@@ -1577,15 +1698,9 @@ async function loadExpenses() {
       }
     });
 
-    document.getElementById('expenses-tbody').innerHTML = expenses.length ? expenses.map(e => `
-      <tr>
-        <td>${e.description}</td>
-        <td><span class="pill p-gray">${e.category}</span></td>
-        <td class="amt">${naira(e.amount)}</td>
-        <td style="font-size:11px;color:var(--color-text-secondary)">${new Date(e.date).toLocaleDateString()}</td>
-        <td><button class="btn" style="font-size:11px;padding:5px 8px;color:#A32D2D" onclick="deleteExpense(${e.id})" title="Delete"><i class="ti ti-trash" style="font-size:12px" aria-hidden="true"></i></button></td>
-      </tr>
-    `).join('') : `<tr><td colspan="5" style="padding:14px;text-align:center;color:var(--color-text-secondary)">No expenses logged yet.</td></tr>`;
+    window._lastExpenses = expenses;
+    populateExpenseCategoryFilter(expenses);
+    renderExpensesTable(expenses);
   } catch (err) {
     console.error('Failed to load expenses:', err);
   }
