@@ -366,6 +366,7 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
       </div>
       <div class="topbar-right">
         <button class="btn" onclick="showBusinessSummary()"><i class="ti ti-sparkles" style="font-size:13px" aria-hidden="true"></i> <span class="btn-text">Business summary</span></button>
+        <button class="btn" onclick="showStoreLink()"><i class="ti ti-link" style="font-size:13px" aria-hidden="true"></i> <span class="btn-text">Store link</span></button>
         <button class="btn btn-g" onclick="openNewOrderModal()"><i class="ti ti-plus" style="font-size:13px" aria-hidden="true"></i> <span class="btn-text">New Order</span></button>
       </div>
     </div>
@@ -776,6 +777,7 @@ async function submitSignup() {
 function onAuthSuccess(data) {
   localStorage.setItem('bizflow_token', data.token);
   localStorage.setItem('bizflow_business', data.business.name);
+  localStorage.setItem('bizflow_business_id', data.business.id);
   localStorage.setItem('bizflow_email', data.email);
   enterApp();
 }
@@ -783,6 +785,7 @@ function onAuthSuccess(data) {
 function logout() {
   localStorage.removeItem('bizflow_token');
   localStorage.removeItem('bizflow_business');
+  localStorage.removeItem('bizflow_business_id');
   localStorage.removeItem('bizflow_email');
   location.reload(); // simplest way to reset all in-memory state back to a clean slate
 }
@@ -2338,6 +2341,56 @@ function openWhatsappChat() {
   const phone = c.phone.replace(/[^0-9]/g, ''); // wa.me needs digits only, no +
   const message = encodeURIComponent(`Hi ${c.name.split(' ')[0]}, this is BizFlow — `);
   window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
+}
+
+// --- Store link (top bar) ---
+const STOREFRONT_BASE = 'https://bizflow-storefront.onrender.com';
+
+// Older sessions (logged in before this feature existed) won't have
+// bizflow_business_id saved yet — fall back to reading it out of the JWT
+// itself so this works immediately without forcing a re-login.
+function getBusinessId() {
+  const saved = localStorage.getItem('bizflow_business_id');
+  if (saved) return saved;
+  try {
+    const token = localStorage.getItem('bizflow_token');
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.businessId;
+  } catch (err) {
+    return null;
+  }
+}
+
+function showStoreLink() {
+  const businessId = getBusinessId();
+  if (!businessId) { alert('Could not find your store ID — try logging out and back in.'); return; }
+  const link = `${STOREFRONT_BASE}/?business=${businessId}`;
+
+  openModal(`
+    <div class="modal-title"><i class="ti ti-link" style="color:#1D9E75" aria-hidden="true"></i> Your store link</div>
+    <div class="modal-sub">Share this with customers on WhatsApp, Instagram, or anywhere else — anyone who opens it can browse your products and order.</div>
+
+    <div style="display:flex;gap:8px;margin-top:14px;">
+      <input id="store-link-input" type="text" readonly value="${link}"
+        style="flex:1;padding:10px 12px;border:1px solid var(--color-border-tertiary);border-radius:8px;font-size:13px;font-family:monospace;background:var(--color-bg-secondary,#F7F7F5);color:var(--color-text-primary)"
+        onclick="this.select()">
+      <button class="modal-btn modal-btn-primary" style="white-space:nowrap" onclick="copyStoreLink()">Copy</button>
+    </div>
+    <div id="store-link-copied" style="font-size:12px;color:#0F6E56;margin-top:8px;display:none;">Copied to clipboard ✓</div>
+
+    <div class="modal-actions"><button class="modal-btn modal-btn-secondary" style="width:100%" onclick="closeModal()">Close</button></div>
+  `);
+}
+
+function copyStoreLink() {
+  const input = document.getElementById('store-link-input');
+  input.select();
+  navigator.clipboard.writeText(input.value).then(() => {
+    document.getElementById('store-link-copied').style.display = 'block';
+  }).catch(() => {
+    // Clipboard API can fail on non-HTTPS or older browsers — the input is
+    // already selected above, so the merchant can still Ctrl+C manually.
+  });
 }
 
 // --- Business summary (top bar) — real numbers, computed, not an AI call ---
