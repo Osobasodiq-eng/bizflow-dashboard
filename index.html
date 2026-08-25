@@ -1418,12 +1418,47 @@ function openAddProductModal() {
       <input id="ap-image-file" type="file" accept="image/*" style="display:none" onchange="uploadProductImage(this, 'ap-image-preview', 'ap-image-url')">
       <input id="ap-image-url" type="hidden" value="">
     </div>
+    <div class="modal-field">
+      <label class="modal-label">Description (optional)</label>
+      <textarea id="ap-description" class="modal-input" rows="3" placeholder="What is this product? What makes it worth buying?"></textarea>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Specifications (optional)</label>
+      <div id="ap-specs-list"></div>
+      <button type="button" class="btn" style="font-size:12px" onclick="addSpecRow('ap-specs-list')"><i class="ti ti-plus" style="font-size:12px" aria-hidden="true"></i> Add spec</button>
+    </div>
     <div id="ap-error" class="modal-error"></div>
     <div class="modal-actions">
       <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="modal-btn modal-btn-primary" onclick="submitAddProduct()">Add product</button>
     </div>
   `);
+}
+
+// --- Product specifications (flexible label/value list) ---
+// Each row is just two text inputs — the merchant defines whatever labels
+// make sense for their product (Size, Material, Volume, whatever). No fixed
+// schema, since BizFlow isn't only for one kind of product.
+function specRowHTML(label, value) {
+  const l = (label || '').replace(/"/g, '&quot;');
+  const v = (value || '').replace(/"/g, '&quot;');
+  return `<div class="spec-row" style="display:flex;gap:8px;margin-bottom:8px;align-items:center;">
+    <input type="text" placeholder="Label (e.g. Size)" class="modal-input spec-label" value="${l}" style="flex:1;">
+    <input type="text" placeholder="Value (e.g. 50ml)" class="modal-input spec-value" value="${v}" style="flex:1;">
+    <div onclick="this.parentElement.remove()" style="cursor:pointer;color:var(--color-text-secondary);font-size:20px;padding:0 6px;line-height:1;" title="Remove">&times;</div>
+  </div>`;
+}
+function addSpecRow(containerId) {
+  document.getElementById(containerId).insertAdjacentHTML('beforeend', specRowHTML('', ''));
+}
+function collectSpecs(containerId) {
+  const specs = [];
+  document.querySelectorAll(`#${containerId} .spec-row`).forEach(row => {
+    const label = row.querySelector('.spec-label').value.trim();
+    const value = row.querySelector('.spec-value').value.trim();
+    if (label && value) specs.push({ label, value });
+  });
+  return specs;
 }
 
 async function submitAddProduct() {
@@ -1433,6 +1468,8 @@ async function submitAddProduct() {
   const price = Number(document.getElementById('ap-price').value);
   const quantity = Number(document.getElementById('ap-qty').value);
   const image_url = document.getElementById('ap-image-url').value || null;
+  const description = document.getElementById('ap-description').value.trim() || null;
+  const specifications = collectSpecs('ap-specs-list');
 
   if (!name) { document.getElementById('ap-error').textContent = 'Product name is required.'; return; }
 
@@ -1440,7 +1477,7 @@ async function submitAddProduct() {
     const response = await apiFetch(`${API_BASE}/api/products`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, category, cost, price, quantity, image_url })
+      body: JSON.stringify({ name, category, cost, price, quantity, image_url, description, specifications })
     });
     if (!response.ok) throw new Error((await response.json()).error || 'Request failed');
     closeModal();
@@ -1531,6 +1568,15 @@ async function showEditProduct(productId) {
       <input id="ep-image-file" type="file" accept="image/*" style="display:none" onchange="uploadProductImage(this, 'ep-image-preview', 'ep-image-url')">
       <input id="ep-image-url" type="hidden" value="${p.image_url || ''}">
     </div>
+    <div class="modal-field">
+      <label class="modal-label">Description (optional)</label>
+      <textarea id="ep-description" class="modal-input" rows="3" placeholder="What is this product? What makes it worth buying?">${p.description || ''}</textarea>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Specifications (optional)</label>
+      <div id="ep-specs-list">${(p.specifications || []).map(s => specRowHTML(s.label, s.value)).join('')}</div>
+      <button type="button" class="btn" style="font-size:12px" onclick="addSpecRow('ep-specs-list')"><i class="ti ti-plus" style="font-size:12px" aria-hidden="true"></i> Add spec</button>
+    </div>
     <div id="ep-error" class="modal-error"></div>
     <div class="modal-actions">
       <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Cancel</button>
@@ -1547,6 +1593,8 @@ async function submitEditProduct(productId) {
     quantity: Number(document.getElementById('ep-qty').value),
     threshold: Number(document.getElementById('ep-threshold').value),
     image_url: document.getElementById('ep-image-url').value || null,
+    description: document.getElementById('ep-description').value.trim() || null,
+    specifications: collectSpecs('ep-specs-list'),
   };
   try {
     const response = await apiFetch(`${API_BASE}/api/products/${productId}`, {
