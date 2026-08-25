@@ -366,6 +366,7 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
       </div>
       <div class="topbar-right">
         <button class="btn" onclick="showBusinessSummary()"><i class="ti ti-sparkles" style="font-size:13px" aria-hidden="true"></i> <span class="btn-text">Business summary</span></button>
+        <button class="btn" onclick="showStorePreview()"><i class="ti ti-eye" style="font-size:13px" aria-hidden="true"></i> <span class="btn-text">Preview store</span></button>
         <button class="btn" onclick="showStoreLink()"><i class="ti ti-link" style="font-size:13px" aria-hidden="true"></i> <span class="btn-text">Store link</span></button>
         <button class="btn" onclick="showStoreSettings()"><i class="ti ti-palette" style="font-size:13px" aria-hidden="true"></i> <span class="btn-text">Store settings</span></button>
         <button class="btn btn-g" onclick="openNewOrderModal()"><i class="ti ti-plus" style="font-size:13px" aria-hidden="true"></i> <span class="btn-text">New Order</span></button>
@@ -2404,6 +2405,24 @@ function openWhatsappChat() {
   window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
 }
 
+function showStorePreview() {
+  const businessId = getBusinessId();
+  if (!businessId) { alert('Could not find your store ID — try logging out and back in.'); return; }
+  const link = `${STOREFRONT_BASE}/?business=${businessId}`;
+
+  openModal(`
+    <div class="modal-title"><i class="ti ti-eye" style="color:#1D9E75" aria-hidden="true"></i> Storefront preview</div>
+    <div class="modal-sub">This is roughly how your store looks to a customer on their phone.</div>
+    <div style="border:1px solid var(--color-border-tertiary);border-radius:14px;overflow:hidden;margin-top:12px;">
+      <iframe src="${link}" style="width:100%;height:600px;border:none;display:block;"></iframe>
+    </div>
+    <div class="modal-actions">
+      <a href="${link}" target="_blank" class="modal-btn modal-btn-secondary" style="text-decoration:none;text-align:center;">Open in new tab</a>
+      <button class="modal-btn modal-btn-primary" style="width:100%" onclick="closeModal()">Close</button>
+    </div>
+  `);
+}
+
 // --- Store link (top bar) ---
 const STOREFRONT_BASE = 'https://bizflow-storefront.onrender.com';
 
@@ -2459,10 +2478,16 @@ function copyStoreLink() {
 // the backend rejects anything else. Colors here are just for the swatch
 // preview in this picker; the storefront applies the real theme itself.
 const STORE_THEMES = {
-  forest:   { label: 'Forest',   primary: '#1F5F45', accent: '#DE9530' },
-  midnight: { label: 'Midnight', primary: '#1E2A5E', accent: '#E8B74D' },
-  rose:     { label: 'Rose',     primary: '#7A2E44', accent: '#D9A441' },
-  ocean:    { label: 'Ocean',    primary: '#14607A', accent: '#E8935B' },
+  forest:     { label: 'Forest',     primary: '#1F5F45', accent: '#DE9530' },
+  midnight:   { label: 'Midnight',   primary: '#1E2A5E', accent: '#E8B74D' },
+  rose:       { label: 'Rose',       primary: '#7A2E44', accent: '#D9A441' },
+  ocean:      { label: 'Ocean',      primary: '#14607A', accent: '#E8935B' },
+  plum:       { label: 'Plum',       primary: '#5B2C6F', accent: '#D9A6E0' },
+  amber:      { label: 'Amber',      primary: '#92600A', accent: '#F0C24D' },
+  slate:      { label: 'Slate',      primary: '#3D4C5C', accent: '#7FA8C9' },
+  terracotta: { label: 'Terracotta', primary: '#A24A2C', accent: '#E8A165' },
+  sage:       { label: 'Sage',       primary: '#63765F', accent: '#C9A66B' },
+  noir:       { label: 'Noir',       primary: '#1F1F1F', accent: '#C9A961' },
 };
 
 async function showStoreSettings() {
