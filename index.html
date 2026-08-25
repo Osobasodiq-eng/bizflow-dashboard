@@ -1407,6 +1407,15 @@ function openAddProductModal() {
       <label class="modal-label">Starting quantity</label>
       <input id="ap-qty" type="number" class="modal-input" value="10">
     </div>
+    <div class="modal-field">
+      <label class="modal-label">Product photo (optional)</label>
+      <div id="ap-image-preview" onclick="document.getElementById('ap-image-file').click()"
+        style="width:100%;height:140px;border:1.5px dashed var(--color-border-tertiary);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--color-bg-secondary,#F7F7F5);overflow:hidden;color:var(--color-text-secondary);font-size:12px;text-align:center;padding:10px">
+        Click to upload a photo
+      </div>
+      <input id="ap-image-file" type="file" accept="image/*" style="display:none" onchange="uploadProductImage(this, 'ap-image-preview', 'ap-image-url')">
+      <input id="ap-image-url" type="hidden" value="">
+    </div>
     <div id="ap-error" class="modal-error"></div>
     <div class="modal-actions">
       <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Cancel</button>
@@ -1421,6 +1430,7 @@ async function submitAddProduct() {
   const cost = Number(document.getElementById('ap-cost').value);
   const price = Number(document.getElementById('ap-price').value);
   const quantity = Number(document.getElementById('ap-qty').value);
+  const image_url = document.getElementById('ap-image-url').value || null;
 
   if (!name) { document.getElementById('ap-error').textContent = 'Product name is required.'; return; }
 
@@ -1428,7 +1438,7 @@ async function submitAddProduct() {
     const response = await apiFetch(`${API_BASE}/api/products`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, category, cost, price, quantity })
+      body: JSON.stringify({ name, category, cost, price, quantity, image_url })
     });
     if (!response.ok) throw new Error((await response.json()).error || 'Request failed');
     closeModal();
@@ -1436,6 +1446,46 @@ async function submitAddProduct() {
     updateInventoryBadge();
   } catch (err) {
     document.getElementById('ap-error').textContent = 'Could not add product: ' + err.message;
+  }
+}
+
+// --- Product photo upload (ImageKit) ---
+// Called when a merchant picks a file in either the Add or Edit product
+// modal. Gets a short-lived upload permission from our own backend (so the
+// ImageKit private key never touches the browser), then uploads the file
+// straight to ImageKit, then stores the resulting photo URL in a hidden
+// field so it rides along with the rest of the form when saved.
+async function uploadProductImage(fileInput, previewId, hiddenId) {
+  const file = fileInput.files[0];
+  if (!file) return;
+  const preview = document.getElementById(previewId);
+  const previousContent = preview.innerHTML;
+  preview.textContent = 'Uploading…';
+
+  try {
+    const auth = await apiFetch(`${API_BASE}/api/imagekit/auth`).then(r => r.json());
+    if (auth.error) throw new Error(auth.error);
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('fileName', file.name);
+    formData.append('publicKey', auth.publicKey);
+    formData.append('signature', auth.signature);
+    formData.append('expire', auth.expire);
+    formData.append('token', auth.token);
+    formData.append('folder', `/bizflow/${getBusinessId()}`); // keeps each merchant's photos separate
+
+    const uploadRes = await fetch('https://upload.imagekit.io/api/v1/files/upload', {
+      method: 'POST', body: formData
+    });
+    const data = await uploadRes.json();
+    if (!uploadRes.ok) throw new Error(data.message || 'Upload failed');
+
+    document.getElementById(hiddenId).value = data.url;
+    preview.innerHTML = `<img src="${data.url}" style="width:100%;height:100%;object-fit:cover;">`;
+  } catch (err) {
+    preview.innerHTML = previousContent;
+    alert('Could not upload photo: ' + err.message);
   }
 }
 
@@ -1470,6 +1520,15 @@ async function showEditProduct(productId) {
         <input id="ep-threshold" type="number" value="${p.threshold}" class="modal-input">
       </div>
     </div>
+    <div class="modal-field">
+      <label class="modal-label">Product photo</label>
+      <div id="ep-image-preview" onclick="document.getElementById('ep-image-file').click()"
+        style="width:100%;height:140px;border:1.5px dashed var(--color-border-tertiary);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--color-bg-secondary,#F7F7F5);overflow:hidden;color:var(--color-text-secondary);font-size:12px;text-align:center;padding:10px">
+        ${p.image_url ? `<img src="${p.image_url}" style="width:100%;height:100%;object-fit:cover;">` : 'Click to upload a photo'}
+      </div>
+      <input id="ep-image-file" type="file" accept="image/*" style="display:none" onchange="uploadProductImage(this, 'ep-image-preview', 'ep-image-url')">
+      <input id="ep-image-url" type="hidden" value="${p.image_url || ''}">
+    </div>
     <div id="ep-error" class="modal-error"></div>
     <div class="modal-actions">
       <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Cancel</button>
@@ -1485,6 +1544,7 @@ async function submitEditProduct(productId) {
     price: Number(document.getElementById('ep-price').value),
     quantity: Number(document.getElementById('ep-qty').value),
     threshold: Number(document.getElementById('ep-threshold').value),
+    image_url: document.getElementById('ep-image-url').value || null,
   };
   try {
     const response = await apiFetch(`${API_BASE}/api/products/${productId}`, {
