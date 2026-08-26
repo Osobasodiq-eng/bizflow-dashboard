@@ -370,6 +370,7 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
         <button class="btn" onclick="showStoreLink()"><i class="ti ti-link" style="font-size:13px" aria-hidden="true"></i> <span class="btn-text">Store link</span></button>
         <button class="btn" onclick="showStoreSettings()"><i class="ti ti-palette" style="font-size:13px" aria-hidden="true"></i> <span class="btn-text">Store settings</span></button>
         <button class="btn" onclick="showDeliveryZones()"><i class="ti ti-map-pin" style="font-size:13px" aria-hidden="true"></i> <span class="btn-text">Delivery zones</span></button>
+        <button class="btn" onclick="showPaymentSettings()"><i class="ti ti-building-bank" style="font-size:13px" aria-hidden="true"></i> <span class="btn-text">Payment settings</span></button>
         <button class="btn btn-g" onclick="openNewOrderModal()"><i class="ti ti-plus" style="font-size:13px" aria-hidden="true"></i> <span class="btn-text">New Order</span></button>
       </div>
     </div>
@@ -2486,6 +2487,142 @@ function showStorePreview() {
       <button class="modal-btn modal-btn-primary" style="width:100%" onclick="closeModal()">Close</button>
     </div>
   `);
+}
+
+// --- Payment settings (Paystack bank linking) ---
+let paymentBanksCache = null;
+
+async function showPaymentSettings() {
+  openModal(`<div class="modal-title"><i class="ti ti-building-bank" style="color:#1D9E75" aria-hidden="true"></i> Payment settings</div>
+    <div class="modal-sub">Loading…</div>`);
+
+  let account, banks;
+  try {
+    const results = await Promise.all([
+      apiFetch(`${API_BASE}/api/paystack/subaccount`).then(r => r.json()),
+      paymentBanksCache ? Promise.resolve(paymentBanksCache) : apiFetch(`${API_BASE}/api/paystack/banks`).then(r => r.json()),
+    ]);
+    account = results[0];
+    banks = results[1];
+    paymentBanksCache = banks;
+  } catch (err) {
+    openModal(`<div class="modal-title">Payment settings</div><div class="modal-error">Could not load payment settings — try again.</div>
+      <div class="modal-actions"><button class="modal-btn modal-btn-secondary" style="width:100%" onclick="closeModal()">Close</button></div>`);
+    return;
+  }
+
+  if (account.paystack_subaccount_code) {
+    openModal(`
+      <div class="modal-title"><i class="ti ti-building-bank" style="color:#1D9E75" aria-hidden="true"></i> Payment settings</div>
+      <div class="modal-sub">Storefront sales are paid directly to this account — BizFlow's 1.5% fee is deducted automatically, no manual work needed.</div>
+      <div style="background:var(--color-bg-secondary,#F7F7F5);border-radius:12px;padding:16px;margin-top:14px;">
+        <div style="font-size:13px;font-weight:700;margin-bottom:4px;">${account.paystack_account_name}</div>
+        <div style="font-size:12.5px;color:var(--color-text-secondary);">${account.paystack_bank_name} · ${account.paystack_account_number}</div>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn modal-btn-secondary" onclick="showPaymentSettingsForm()">Change account</button>
+        <button class="modal-btn modal-btn-primary" style="width:100%" onclick="closeModal()">Done</button>
+      </div>
+    `);
+    return;
+  }
+
+  showPaymentSettingsForm();
+}
+
+function showPaymentSettingsForm() {
+  const banks = paymentBanksCache || [];
+  openModal(`
+    <div class="modal-title"><i class="ti ti-building-bank" style="color:#1D9E75" aria-hidden="true"></i> Link your bank account</div>
+    <div class="modal-sub">Storefront sales are paid straight to this account, usually within 24 hours. BizFlow takes a 1.5% fee automatically — you never send anything manually.</div>
+
+    <div class="modal-field">
+      <label class="modal-label">Bank</label>
+      <select id="ps-bank" class="modal-input" onchange="resetPaymentVerification()" style="width:100%;border:1.5px solid var(--color-border-tertiary);border-radius:10px;padding:11px 13px;font-size:13.5px;">
+        <option value="">Select your bank…</option>
+        ${banks.map(b => `<option value="${b.code}">${b.name}</option>`).join('')}
+      </select>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Account number</label>
+      <input id="ps-account-number" type="text" class="modal-input" placeholder="10-digit account number" oninput="resetPaymentVerification()">
+    </div>
+
+    <button type="button" class="btn" style="font-size:12px" onclick="verifyPaymentAccount()">Verify account</button>
+    <div id="ps-verify-result" style="margin-top:10px;"></div>
+
+    <input id="ps-verified-name" type="hidden" value="">
+    <div id="ps-error" class="modal-error"></div>
+
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="modal-btn modal-btn-primary" id="ps-connect-btn" onclick="connectPaymentAccount()" disabled>Connect account</button>
+    </div>
+  `);
+}
+
+function resetPaymentVerification() {
+  document.getElementById('ps-verified-name').value = '';
+  document.getElementById('ps-verify-result').innerHTML = '';
+  document.getElementById('ps-connect-btn').disabled = true;
+}
+
+async function verifyPaymentAccount() {
+  const bank_code = document.getElementById('ps-bank').value;
+  const account_number = document.getElementById('ps-account-number').value.trim();
+  const resultEl = document.getElementById('ps-verify-result');
+  const errorEl = document.getElementById('ps-error');
+  errorEl.textContent = '';
+
+  if (!bank_code) { errorEl.textContent = 'Please select a bank.'; return; }
+  if (!account_number) { errorEl.textContent = 'Please enter an account number.'; return; }
+
+  resultEl.innerHTML = '<span style="font-size:12.5px;color:var(--color-text-secondary);">Verifying…</span>';
+  try {
+    const res = await apiFetch(`${API_BASE}/api/paystack/verify-account`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bank_code, account_number })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Could not verify account');
+
+    document.getElementById('ps-verified-name').value = data.accountName;
+    resultEl.innerHTML = `<div style="font-size:13px;font-weight:700;color:#1D9E75;">✓ ${data.accountName}</div>`;
+    document.getElementById('ps-connect-btn').disabled = false;
+  } catch (err) {
+    resultEl.innerHTML = '';
+    errorEl.textContent = err.message;
+  }
+}
+
+async function connectPaymentAccount() {
+  const bank_code = document.getElementById('ps-bank').value;
+  const bank_name = document.getElementById('ps-bank').selectedOptions[0]?.textContent || '';
+  const account_number = document.getElementById('ps-account-number').value.trim();
+  const account_name = document.getElementById('ps-verified-name').value;
+  const errorEl = document.getElementById('ps-error');
+
+  if (!account_name) { errorEl.textContent = 'Please verify the account first.'; return; }
+
+  const btn = document.getElementById('ps-connect-btn');
+  btn.disabled = true;
+  btn.textContent = 'Connecting…';
+
+  try {
+    const res = await apiFetch(`${API_BASE}/api/paystack/subaccount`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        bank_code, bank_name, account_number, account_name,
+        business_name: localStorage.getItem('bizflow_business') || undefined,
+      })
+    });
+    if (!res.ok) throw new Error((await res.json()).error || 'Could not connect account');
+    closeModal();
+  } catch (err) {
+    errorEl.textContent = err.message;
+    btn.disabled = false;
+    btn.textContent = 'Connect account';
+  }
 }
 
 // --- Delivery zones (own screen, separate from Store settings) ---
