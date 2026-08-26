@@ -369,6 +369,7 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
         <button class="btn" onclick="showStorePreview()"><i class="ti ti-eye" style="font-size:13px" aria-hidden="true"></i> <span class="btn-text">Preview store</span></button>
         <button class="btn" onclick="showStoreLink()"><i class="ti ti-link" style="font-size:13px" aria-hidden="true"></i> <span class="btn-text">Store link</span></button>
         <button class="btn" onclick="showStoreSettings()"><i class="ti ti-palette" style="font-size:13px" aria-hidden="true"></i> <span class="btn-text">Store settings</span></button>
+        <button class="btn" onclick="showDeliveryZones()"><i class="ti ti-map-pin" style="font-size:13px" aria-hidden="true"></i> <span class="btn-text">Delivery zones</span></button>
         <button class="btn btn-g" onclick="openNewOrderModal()"><i class="ti ti-plus" style="font-size:13px" aria-hidden="true"></i> <span class="btn-text">New Order</span></button>
       </div>
     </div>
@@ -2480,6 +2481,103 @@ function showStorePreview() {
   `);
 }
 
+// --- Delivery zones (own screen, separate from Store settings) ---
+function zoneRowHTML(zone) {
+  return `<div class="zone-row" data-zone-id="${zone.id}" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+    <input type="text" class="modal-input zone-location" value="${(zone.location_name || '').replace(/"/g, '&quot;')}" placeholder="Location" style="flex:2;">
+    <input type="number" min="0" step="1" class="modal-input zone-fee" value="${zone.fee}" placeholder="Fee (₦)" style="flex:1;">
+    <div onclick="saveDeliveryZone(${zone.id})" style="cursor:pointer;color:#1D9E75;" title="Save"><i class="ti ti-check" style="font-size:18px" aria-hidden="true"></i></div>
+    <div onclick="deleteDeliveryZone(${zone.id})" style="cursor:pointer;color:var(--color-text-secondary);" title="Remove"><i class="ti ti-trash" style="font-size:16px" aria-hidden="true"></i></div>
+  </div>`;
+}
+
+async function showDeliveryZones() {
+  openModal(`<div class="modal-title"><i class="ti ti-map-pin" style="color:#1D9E75" aria-hidden="true"></i> Delivery zones</div>
+    <div class="modal-sub">Loading…</div>`);
+
+  let zones;
+  try {
+    zones = await apiFetch(`${API_BASE}/api/delivery-zones`).then(r => r.json());
+  } catch (err) {
+    openModal(`<div class="modal-title">Delivery zones</div><div class="modal-error">Could not load delivery zones — try again.</div>
+      <div class="modal-actions"><button class="modal-btn modal-btn-secondary" style="width:100%" onclick="closeModal()">Close</button></div>`);
+    return;
+  }
+
+  openModal(`
+    <div class="modal-title"><i class="ti ti-map-pin" style="color:#1D9E75" aria-hidden="true"></i> Delivery zones</div>
+    <div class="modal-sub">Set a different delivery fee per location. Customers pick their location at checkout — pickup is always free.</div>
+
+    <div id="zones-list" style="margin-top:14px;">
+      ${zones.length ? zones.map(zoneRowHTML).join('') : '<div style="font-size:12.5px;color:var(--color-text-secondary);margin-bottom:10px;">No delivery zones yet — add your first one below.</div>'}
+    </div>
+
+    <div style="display:flex;gap:8px;align-items:center;border-top:1px solid var(--color-border-tertiary);padding-top:14px;margin-top:6px;">
+      <input id="new-zone-location" type="text" class="modal-input" placeholder="Location (e.g. Ikeja)" style="flex:2;">
+      <input id="new-zone-fee" type="number" min="0" step="1" class="modal-input" placeholder="Fee (₦)" style="flex:1;">
+      <button class="btn btn-g" style="font-size:12px" onclick="addDeliveryZone()"><i class="ti ti-plus" style="font-size:12px" aria-hidden="true"></i> Add</button>
+    </div>
+
+    <div id="zones-error" class="modal-error"></div>
+
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-primary" style="width:100%" onclick="closeModal()">Done</button>
+    </div>
+  `);
+}
+
+async function addDeliveryZone() {
+  const location_name = document.getElementById('new-zone-location').value.trim();
+  const fee = Number(document.getElementById('new-zone-fee').value);
+  const errorEl = document.getElementById('zones-error');
+
+  if (!location_name) { errorEl.textContent = 'Location name is required.'; return; }
+  if (isNaN(fee) || fee < 0) { errorEl.textContent = 'Fee must be a number 0 or greater.'; return; }
+
+  try {
+    const res = await apiFetch(`${API_BASE}/api/delivery-zones`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ location_name, fee })
+    });
+    if (!res.ok) throw new Error((await res.json()).error || 'Could not add zone');
+    showDeliveryZones(); // simplest way to refresh the list with the new row included
+  } catch (err) {
+    errorEl.textContent = err.message;
+  }
+}
+
+async function saveDeliveryZone(id) {
+  const row = document.querySelector(`.zone-row[data-zone-id="${id}"]`);
+  const location_name = row.querySelector('.zone-location').value.trim();
+  const fee = Number(row.querySelector('.zone-fee').value);
+  const errorEl = document.getElementById('zones-error');
+
+  if (!location_name) { errorEl.textContent = 'Location name cannot be empty.'; return; }
+  if (isNaN(fee) || fee < 0) { errorEl.textContent = 'Fee must be a number 0 or greater.'; return; }
+
+  try {
+    const res = await apiFetch(`${API_BASE}/api/delivery-zones/${id}`, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ location_name, fee })
+    });
+    if (!res.ok) throw new Error((await res.json()).error || 'Could not save changes');
+    errorEl.textContent = '';
+  } catch (err) {
+    errorEl.textContent = err.message;
+  }
+}
+
+async function deleteDeliveryZone(id) {
+  if (!confirm('Remove this delivery zone?')) return;
+  try {
+    const res = await apiFetch(`${API_BASE}/api/delivery-zones/${id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error((await res.json()).error || 'Could not remove zone');
+    showDeliveryZones(); // refresh the list
+  } catch (err) {
+    document.getElementById('zones-error').textContent = err.message;
+  }
+}
+
 // --- Store link (top bar) ---
 const STOREFRONT_BASE = 'https://bizflow-storefront.onrender.com';
 
@@ -2598,12 +2696,6 @@ async function showStoreSettings() {
     </div>
 
     <div class="modal-field">
-      <label class="modal-label">Delivery fee (₦)</label>
-      <input id="ss-delivery-fee" type="number" min="0" step="1" class="modal-input" value="${business.delivery_fee || 0}">
-      <div style="font-size:11.5px;color:var(--color-text-secondary);margin-top:5px;">Charged when a customer chooses delivery at checkout. Pickup orders are never charged this fee.</div>
-    </div>
-
-    <div class="modal-field">
       <label class="modal-label">Store theme</label>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">${themeSwatches}</div>
       <input id="ss-theme" type="hidden" value="${business.theme}">
@@ -2631,7 +2723,6 @@ async function submitStoreSettings() {
     logo_url: document.getElementById('ss-logo-url').value || null,
     banner_url: document.getElementById('ss-banner-url').value || null,
     description: document.getElementById('ss-description').value.trim() || null,
-    delivery_fee: Number(document.getElementById('ss-delivery-fee').value) || 0,
     theme: document.getElementById('ss-theme').value,
   };
   try {
