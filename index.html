@@ -1243,10 +1243,18 @@ async function exportCustomersCSV() {
 
 async function exportProductsCSV() {
   const products = await apiFetch(`${API_BASE}/api/products`).then(r => r.json());
+  // Pack each product's specifications array back into the same
+  // "Label:Value|Label:Value" format the importer expects, so an exported
+  // file can be edited and re-imported without losing anything.
+  const rows = products.map(p => ({
+    ...p,
+    specifications: (p.specifications || []).map(s => `${s.label}:${s.value}`).join('|'),
+  }));
   downloadCSV('inventory.csv', [
     { key: 'name', label: 'Name' }, { key: 'category', label: 'Category' }, { key: 'cost', label: 'Cost' },
     { key: 'price', label: 'Price' }, { key: 'quantity', label: 'Quantity' }, { key: 'threshold', label: 'Threshold' },
-  ], products);
+    { key: 'image_url', label: 'Image URL' }, { key: 'description', label: 'Description' }, { key: 'specifications', label: 'Specifications' },
+  ], rows);
 }
 
 async function exportOrdersCSV() {
@@ -1283,9 +1291,10 @@ const IMPORT_CONFIG = {
   },
   products: {
     title: 'Import products', endpoint: '/api/products/import',
-    columns: ['name', 'category', 'cost', 'price', 'quantity', 'threshold'],
-    sample: 'name,category,cost,price,quantity,threshold\nRose Perfume 50ml,Floral,5000,12000,10,5\n',
+    columns: ['name', 'category', 'cost', 'price', 'quantity', 'threshold', 'image_url', 'description', 'specifications'],
+    sample: 'name,category,cost,price,quantity,threshold,image_url,description,specifications\nRose Perfume 50ml,Floral,5000,12000,10,5,,A light floral fragrance.,Size:50ml|Concentration:Eau de Parfum\n',
     onDone: () => { loadInventory(); updateInventoryBadge(); },
+    note: 'image_url, description, and specifications are optional — leave them blank if you don\'t need them. Pack multiple specifications into one column like this: <code>Size:50ml|Material:Glass</code> (separate each label:value pair with a "|").',
   },
   customers: {
     title: 'Import customers', endpoint: '/api/customers/import',
