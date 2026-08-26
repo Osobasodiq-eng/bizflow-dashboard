@@ -1317,6 +1317,13 @@ const IMPORT_CONFIG = {
     onDone: () => { loadPayments(); },
     note: "Every row must reference an order that already exists (e.g. BF-0001) — a payment can't be created without one. Leave \"amount\" blank to use the order's full amount.",
   },
+  deliveryZones: {
+    title: 'Import delivery zones', endpoint: '/api/delivery-zones/import',
+    columns: ['location_name', 'fee'],
+    sample: 'location_name,fee\nIkeja,1500\nLekki,2500\nOutside Lagos,5000\n',
+    onDone: () => { showDeliveryZones(); },
+    note: 'A zone with the same location name as one you already have will update its fee rather than create a duplicate.',
+  },
 };
 
 function openImportModal(type) {
@@ -2507,6 +2514,7 @@ async function showDeliveryZones() {
   openModal(`
     <div class="modal-title"><i class="ti ti-map-pin" style="color:#1D9E75" aria-hidden="true"></i> Delivery zones</div>
     <div class="modal-sub">Set a different delivery fee per location. Customers pick their location at checkout — pickup is always free.</div>
+    <button class="btn" style="font-size:12px;margin-top:10px;" onclick="openImportModal('deliveryZones')"><i class="ti ti-upload" style="font-size:12px" aria-hidden="true"></i> Import CSV</button>
 
     <div id="zones-list" style="margin-top:14px;">
       ${zones.length ? zones.map(zoneRowHTML).join('') : '<div style="font-size:12.5px;color:var(--color-text-secondary);margin-bottom:10px;">No delivery zones yet — add your first one below.</div>'}
