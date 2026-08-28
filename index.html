@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BizFlow — Social Commerce OS</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.44.0/tabler-icons.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   /* These design tokens were used throughout the app but never actually
@@ -13,19 +15,19 @@
      secondary text, card backgrounds, and hairline borders render as
      intended instead of by accident. */
   --color-background-primary:#ffffff;
-  --color-background-secondary:#F4F8F6;
-  --color-background-tertiary:#EDF3EF;
-  --color-border-secondary:#D9E4DF;
-  --color-border-tertiary:#E8EFEB;
-  --color-text-primary:#16241F;
-  --color-text-secondary:#75887F;
-  --font-sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --color-background-secondary:#F9FAFB;
+  --color-background-tertiary:#F3F4F6;
+  --color-border-secondary:#E5E7EB;
+  --color-border-tertiary:#F3F4F6;
+  --color-text-primary:#111827;
+  --color-text-secondary:#6B7280;
+  --font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 .app{display:flex;height:760px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:16px;overflow:hidden;font-family:var(--font-sans)}
-.sidebar{width:210px;background:#085041;display:flex;flex-direction:column;flex-shrink:0}
+.sidebar{width:210px;background:#1E1B4B;display:flex;flex-direction:column;flex-shrink:0}
 .s-logo{padding:22px 18px 16px;display:flex;align-items:center;gap:10px}
-.s-logo-icon{width:32px;height:32px;background:#1D9E75;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.s-logo-icon{width:32px;height:32px;background:#6366F1;border-radius:8px;display:flex;align-items:center;justify-content:center}
 .s-logo-icon i{font-size:17px;color:#fff}
 .s-logo-text{font-size:16px;font-weight:500;color:#fff;letter-spacing:-0.2px}
 .s-logo-sub{font-size:10px;color:rgba(255,255,255,0.45);margin-top:1px}
@@ -38,7 +40,7 @@
 .s-item .badge{margin-left:auto;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);font-size:10px;padding:2px 7px;border-radius:10px}
 .s-footer{padding:14px 12px;border-top:1px solid rgba(255,255,255,0.08)}
 .s-merchant{display:flex;align-items:center;gap:9px}
-.s-av{width:32px;height:32px;border-radius:50%;background:#1D9E75;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:#fff;flex-shrink:0}
+.s-av{width:32px;height:32px;border-radius:50%;background:#6366F1;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:#fff;flex-shrink:0}
 .s-mname{font-size:12px;font-weight:500;color:#fff}
 .s-mplan{font-size:11px;color:rgba(255,255,255,0.4);margin-top:1px}
 .main{flex:1;display:flex;flex-direction:column;min-width:0;background:var(--color-background-tertiary)}
@@ -49,8 +51,8 @@
 .topbar-right{display:flex;gap:8px}
 .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:8px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);font-size:12px;cursor:pointer;transition:background 0.1s}
 .btn:hover{background:var(--color-background-secondary)}
-.btn-g{background:#085041;border-color:#085041;color:#fff}
-.btn-g:hover{background:#0F6E56}
+.btn-g{background:#1E1B4B;border-color:#1E1B4B;color:#fff}
+.btn-g:hover{background:#4F46E5}
 .scroll{flex:1;overflow-y:auto;padding:18px}
 .panel{display:none}
 .panel.on{display:block}
@@ -59,16 +61,16 @@
 .kpi-label{font-size:11px;color:var(--color-text-secondary);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
 .kpi-val{font-size:22px;font-weight:500;color:var(--color-text-primary);line-height:1}
 .kpi-foot{font-size:11px;margin-top:6px}
-.up{color:#0F6E56}
-.warn{color:#BA7517}
-.danger{color:#A32D2D}
+.up{color:#4F46E5}
+.warn{color:#D97706}
+.danger{color:#DC2626}
 .row2{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:14px;margin-bottom:14px}
 .row2b{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;margin-bottom:14px}
 .card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:16px}
 .card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .card-title{font-size:13px;font-weight:500;color:var(--color-text-primary)}
 .card-sub{font-size:11px;color:var(--color-text-secondary)}
-.card-link{font-size:12px;color:#0F6E56;cursor:pointer}
+.card-link{font-size:12px;color:#4F46E5;cursor:pointer}
 .legend{display:flex;gap:16px;margin-bottom:12px}
 .leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--color-text-secondary)}
 .leg-dot{width:9px;height:9px;border-radius:2px}
@@ -77,13 +79,13 @@ th{text-align:left;font-size:10px;font-weight:500;color:var(--color-text-seconda
 td{padding:9px 0;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary);vertical-align:middle}
 tr:last-child td{border-bottom:none}
 .pill{display:inline-block;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:500}
-.p-green{background:#E1F5EE;color:#085041}
-.p-amber{background:#FAEEDA;color:#633806}
-.p-blue{background:#E6F1FB;color:#0C447C}
-.p-purple{background:#EEEDFE;color:#3C3489}
-.p-red{background:#FCEBEB;color:#791F1F}
-.p-gray{background:#F1EFE8;color:#5F5E5A}
-.av{width:26px;height:26px;border-radius:50%;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:#085041;flex-shrink:0}
+.p-green{background:#D1FAE5;color:#1E1B4B}
+.p-amber{background:#FEF3C7;color:#92400E}
+.p-blue{background:#DBEAFE;color:#1D4ED8}
+.p-purple{background:#EDE9FE;color:#5B21B6}
+.p-red{background:#FEE2E2;color:#991B1B}
+.p-gray{background:#F3F4F6;color:#4B5563}
+.av{width:26px;height:26px;border-radius:50%;background:#D1FAE5;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:#1E1B4B;flex-shrink:0}
 .cr{display:flex;align-items:center;gap:7px}
 .amt{font-weight:500}
 .bar-wrap{height:5px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden;margin-top:5px}
@@ -99,7 +101,7 @@ tr:last-child td{border-bottom:none}
 .tl{list-style:none}
 .tl li{display:flex;gap:10px;padding-bottom:14px;position:relative}
 .tl li:last-child{padding-bottom:0}
-.tl-dot{width:8px;height:8px;border-radius:50%;background:#0F6E56;flex-shrink:0;margin-top:4px}
+.tl-dot{width:8px;height:8px;border-radius:50%;background:#4F46E5;flex-shrink:0;margin-top:4px}
 .tl-dot.dim{background:var(--color-border-secondary)}
 .tl-line{position:absolute;left:3px;top:12px;bottom:0;width:1px;background:var(--color-border-tertiary)}
 .tl-t{font-size:12px;font-weight:500;color:var(--color-text-primary)}
@@ -108,50 +110,50 @@ tr:last-child td{border-bottom:none}
 .donut-center{position:absolute;text-align:center}
 .donut-big{font-size:20px;font-weight:500;color:var(--color-text-primary)}
 .donut-sm{font-size:10px;color:var(--color-text-secondary)}
-.wa-msg{padding:9px 12px;border-radius:0 10px 10px 10px;background:#E1F5EE;font-size:12px;color:#085041;max-width:220px;margin-bottom:6px}
-.wa-msg.out{border-radius:10px 0 10px 10px;background:#085041;color:#fff;margin-left:auto}
+.wa-msg{padding:9px 12px;border-radius:0 10px 10px 10px;background:#D1FAE5;font-size:12px;color:#1E1B4B;max-width:220px;margin-bottom:6px}
+.wa-msg.out{border-radius:10px 0 10px 10px;background:#1E1B4B;color:#fff;margin-left:auto}
 .seg-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--color-background-secondary);border-radius:8px;margin-bottom:7px;cursor:pointer;transition:background 0.1s}
 .seg-row:hover{background:var(--color-background-tertiary)}
 .seg-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .seg-title{font-size:12px;font-weight:500;color:var(--color-text-primary)}
 .seg-sub{font-size:11px;color:var(--color-text-secondary)}
 input[type=text],select{font-size:12px;padding:7px 10px;border:0.5px solid var(--color-border-secondary);border-radius:8px;background:var(--color-background-primary);color:var(--color-text-primary);outline:none}
-input[type=text]:focus,select:focus{border-color:#0F6E56}
+input[type=text]:focus,select:focus{border-color:#4F46E5}
 
 /* Auth screen */
-.auth-input{font-size:13px;padding:11px 13px;border:1px solid #E2E8E5;border-radius:9px;background:#fff;color:#1A2B25;outline:none;width:100%;transition:border-color 0.15s,box-shadow 0.15s}
-.auth-input:focus{border-color:#1D9E75;box-shadow:0 0 0 3px rgba(29,158,117,0.12)}
-.auth-label{font-size:12px;font-weight:500;color:#4A5B54;margin-bottom:6px;display:block}
-.auth-btn{width:100%;padding:12px;border:none;border-radius:9px;background:linear-gradient(135deg,#1D9E75,#0F6E56);color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:opacity 0.15s;box-shadow:0 2px 8px rgba(15,110,86,0.25)}
+.auth-input{font-size:13px;padding:11px 13px;border:1px solid #E5E7EB;border-radius:9px;background:#fff;color:#1E1B4B;outline:none;width:100%;transition:border-color 0.15s,box-shadow 0.15s}
+.auth-input:focus{border-color:#6366F1;box-shadow:0 0 0 3px rgba(29,158,117,0.12)}
+.auth-label{font-size:12px;font-weight:500;color:#4B5563;margin-bottom:6px;display:block}
+.auth-btn{width:100%;padding:12px;border:none;border-radius:9px;background:linear-gradient(135deg,#6366F1,#4F46E5);color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:opacity 0.15s;box-shadow:0 2px 8px rgba(15,110,86,0.25)}
 .auth-btn:hover{opacity:0.92}
 .pw-wrap{position:relative}
-.pw-toggle{position:absolute;right:11px;top:50%;transform:translateY(-50%);cursor:pointer;color:#8AA098;font-size:15px;background:none;border:none;padding:2px}
-.pw-toggle:hover{color:#1D9E75}
+.pw-toggle{position:absolute;right:11px;top:50%;transform:translateY(-50%);cursor:pointer;color:#9CA3AF;font-size:15px;background:none;border:none;padding:2px}
+.pw-toggle:hover{color:#6366F1}
 
 /* Modal system — shared styling so every popup (New Order, Add Product,
    Mark as Paid, Edit, etc) looks consistent and matches the auth screen,
    instead of each one being plain unstyled inputs. */
-.modal-title{font-size:17px;font-weight:600;color:#16241F;margin-bottom:4px;display:flex;align-items:center;gap:8px}
-.modal-sub{font-size:12.5px;color:#75887F;margin-bottom:20px}
-.modal-label{font-size:12px;font-weight:500;color:#4A5B54;margin-bottom:6px;display:block}
+.modal-title{font-size:17px;font-weight:600;color:#111827;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.modal-sub{font-size:12.5px;color:#6B7280;margin-bottom:20px}
+.modal-label{font-size:12px;font-weight:500;color:#4B5563;margin-bottom:6px;display:block}
 .modal-field{margin-bottom:14px}
-.modal-input,.modal-select{font-size:13px;padding:10px 12px;border:1px solid #E2E8E5;border-radius:8px;background:#fff;color:#1A2B25;outline:none;width:100%;transition:border-color 0.15s,box-shadow 0.15s;font-family:var(--font-sans)}
-.modal-input:focus,.modal-select:focus{border-color:#1D9E75;box-shadow:0 0 0 3px rgba(29,158,117,0.12)}
+.modal-input,.modal-select{font-size:13px;padding:10px 12px;border:1px solid #E5E7EB;border-radius:8px;background:#fff;color:#1E1B4B;outline:none;width:100%;transition:border-color 0.15s,box-shadow 0.15s;font-family:var(--font-sans)}
+.modal-input:focus,.modal-select:focus{border-color:#6366F1;box-shadow:0 0 0 3px rgba(29,158,117,0.12)}
 .modal-row{display:flex;gap:10px}
 .modal-row>div{flex:1}
-.modal-error{color:#C0392B;font-size:12px;min-height:14px;margin-bottom:4px}
+.modal-error{color:#DC2626;font-size:12px;min-height:14px;margin-bottom:4px}
 .modal-actions{display:flex;gap:8px;margin-top:18px}
 .modal-btn{flex:1;padding:11px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:opacity 0.15s;text-align:center}
-.modal-btn-primary{background:linear-gradient(135deg,#1D9E75,#0F6E56);color:#fff;box-shadow:0 2px 8px rgba(15,110,86,0.2)}
+.modal-btn-primary{background:linear-gradient(135deg,#6366F1,#4F46E5);color:#fff;box-shadow:0 2px 8px rgba(15,110,86,0.2)}
 .modal-btn-primary:hover{opacity:0.92}
-.modal-btn-secondary{background:#F4F8F6;color:#4A5B54;border:1px solid #E2E8E5}
-.modal-btn-secondary:hover{background:#EDF3EF}
-.modal-btn-danger{background:#FDF0EF;color:#C0392B;border:1px solid #F5D6D3}
-.modal-btn-danger:hover{background:#FBE4E2}
-.modal-info-box{background:#F4F8F6;border-radius:9px;padding:12px 14px;font-size:12.5px;color:#4A5B54;line-height:1.7;margin-bottom:16px}
-.modal-info-box strong{color:#16241F}
-.modal-divider{height:1px;background:#EEF2F0;margin:16px 0}
-.modal-list-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #EEF2F0;font-size:13px}
+.modal-btn-secondary{background:#F9FAFB;color:#4B5563;border:1px solid #E5E7EB}
+.modal-btn-secondary:hover{background:#F3F4F6}
+.modal-btn-danger{background:#FEE2E2;color:#DC2626;border:1px solid #FECACA}
+.modal-btn-danger:hover{background:#FEE2E2}
+.modal-info-box{background:#F9FAFB;border-radius:9px;padding:12px 14px;font-size:12.5px;color:#4B5563;line-height:1.7;margin-bottom:16px}
+.modal-info-box strong{color:#111827}
+.modal-divider{height:1px;background:#F3F4F6;margin:16px 0}
+.modal-list-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #F3F4F6;font-size:13px}
 .modal-list-row:last-child{border-bottom:none}
 
 /* ================================================================
@@ -199,18 +201,18 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
 </head>
 <body>
 
-<div id="auth-screen" style="position:fixed;inset:0;background:#F4F8F6;z-index:200;display:flex;align-items:stretch;justify-content:center;font-family:var(--font-sans);overflow-y:auto">
+<div id="auth-screen" style="position:fixed;inset:0;background:#F9FAFB;z-index:200;display:flex;align-items:stretch;justify-content:center;font-family:var(--font-sans);overflow-y:auto">
   <div class="auth-panels" style="display:flex;width:100%;max-width:920px;margin:auto;box-shadow:0 20px 60px rgba(11,84,66,0.15);border-radius:20px;overflow:hidden">
 
     <!-- Left brand panel -->
-    <div class="auth-brand-panel" style="flex:1;background:linear-gradient(160deg,#0F6E56 0%,#0B5442 55%,#083D30 100%);padding:48px 40px;display:flex;flex-direction:column;justify-content:space-between;color:#fff;min-width:280px">
+    <div class="auth-brand-panel" style="flex:1;background:linear-gradient(160deg,#4F46E5 0%,#3730A3 55%,#1E1B4B 100%);padding:48px 40px;display:flex;flex-direction:column;justify-content:space-between;color:#fff;min-width:280px">
       <div style="display:flex;align-items:center;gap:10px">
         <svg width="34" height="34" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
           <rect width="40" height="40" rx="10" fill="rgba(255,255,255,0.16)"/>
           <path d="M11 27 L11 13" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
           <path d="M20 27 L20 9" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity="0.85"/>
           <path d="M29 27 L29 17" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
-          <path d="M8 20 L32 12" stroke="#9FE1CB" stroke-width="2" stroke-linecap="round" fill="none"/>
+          <path d="M8 20 L32 12" stroke="#34D399" stroke-width="2" stroke-linecap="round" fill="none"/>
         </svg>
         <span style="font-size:19px;font-weight:600;letter-spacing:-0.3px">BizFlow</span>
       </div>
@@ -225,8 +227,8 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
     <div class="auth-form-panel" style="flex:1.15;background:#fff;padding:48px 44px;display:flex;flex-direction:column;justify-content:center;min-width:320px">
 
       <div id="auth-login">
-        <h2 style="font-size:20px;font-weight:600;color:#132621;margin-bottom:4px">Welcome back</h2>
-        <p style="font-size:13px;color:#7A8C85;margin-bottom:26px">Log in to your business account</p>
+        <h2 style="font-size:20px;font-weight:600;color:#1E1B4B;margin-bottom:4px">Welcome back</h2>
+        <p style="font-size:13px;color:#6B7280;margin-bottom:26px">Log in to your business account</p>
         <div style="display:flex;flex-direction:column;gap:16px">
           <div>
             <label class="auth-label">Email</label>
@@ -234,23 +236,23 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center">
             <label class="auth-label" style="margin-bottom:0">Password</label>
-            <a href="#" onclick="showForgot();return false;" style="font-size:12px;color:#0F6E56;text-decoration:none">Forgot password?</a>
+            <a href="#" onclick="showForgot();return false;" style="font-size:12px;color:#4F46E5;text-decoration:none">Forgot password?</a>
           </div>
           <div class="pw-wrap" style="margin-top:-8px">
             <input id="login-password" type="password" class="auth-input" style="padding-right:38px" placeholder="Enter your password">
             <button type="button" class="pw-toggle" onclick="togglePw('login-password',this)"><i class="ti ti-eye" aria-hidden="true"></i></button>
           </div>
-          <div id="login-error" style="color:#C0392B;font-size:12px;min-height:14px"></div>
+          <div id="login-error" style="color:#DC2626;font-size:12px;min-height:14px"></div>
           <button class="auth-btn" onclick="submitLogin()">Log in</button>
         </div>
-        <p style="text-align:center;font-size:13px;color:#7A8C85;margin-top:22px">
-          New to BizFlow? <a href="#" onclick="showSignup();return false;" style="color:#0F6E56;font-weight:600;text-decoration:none">Create a business account</a>
+        <p style="text-align:center;font-size:13px;color:#6B7280;margin-top:22px">
+          New to BizFlow? <a href="#" onclick="showSignup();return false;" style="color:#4F46E5;font-weight:600;text-decoration:none">Create a business account</a>
         </p>
       </div>
 
       <div id="auth-signup" style="display:none">
-        <h2 style="font-size:20px;font-weight:600;color:#132621;margin-bottom:4px">Create your account</h2>
-        <p style="font-size:13px;color:#7A8C85;margin-bottom:26px">Set up your business in under a minute</p>
+        <h2 style="font-size:20px;font-weight:600;color:#1E1B4B;margin-bottom:4px">Create your account</h2>
+        <p style="font-size:13px;color:#6B7280;margin-bottom:26px">Set up your business in under a minute</p>
         <div style="display:flex;flex-direction:column;gap:16px">
           <div>
             <label class="auth-label">Business name</label>
@@ -267,34 +269,34 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
               <button type="button" class="pw-toggle" onclick="togglePw('signup-password',this)"><i class="ti ti-eye" aria-hidden="true"></i></button>
             </div>
           </div>
-          <div id="signup-error" style="color:#C0392B;font-size:12px;min-height:14px"></div>
+          <div id="signup-error" style="color:#DC2626;font-size:12px;min-height:14px"></div>
           <button class="auth-btn" onclick="submitSignup()">Create account</button>
         </div>
-        <p style="text-align:center;font-size:13px;color:#7A8C85;margin-top:22px">
-          Already have an account? <a href="#" onclick="showLogin();return false;" style="color:#0F6E56;font-weight:600;text-decoration:none">Log in</a>
+        <p style="text-align:center;font-size:13px;color:#6B7280;margin-top:22px">
+          Already have an account? <a href="#" onclick="showLogin();return false;" style="color:#4F46E5;font-weight:600;text-decoration:none">Log in</a>
         </p>
       </div>
 
       <div id="auth-forgot" style="display:none">
-        <h2 style="font-size:20px;font-weight:600;color:#132621;margin-bottom:4px">Reset your password</h2>
-        <p style="font-size:13px;color:#7A8C85;margin-bottom:26px">Enter your account email and we'll help you reset it</p>
+        <h2 style="font-size:20px;font-weight:600;color:#1E1B4B;margin-bottom:4px">Reset your password</h2>
+        <p style="font-size:13px;color:#6B7280;margin-bottom:26px">Enter your account email and we'll help you reset it</p>
         <div style="display:flex;flex-direction:column;gap:16px">
           <div>
             <label class="auth-label">Email</label>
             <input id="forgot-email" type="email" class="auth-input" placeholder="you@business.com">
           </div>
-          <div id="forgot-error" style="color:#C0392B;font-size:12px;min-height:14px"></div>
+          <div id="forgot-error" style="color:#DC2626;font-size:12px;min-height:14px"></div>
           <button class="auth-btn" onclick="submitForgot()">Send reset instructions</button>
         </div>
-        <div id="forgot-result" style="display:none;margin-top:18px;padding:14px;background:#F4F8F6;border-radius:9px;font-size:12px;color:#4A5B54;line-height:1.6"></div>
-        <p style="text-align:center;font-size:13px;color:#7A8C85;margin-top:22px">
-          <a href="#" onclick="showLogin();return false;" style="color:#0F6E56;font-weight:600;text-decoration:none">Back to log in</a>
+        <div id="forgot-result" style="display:none;margin-top:18px;padding:14px;background:#F9FAFB;border-radius:9px;font-size:12px;color:#4B5563;line-height:1.6"></div>
+        <p style="text-align:center;font-size:13px;color:#6B7280;margin-top:22px">
+          <a href="#" onclick="showLogin();return false;" style="color:#4F46E5;font-weight:600;text-decoration:none">Back to log in</a>
         </p>
       </div>
 
       <div id="auth-reset" style="display:none">
-        <h2 style="font-size:20px;font-weight:600;color:#132621;margin-bottom:4px">Choose a new password</h2>
-        <p style="font-size:13px;color:#7A8C85;margin-bottom:26px">Paste the reset code you were given, and set a new password</p>
+        <h2 style="font-size:20px;font-weight:600;color:#1E1B4B;margin-bottom:4px">Choose a new password</h2>
+        <p style="font-size:13px;color:#6B7280;margin-bottom:26px">Paste the reset code you were given, and set a new password</p>
         <div style="display:flex;flex-direction:column;gap:16px">
           <div>
             <label class="auth-label">Reset code</label>
@@ -307,11 +309,11 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
               <button type="button" class="pw-toggle" onclick="togglePw('reset-password',this)"><i class="ti ti-eye" aria-hidden="true"></i></button>
             </div>
           </div>
-          <div id="reset-error" style="color:#C0392B;font-size:12px;min-height:14px"></div>
+          <div id="reset-error" style="color:#DC2626;font-size:12px;min-height:14px"></div>
           <button class="auth-btn" onclick="submitReset()">Update password</button>
         </div>
-        <p style="text-align:center;font-size:13px;color:#7A8C85;margin-top:22px">
-          <a href="#" onclick="showLogin();return false;" style="color:#0F6E56;font-weight:600;text-decoration:none">Back to log in</a>
+        <p style="text-align:center;font-size:13px;color:#6B7280;margin-top:22px">
+          <a href="#" onclick="showLogin();return false;" style="color:#4F46E5;font-weight:600;text-decoration:none">Back to log in</a>
         </p>
       </div>
 
@@ -330,7 +332,7 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
           <path d="M11 27 L11 13" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
           <path d="M20 27 L20 9" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity="0.85"/>
           <path d="M29 27 L29 17" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-          <path d="M8 20 L32 12" stroke="#9FE1CB" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+          <path d="M8 20 L32 12" stroke="#34D399" stroke-width="2.5" stroke-linecap="round" fill="none"/>
         </svg>
       </div>
       <div><div class="s-logo-text">BizFlow</div><div class="s-logo-sub">Social Commerce OS</div></div>
@@ -339,7 +341,7 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
       <div class="s-section">OVERVIEW</div>
       <div class="s-item on" id="s-nav-dashboard" onclick="go('dashboard',this)"><i class="ti ti-layout-dashboard" aria-hidden="true"></i> Dashboard</div>
       <div class="s-section">MANAGE</div>
-      <div class="s-item" id="s-nav-inventory" onclick="go('inventory',this)"><i class="ti ti-box" aria-hidden="true"></i> Inventory <span class="badge" id="s-badge-inventory" style="background:rgba(231,76,60,0.25);color:#f5a09a;display:none">0</span></div>
+      <div class="s-item" id="s-nav-inventory" onclick="go('inventory',this)"><i class="ti ti-box" aria-hidden="true"></i> Inventory <span class="badge" id="s-badge-inventory" style="background:rgba(231,76,60,0.25);color:#FCA5A5;display:none">0</span></div>
       <div class="s-item" id="s-nav-customers" onclick="go('customers',this)"><i class="ti ti-users" aria-hidden="true"></i> Customers</div>
       <div class="s-item" id="s-nav-orders" onclick="go('orders',this)"><i class="ti ti-shopping-bag" aria-hidden="true"></i> Orders <span class="badge" id="s-badge-orders" style="display:none">0</span></div>
       <div class="s-item" id="s-nav-payments" onclick="go('payments',this)"><i class="ti ti-credit-card" aria-hidden="true"></i> Payments</div>
@@ -381,7 +383,7 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
       <div id="p-dashboard" class="panel on">
         <div class="kpi-row">
           <div class="kpi">
-            <div class="kpi-label">Revenue today <i class="ti ti-trending-up" style="font-size:13px;color:#0F6E56" aria-hidden="true"></i></div>
+            <div class="kpi-label">Revenue today <i class="ti ti-trending-up" style="font-size:13px;color:#4F46E5" aria-hidden="true"></i></div>
             <div class="kpi-val" id="kpi-revenue">—</div>
             <div class="kpi-foot up" id="kpi-revenue-foot">Loading…</div>
           </div>
@@ -391,12 +393,12 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
             <div class="kpi-foot up" id="kpi-orders-foot">Loading…</div>
           </div>
           <div class="kpi">
-            <div class="kpi-label">Unpaid <i class="ti ti-clock" style="font-size:13px;color:#BA7517" aria-hidden="true"></i></div>
+            <div class="kpi-label">Unpaid <i class="ti ti-clock" style="font-size:13px;color:#D97706" aria-hidden="true"></i></div>
             <div class="kpi-val" id="kpi-unpaid">—</div>
             <div class="kpi-foot warn" id="kpi-unpaid-foot">Loading…</div>
           </div>
           <div class="kpi">
-            <div class="kpi-label">Low stock <i class="ti ti-alert-triangle" style="font-size:13px;color:#A32D2D" aria-hidden="true"></i></div>
+            <div class="kpi-label">Low stock <i class="ti ti-alert-triangle" style="font-size:13px;color:#DC2626" aria-hidden="true"></i></div>
             <div class="kpi-val" id="kpi-lowstock">—</div>
             <div class="kpi-foot danger">Restock needed</div>
           </div>
@@ -484,7 +486,7 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
           <div class="card">
             <div class="card-head"><div class="card-title" id="cust-detail-name">Loading…</div><span class="pill p-amber" id="cust-detail-tag">—</span></div>
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-              <div style="width:40px;height:40px;border-radius:50%;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:#085041" id="cust-detail-av">—</div>
+              <div style="width:40px;height:40px;border-radius:50%;background:#D1FAE5;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:#1E1B4B" id="cust-detail-av">—</div>
               <div><div style="font-size:13px;font-weight:500;color:var(--color-text-primary)" id="cust-detail-phone">—</div><div style="font-size:11px;color:var(--color-text-secondary)" id="cust-detail-loc">—</div></div>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
@@ -513,8 +515,8 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
         <div class="kpi-row">
           <div class="kpi"><div class="kpi-label">Products</div><div class="kpi-val" id="inv-kpi-products">—</div><div class="kpi-foot" style="color:var(--color-text-secondary)" id="inv-kpi-cats">—</div></div>
           <div class="kpi"><div class="kpi-label">Stock value</div><div class="kpi-val" id="inv-kpi-value">—</div><div class="kpi-foot up">Cost basis</div></div>
-          <div class="kpi"><div class="kpi-label">Low stock</div><div class="kpi-val" style="color:#BA7517" id="inv-kpi-low">—</div><div class="kpi-foot warn">Below threshold</div></div>
-          <div class="kpi"><div class="kpi-label">Out of stock</div><div class="kpi-val" style="color:#A32D2D" id="inv-kpi-out">—</div><div class="kpi-foot danger" id="inv-kpi-out-names">—</div></div>
+          <div class="kpi"><div class="kpi-label">Low stock</div><div class="kpi-val" style="color:#D97706" id="inv-kpi-low">—</div><div class="kpi-foot warn">Below threshold</div></div>
+          <div class="kpi"><div class="kpi-label">Out of stock</div><div class="kpi-val" style="color:#DC2626" id="inv-kpi-out">—</div><div class="kpi-foot danger" id="inv-kpi-out-names">—</div></div>
         </div>
         <div class="row2b">
           <div class="card" style="grid-column:1/-1">
@@ -575,7 +577,7 @@ input[type=text]:focus,select:focus{border-color:#0F6E56}
             </div>
           </div>
           <div class="card" style="display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:8px">
-            <i class="ti ti-scale" style="font-size:32px;color:#0F6E56" aria-hidden="true"></i>
+            <i class="ti ti-scale" style="font-size:32px;color:#4F46E5" aria-hidden="true"></i>
             <div style="font-size:12px;color:var(--color-text-secondary)">Net profit this month</div>
             <div style="font-size:24px;font-weight:600" id="exp-profit-big">—</div>
             <div style="font-size:11px;color:var(--color-text-secondary)" id="exp-profit-detail">Loading…</div>
@@ -648,7 +650,7 @@ function closeMobileMenu() {
   document.getElementById('mobile-overlay').classList.remove('active');
 }
 
-const G = '#0F6E56', G2 = '#1D9E75', G3 = '#9FE1CB', AMB = '#EF9F27', RED = '#E24B4A';
+const G = '#4F46E5', G2 = '#6366F1', G3 = '#34D399', AMB = '#F59E0B', RED = '#EF4444';
 const BORDER = 'rgba(128,128,128,0.08)';
 const baseOpts = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } };
 const API_BASE = 'https://bizflow-api-v0sd.onrender.com';
@@ -711,9 +713,9 @@ async function submitForgot() {
       // Honest limitation: no email service is connected yet, so we show the
       // reset code directly here instead of it arriving by email.
       resultEl.innerHTML = `
-        <strong style="color:#132621">No email service is connected yet</strong>, so here's your reset code directly
+        <strong style="color:#1E1B4B">No email service is connected yet</strong>, so here's your reset code directly
         (this box wouldn't exist in a real production version — you'd get this by email instead):
-        <div style="margin-top:8px;padding:8px;background:#fff;border-radius:6px;font-family:monospace;font-size:11px;word-break:break-all;border:1px solid #E2E8E5">${data.devToken}</div>
+        <div style="margin-top:8px;padding:8px;background:#fff;border-radius:6px;font-family:monospace;font-size:11px;word-break:break-all;border:1px solid #E5E7EB">${data.devToken}</div>
         <button class="auth-btn" style="margin-top:12px;padding:9px" onclick="showReset('${data.devToken}')">Continue to reset password</button>
       `;
     } else {
@@ -886,7 +888,7 @@ function buildStatusChart(rows) {
     type: 'bar',
     data: {
       labels: rows.map(r => r.status),
-      datasets: [{ data: rows.map(r => r.count), backgroundColor: [G2, '#534AB7', G, G, G, RED], borderRadius: 4 }]
+      datasets: [{ data: rows.map(r => r.count), backgroundColor: [G2, '#7C3AED', G, G, G, RED], borderRadius: 4 }]
     },
     options: { ...baseOpts,
       scales: {
@@ -997,7 +999,7 @@ async function loadOrders() {
     renderOrders(orders);
   } catch (err) {
     console.error('Failed to load orders:', err);
-    document.getElementById('orders-tbody').innerHTML = `<tr><td colspan="7" style="padding:14px;text-align:center;color:#A32D2D">Could not reach the API. Is it running?</td></tr>`;
+    document.getElementById('orders-tbody').innerHTML = `<tr><td colspan="7" style="padding:14px;text-align:center;color:#DC2626">Could not reach the API. Is it running?</td></tr>`;
   }
 }
 
@@ -1095,18 +1097,18 @@ function renderInventoryList(products) {
   document.getElementById('inventory-list').innerHTML = products.map(p => {
     const margin = Math.round(((p.price - p.cost) / p.price) * 100);
     const pct = Math.min(100, Math.round((p.quantity / (p.threshold * 4)) * 100));
-    let color = '#1D9E75', label = `${p.quantity} units`, sub = `Threshold: ${p.threshold}`, subColor = 'var(--color-text-secondary)';
-    if (p.quantity === 0) { color = '#E24B4A'; subColor = '#A32D2D'; sub = 'Out of stock'; }
-    else if (p.quantity <= p.threshold) { color = '#EF9F27'; subColor = '#BA7517'; sub = 'Low stock'; }
+    let color = '#6366F1', label = `${p.quantity} units`, sub = `Threshold: ${p.threshold}`, subColor = 'var(--color-text-secondary)';
+    if (p.quantity === 0) { color = '#EF4444'; subColor = '#DC2626'; sub = 'Out of stock'; }
+    else if (p.quantity <= p.threshold) { color = '#F59E0B'; subColor = '#D97706'; sub = 'Low stock'; }
     return `
       <div class="inv-row">
         <div class="inv-top">
           <div><div class="inv-name">${p.name} <span class="pill p-gray" style="margin-left:6px">${p.id}</span></div>
           <div class="inv-meta">Cost ${naira(p.cost)} · Sells ${naira(p.price)} · Margin ${margin}%</div></div>
           <div style="text-align:right;display:flex;align-items:center;gap:10px">
-            <div><div style="font-size:13px;font-weight:500;color:${p.quantity <= p.threshold ? (p.quantity === 0 ? '#A32D2D' : '#BA7517') : '#0F6E56'}">${label}</div><div style="font-size:10px;color:${subColor}">${sub}</div></div>
+            <div><div style="font-size:13px;font-weight:500;color:${p.quantity <= p.threshold ? (p.quantity === 0 ? '#DC2626' : '#D97706') : '#4F46E5'}">${label}</div><div style="font-size:10px;color:${subColor}">${sub}</div></div>
             <button class="btn" style="font-size:11px;padding:5px 8px" onclick="showEditProduct('${p.id}')" title="Edit"><i class="ti ti-pencil" style="font-size:12px" aria-hidden="true"></i></button>
-            <button class="btn" style="font-size:11px;padding:5px 8px;color:#A32D2D" onclick="deleteProduct('${p.id}')" title="Delete"><i class="ti ti-trash" style="font-size:12px" aria-hidden="true"></i></button>
+            <button class="btn" style="font-size:11px;padding:5px 8px;color:#DC2626" onclick="deleteProduct('${p.id}')" title="Delete"><i class="ti ti-trash" style="font-size:12px" aria-hidden="true"></i></button>
           </div>
         </div>
         <div class="bar-wrap" style="margin-top:8px"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
@@ -1169,7 +1171,7 @@ async function loadInventory() {
 // --- Add customer (Customers panel) ---
 function openAddCustomerModal() {
   openModal(`
-    <div class="modal-title"><i class="ti ti-user-plus" style="color:#1D9E75" aria-hidden="true"></i> Add customer</div>
+    <div class="modal-title"><i class="ti ti-user-plus" style="color:#6366F1" aria-hidden="true"></i> Add customer</div>
     <div class="modal-sub">Add a new customer to your business</div>
 
     <div class="modal-field">
@@ -1181,7 +1183,7 @@ function openAddCustomerModal() {
       <input id="ac-phone" type="text" class="modal-input" placeholder="e.g. +234 800 000 0000">
     </div>
     <div class="modal-field">
-      <label class="modal-label">Location <span style="font-weight:400;color:#A3B3AC">(optional)</span></label>
+      <label class="modal-label">Location <span style="font-weight:400;color:#9CA3AF">(optional)</span></label>
       <input id="ac-location" type="text" class="modal-input" placeholder="e.g. Lekki, Lagos">
     </div>
     <div id="ac-error" class="modal-error"></div>
@@ -1331,14 +1333,14 @@ function openImportModal(type) {
   const cfg = IMPORT_CONFIG[type];
   window._importType = type;
   openModal(`
-    <div class="modal-title"><i class="ti ti-upload" style="color:#1D9E75" aria-hidden="true"></i> ${cfg.title}</div>
+    <div class="modal-title"><i class="ti ti-upload" style="color:#6366F1" aria-hidden="true"></i> ${cfg.title}</div>
     <div class="modal-sub">Upload a CSV with these columns: <strong>${cfg.columns.join(', ')}</strong></div>
     ${cfg.note ? `<div class="modal-info-box">${cfg.note}</div>` : ''}
     <div class="modal-field">
       <input type="file" id="import-file" accept=".csv" class="modal-input" style="padding:8px">
     </div>
     <div style="margin-bottom:14px">
-      <a href="#" onclick="downloadSampleCSV('${type}');return false;" style="font-size:12px;color:#0F6E56;text-decoration:none">Download a sample CSV to see the format ↓</a>
+      <a href="#" onclick="downloadSampleCSV('${type}');return false;" style="font-size:12px;color:#4F46E5;text-decoration:none">Download a sample CSV to see the format ↓</a>
     </div>
     <div id="import-result"></div>
     <div id="import-error" class="modal-error"></div>
@@ -1384,10 +1386,10 @@ function submitImport() {
 
         document.getElementById('import-result').innerHTML = `
           <div class="modal-info-box">
-            <strong style="color:#0F6E56">${data.created} row(s) imported successfully.</strong>
-            ${data.errors.length ? `<div style="margin-top:8px;color:#A32D2D">${data.errors.length} row(s) skipped:</div>
+            <strong style="color:#4F46E5">${data.created} row(s) imported successfully.</strong>
+            ${data.errors.length ? `<div style="margin-top:8px;color:#DC2626">${data.errors.length} row(s) skipped:</div>
               <div style="max-height:130px;overflow-y:auto;margin-top:6px">
-                ${data.errors.map(e => `<div style="font-size:11.5px;padding:4px 0;border-bottom:1px solid #EEF2F0">Row ${e.row}: ${e.error}</div>`).join('')}
+                ${data.errors.map(e => `<div style="font-size:11.5px;padding:4px 0;border-bottom:1px solid #F3F4F6">Row ${e.row}: ${e.error}</div>`).join('')}
               </div>` : ''}
           </div>
         `;
@@ -1402,7 +1404,7 @@ function submitImport() {
 
 function openAddProductModal() {
   openModal(`
-    <div class="modal-title"><i class="ti ti-package" style="color:#1D9E75" aria-hidden="true"></i> Add product</div>
+    <div class="modal-title"><i class="ti ti-package" style="color:#6366F1" aria-hidden="true"></i> Add product</div>
     <div class="modal-sub">Add a new item to your inventory</div>
 
     <div class="modal-field">
@@ -1430,7 +1432,7 @@ function openAddProductModal() {
     <div class="modal-field">
       <label class="modal-label">Product photo (optional)</label>
       <div id="ap-image-preview" onclick="document.getElementById('ap-image-file').click()"
-        style="width:100%;height:140px;border:1.5px dashed var(--color-border-tertiary);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--color-bg-secondary,#F7F7F5);overflow:hidden;color:var(--color-text-secondary);font-size:12px;text-align:center;padding:10px">
+        style="width:100%;height:140px;border:1.5px dashed var(--color-border-tertiary);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--color-bg-secondary,#F9FAFB);overflow:hidden;color:var(--color-text-secondary);font-size:12px;text-align:center;padding:10px">
         Click to upload a photo
       </div>
       <input id="ap-image-file" type="file" accept="image/*" style="display:none" onchange="uploadProductImage(this, 'ap-image-preview', 'ap-image-url')">
@@ -1550,7 +1552,7 @@ async function uploadProductImage(fileInput, previewId, hiddenId) {
 async function showEditProduct(productId) {
   const p = await apiFetch(`${API_BASE}/api/products/${productId}`).then(r => r.json());
   openModal(`
-    <div class="modal-title"><i class="ti ti-edit" style="color:#1D9E75" aria-hidden="true"></i> Edit product</div>
+    <div class="modal-title"><i class="ti ti-edit" style="color:#6366F1" aria-hidden="true"></i> Edit product</div>
     <div class="modal-sub">${p.name}</div>
 
     <div class="modal-field">
@@ -1580,7 +1582,7 @@ async function showEditProduct(productId) {
     <div class="modal-field">
       <label class="modal-label">Product photo</label>
       <div id="ep-image-preview" onclick="document.getElementById('ep-image-file').click()"
-        style="width:100%;height:140px;border:1.5px dashed var(--color-border-tertiary);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--color-bg-secondary,#F7F7F5);overflow:hidden;color:var(--color-text-secondary);font-size:12px;text-align:center;padding:10px">
+        style="width:100%;height:140px;border:1.5px dashed var(--color-border-tertiary);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--color-bg-secondary,#F9FAFB);overflow:hidden;color:var(--color-text-secondary);font-size:12px;text-align:center;padding:10px">
         ${p.image_url ? `<img src="${p.image_url}" style="width:100%;height:100%;object-fit:cover;">` : 'Click to upload a photo'}
       </div>
       <input id="ep-image-file" type="file" accept="image/*" style="display:none" onchange="uploadProductImage(this, 'ep-image-preview', 'ep-image-url')">
@@ -1641,10 +1643,10 @@ async function deleteProduct(productId) {
 // --- Inventory History — audit trail of every stock change, for accountability ---
 async function showInventoryHistory() {
   openModal(`
-    <div class="modal-title"><i class="ti ti-history" style="color:#1D9E75" aria-hidden="true"></i> Inventory history</div>
+    <div class="modal-title"><i class="ti ti-history" style="color:#6366F1" aria-hidden="true"></i> Inventory history</div>
     <div class="modal-sub">Every stock change, most recent first</div>
     <div id="ih-list" style="max-height:400px;overflow-y:auto">
-      <div style="padding:14px;text-align:center;color:#75887F;font-size:12px">Loading…</div>
+      <div style="padding:14px;text-align:center;color:#6B7280;font-size:12px">Loading…</div>
     </div>
     <div class="modal-actions"><button class="modal-btn modal-btn-secondary" style="width:100%" onclick="closeModal()">Close</button></div>
   `);
@@ -1652,7 +1654,7 @@ async function showInventoryHistory() {
   try {
     const history = await apiFetch(`${API_BASE}/api/products/history`).then(r => r.json());
     if (!history.length) {
-      document.getElementById('ih-list').innerHTML = `<div style="padding:14px;text-align:center;color:#75887F;font-size:12px">No stock changes recorded yet.</div>`;
+      document.getElementById('ih-list').innerHTML = `<div style="padding:14px;text-align:center;color:#6B7280;font-size:12px">No stock changes recorded yet.</div>`;
       return;
     }
 
@@ -1665,23 +1667,23 @@ async function showInventoryHistory() {
       return `
         <div class="modal-list-row" style="align-items:flex-start">
           <div style="display:flex;gap:10px;align-items:flex-start">
-            <div style="width:26px;height:26px;border-radius:7px;background:${isIncrease ? '#E1F5EE' : '#FCEBEB'};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">
-              <i class="ti ${typeIcon[h.changeType] || 'ti-package'}" style="font-size:13px;color:${isIncrease ? '#0F6E56' : '#A32D2D'}" aria-hidden="true"></i>
+            <div style="width:26px;height:26px;border-radius:7px;background:${isIncrease ? '#D1FAE5' : '#FEE2E2'};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">
+              <i class="ti ${typeIcon[h.changeType] || 'ti-package'}" style="font-size:13px;color:${isIncrease ? '#4F46E5' : '#DC2626'}" aria-hidden="true"></i>
             </div>
             <div>
               <div style="font-size:12.5px"><strong>${h.productName}</strong> — ${h.changeType}</div>
-              <div style="font-size:11px;color:#75887F">${new Date(h.date).toLocaleString()}${h.note ? ' · ' + h.note : ''}</div>
+              <div style="font-size:11px;color:#6B7280">${new Date(h.date).toLocaleString()}${h.note ? ' · ' + h.note : ''}</div>
             </div>
           </div>
           <div style="text-align:right;flex-shrink:0">
-            <div style="font-size:13px;font-weight:600;color:${isIncrease ? '#0F6E56' : '#A32D2D'}">${isIncrease ? '+' : ''}${h.quantityChange}</div>
-            <div style="font-size:10.5px;color:#A3B3AC">${h.quantityBefore} → ${h.quantityAfter}</div>
+            <div style="font-size:13px;font-weight:600;color:${isIncrease ? '#4F46E5' : '#DC2626'}">${isIncrease ? '+' : ''}${h.quantityChange}</div>
+            <div style="font-size:10.5px;color:#9CA3AF">${h.quantityBefore} → ${h.quantityAfter}</div>
           </div>
         </div>
       `;
     }).join('');
   } catch (err) {
-    document.getElementById('ih-list').innerHTML = `<div style="padding:14px;text-align:center;color:#A32D2D;font-size:12px">Could not load history.</div>`;
+    document.getElementById('ih-list').innerHTML = `<div style="padding:14px;text-align:center;color:#DC2626;font-size:12px">Could not load history.</div>`;
   }
 }
 
@@ -1768,7 +1770,7 @@ function renderExpensesTable(expenses) {
       <td><span class="pill p-gray">${e.category}</span></td>
       <td class="amt">${naira(e.amount)}</td>
       <td style="font-size:11px;color:var(--color-text-secondary)">${new Date(e.date).toLocaleDateString()}</td>
-      <td><button class="btn" style="font-size:11px;padding:5px 8px;color:#A32D2D" onclick="deleteExpense(${e.id})" title="Delete"><i class="ti ti-trash" style="font-size:12px" aria-hidden="true"></i></button></td>
+      <td><button class="btn" style="font-size:11px;padding:5px 8px;color:#DC2626" onclick="deleteExpense(${e.id})" title="Delete"><i class="ti ti-trash" style="font-size:12px" aria-hidden="true"></i></button></td>
     </tr>
   `).join('') : `<tr><td colspan="5" style="padding:14px;text-align:center;color:var(--color-text-secondary)">No expenses match.</td></tr>`;
 }
@@ -1809,17 +1811,17 @@ async function loadExpenses() {
     document.getElementById('exp-kpi-revenue').textContent = naira(payments.monthTotal);
     document.getElementById('exp-kpi-profit').textContent = naira(profit);
     document.getElementById('exp-kpi-profit-foot').textContent = profit >= 0 ? 'Profitable this month' : 'Running at a loss this month';
-    document.getElementById('exp-kpi-profit').style.color = profit >= 0 ? '#0F6E56' : '#A32D2D';
+    document.getElementById('exp-kpi-profit').style.color = profit >= 0 ? '#4F46E5' : '#DC2626';
 
     document.getElementById('exp-profit-big').textContent = naira(profit);
-    document.getElementById('exp-profit-big').style.color = profit >= 0 ? '#0F6E56' : '#A32D2D';
+    document.getElementById('exp-profit-big').style.color = profit >= 0 ? '#4F46E5' : '#DC2626';
     document.getElementById('exp-profit-detail').textContent = `${naira(payments.monthTotal)} revenue − ${naira(summary.totalThisMonth)} expenses`;
 
     new Chart(document.getElementById('expChart'), {
       type: 'bar',
       data: {
         labels: summary.byCategory.map(c => c.category),
-        datasets: [{ data: summary.byCategory.map(c => c.amount), backgroundColor: [AMB, '#534AB7', RED, G, G2, G3, '#888'], borderRadius: 4 }]
+        datasets: [{ data: summary.byCategory.map(c => c.amount), backgroundColor: [AMB, '#7C3AED', RED, G, G2, G3, '#888'], borderRadius: 4 }]
       },
       options: { ...baseOpts,
         scales: {
@@ -1839,7 +1841,7 @@ async function loadExpenses() {
 
 function openAddExpenseModal() {
   openModal(`
-    <div class="modal-title"><i class="ti ti-receipt-2" style="color:#1D9E75" aria-hidden="true"></i> Add expense</div>
+    <div class="modal-title"><i class="ti ti-receipt-2" style="color:#6366F1" aria-hidden="true"></i> Add expense</div>
     <div class="modal-sub">Log money spent running your business</div>
 
     <div class="modal-field">
@@ -1859,7 +1861,7 @@ function openAddExpenseModal() {
       </div>
     </div>
     <div class="modal-field">
-      <label class="modal-label">Date <span style="font-weight:400;color:#A3B3AC">(optional, defaults to today)</span></label>
+      <label class="modal-label">Date <span style="font-weight:400;color:#9CA3AF">(optional, defaults to today)</span></label>
       <input id="ae-date" type="date" class="modal-input">
     </div>
     <div id="ae-error" class="modal-error"></div>
@@ -1916,14 +1918,14 @@ async function openMarkPaidModal() {
   const orders = allOrders.filter(o => o.paymentStatus === 'Awaiting' || o.paymentStatus === 'Partial');
   if (!orders.length) {
     openModal(`
-      <div class="modal-title"><i class="ti ti-check" style="color:#1D9E75" aria-hidden="true"></i> Mark as paid</div>
-      <p style="font-size:13px;color:#75887F;margin-bottom:16px">No unpaid orders right now — nothing to mark.</p>
+      <div class="modal-title"><i class="ti ti-check" style="color:#6366F1" aria-hidden="true"></i> Mark as paid</div>
+      <p style="font-size:13px;color:#6B7280;margin-bottom:16px">No unpaid orders right now — nothing to mark.</p>
       <button class="modal-btn modal-btn-secondary" style="width:100%" onclick="closeModal()">Close</button>
     `);
     return;
   }
   openModal(`
-    <div class="modal-title"><i class="ti ti-check" style="color:#1D9E75" aria-hidden="true"></i> Mark as paid</div>
+    <div class="modal-title"><i class="ti ti-check" style="color:#6366F1" aria-hidden="true"></i> Mark as paid</div>
     <div class="modal-sub">Record a full or partial payment for an order</div>
 
     <div class="modal-field">
@@ -1935,7 +1937,7 @@ async function openMarkPaidModal() {
     <div class="modal-field">
       <label class="modal-label">Amount received now (₦)</label>
       <input id="mp-amount" type="number" class="modal-input" placeholder="Loading balance…">
-      <div id="mp-balance-hint" style="font-size:11px;color:#75887F;margin-top:4px"></div>
+      <div id="mp-balance-hint" style="font-size:11px;color:#6B7280;margin-top:4px"></div>
     </div>
     <div class="modal-field">
       <label class="modal-label">Payment method</label>
@@ -2014,7 +2016,7 @@ async function loadWhatsapp() {
       if (t.detected) {
         // Seed/demo thread with pre-computed "AI detected" info
         document.getElementById('wa-inbox').innerHTML = messagesHtml + `
-          <div style="background:#E1F5EE;border-radius:8px;padding:10px 12px;font-size:12px;color:#085041;margin-bottom:12px;border-left:3px solid #0F6E56;border-top-left-radius:0;border-bottom-left-radius:0">
+          <div style="background:#D1FAE5;border-radius:8px;padding:10px 12px;font-size:12px;color:#1E1B4B;margin-bottom:12px;border-left:3px solid #4F46E5;border-top-left-radius:0;border-bottom-left-radius:0">
             <i class="ti ti-sparkles" style="font-size:13px;margin-right:5px" aria-hidden="true"></i><strong style="font-weight:500">AI detected:</strong> ${t.detected.productName} × ${t.detected.qty}, ${t.detected.location}. ${t.detected.isNewCustomer ? 'New customer.' : ''} Total ${naira(t.detected.total)}.
           </div>
           <div style="display:flex;gap:8px">
@@ -2026,7 +2028,7 @@ async function loadWhatsapp() {
         // Real message from the live webhook — no AI extraction wired up yet,
         // so fall back to the regular New Order form, pre-filled with the phone
         document.getElementById('wa-inbox').innerHTML = messagesHtml + `
-          <div style="background:#FCEBEB;border-radius:8px;padding:10px 12px;font-size:12px;color:#791F1F;margin-bottom:12px">
+          <div style="background:#FEE2E2;border-radius:8px;padding:10px 12px;font-size:12px;color:#991B1B;margin-bottom:12px">
             No order info auto-detected from this message yet. Create the order manually using their number.
           </div>
           <div style="display:flex;gap:8px">
@@ -2038,8 +2040,8 @@ async function loadWhatsapp() {
     }
 
     const icons = { vip: 'ti-crown', dormant: 'ti-clock', new: 'ti-user-plus', frequent: 'ti-star' };
-    const bg = { vip: '#FAEEDA', dormant: '#FCEBEB', new: '#E1F5EE', frequent: '#EEEDFE' };
-    const color = { vip: '#633806', dormant: '#791F1F', new: '#085041', frequent: '#3C3489' };
+    const bg = { vip: '#FEF3C7', dormant: '#FEE2E2', new: '#D1FAE5', frequent: '#EDE9FE' };
+    const color = { vip: '#92400E', dormant: '#991B1B', new: '#1E1B4B', frequent: '#5B21B6' };
     document.getElementById('wa-broadcasts').innerHTML = broadcasts.map(b => `
       <div class="seg-row" onclick="showSegmentMembers('${b.key}', '${b.title}')">
         <div class="seg-icon" style="background:${bg[b.key]}"><i class="ti ${icons[b.key]}" style="font-size:15px;color:${color[b.key]}" aria-hidden="true"></i></div>
@@ -2096,7 +2098,7 @@ async function openNewOrderModal() {
   const inStock = products.filter(p => p.quantity > 0);
 
   openModal(`
-    <div class="modal-title"><i class="ti ti-shopping-bag-plus" style="color:#1D9E75" aria-hidden="true"></i> New order</div>
+    <div class="modal-title"><i class="ti ti-shopping-bag-plus" style="color:#6366F1" aria-hidden="true"></i> New order</div>
     <div class="modal-sub">Create an order for an existing or new customer</div>
 
     <div class="modal-field">
@@ -2106,7 +2108,7 @@ async function openNewOrderModal() {
         ${customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
       </select>
     </div>
-    <div id="no-new-customer-fields" style="display:flex;flex-direction:column;gap:10px;background:#F4F8F6;padding:12px;border-radius:9px;margin-bottom:14px">
+    <div id="no-new-customer-fields" style="display:flex;flex-direction:column;gap:10px;background:#F9FAFB;padding:12px;border-radius:9px;margin-bottom:14px">
       <input id="no-new-name" type="text" class="modal-input" placeholder="Customer name">
       <input id="no-new-phone" type="text" class="modal-input" placeholder="Phone (e.g. +234 800 000 0000)">
       <input id="no-new-location" type="text" class="modal-input" placeholder="Delivery location">
@@ -2124,7 +2126,7 @@ async function openNewOrderModal() {
       </div>
     </div>
     <div class="modal-field">
-      <label class="modal-label">Delivery location <span style="font-weight:400;color:#A3B3AC">(existing customers)</span></label>
+      <label class="modal-label">Delivery location <span style="font-weight:400;color:#9CA3AF">(existing customers)</span></label>
       <input id="no-delivery" type="text" class="modal-input" placeholder="Optional">
     </div>
     <div id="no-error" class="modal-error"></div>
@@ -2179,16 +2181,16 @@ async function showOrderDetail(orderId) {
       <div class="modal-title">${o.id}</div>
       <div class="modal-sub">${new Date(o.date).toLocaleString()}</div>
 
-      <div class="modal-list-row"><span style="color:#75887F">Customer</span><strong>${o.customerName}</strong></div>
-      <div class="modal-list-row"><span style="color:#75887F">Items</span><span style="text-align:right">${o.items.map(i => `${i.name} × ${i.qty}`).join(', ')}</span></div>
-      <div class="modal-list-row"><span style="color:#75887F">Amount</span><strong>${naira(o.amount)}</strong></div>
+      <div class="modal-list-row"><span style="color:#6B7280">Customer</span><strong>${o.customerName}</strong></div>
+      <div class="modal-list-row"><span style="color:#6B7280">Items</span><span style="text-align:right">${o.items.map(i => `${i.name} × ${i.qty}`).join(', ')}</span></div>
+      <div class="modal-list-row"><span style="color:#6B7280">Amount</span><strong>${naira(o.amount)}</strong></div>
       ${o.paymentStatus === 'Partial' || (o.amountPaid > 0 && o.amountPaid < o.amount) ? `
-      <div class="modal-list-row"><span style="color:#75887F">Paid so far</span><span style="color:#0F6E56">${naira(o.amountPaid)}</span></div>
-      <div class="modal-list-row"><span style="color:#75887F">Balance remaining</span><strong style="color:#BA7517">${naira(o.balanceRemaining)}</strong></div>
+      <div class="modal-list-row"><span style="color:#6B7280">Paid so far</span><span style="color:#4F46E5">${naira(o.amountPaid)}</span></div>
+      <div class="modal-list-row"><span style="color:#6B7280">Balance remaining</span><strong style="color:#D97706">${naira(o.balanceRemaining)}</strong></div>
       ` : ''}
-      <div class="modal-list-row"><span style="color:#75887F">Payment</span><span class="pill ${paymentPill[o.paymentStatus] || 'p-gray'}">${o.paymentStatus}</span></div>
-      <div class="modal-list-row"><span style="color:#75887F">Status</span><span class="pill ${statusPill[o.status] || 'p-gray'}">${o.status}</span></div>
-      <div class="modal-list-row"><span style="color:#75887F">Delivery</span><span>${o.delivery || '—'}</span></div>
+      <div class="modal-list-row"><span style="color:#6B7280">Payment</span><span class="pill ${paymentPill[o.paymentStatus] || 'p-gray'}">${o.paymentStatus}</span></div>
+      <div class="modal-list-row"><span style="color:#6B7280">Status</span><span class="pill ${statusPill[o.status] || 'p-gray'}">${o.status}</span></div>
+      <div class="modal-list-row"><span style="color:#6B7280">Delivery</span><span>${o.delivery || '—'}</span></div>
 
       <div class="modal-actions" style="flex-wrap:wrap">
         <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button>
@@ -2209,7 +2211,7 @@ async function showEditOrder(orderId) {
   const statuses = ['New', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
   const paymentStatuses = ['Awaiting', 'Partial', 'Paid', 'Cancelled'];
   openModal(`
-    <div class="modal-title"><i class="ti ti-edit" style="color:#1D9E75" aria-hidden="true"></i> Edit ${o.id}</div>
+    <div class="modal-title"><i class="ti ti-edit" style="color:#6366F1" aria-hidden="true"></i> Edit ${o.id}</div>
     <div class="modal-sub">${o.customerName} · ${naira(o.amountPaid)} paid of ${naira(o.amount)}</div>
 
     <div class="modal-field">
@@ -2224,7 +2226,7 @@ async function showEditOrder(orderId) {
         ${paymentStatuses.map(s => `<option ${s === o.paymentStatus ? 'selected' : ''}>${s}</option>`).join('')}
       </select>
     </div>
-    <div id="eo-payment-fields" style="display:none;background:#F4F8F6;border-radius:9px;padding:12px;margin-bottom:14px">
+    <div id="eo-payment-fields" style="display:none;background:#F9FAFB;border-radius:9px;padding:12px;margin-bottom:14px">
       <div class="modal-info-box" style="margin-bottom:10px">Setting this to Paid/Partial records a real payment, so it shows up correctly in your Payments log and revenue totals.</div>
       <div class="modal-row">
         <div>
@@ -2267,7 +2269,7 @@ async function quickMarkPaid(orderId) {
   try {
     const o = await apiFetch(`${API_BASE}/api/orders/${orderId}`).then(r => r.json());
     openModal(`
-      <div class="modal-title"><i class="ti ti-check" style="color:#1D9E75" aria-hidden="true"></i> Mark ${o.id} as paid</div>
+      <div class="modal-title"><i class="ti ti-check" style="color:#6366F1" aria-hidden="true"></i> Mark ${o.id} as paid</div>
       <div class="modal-sub">${o.customerName} · ${naira(o.amountPaid)} paid of ${naira(o.amount)} so far</div>
 
       <div class="modal-field">
@@ -2385,19 +2387,19 @@ async function openReceipt(orderId) {
 <!DOCTYPE html>
 <html><head><meta charset="UTF-8"><title>Receipt — ${o.id}</title>
 <style>
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:420px;margin:40px auto;color:#16241F;padding:0 20px}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:420px;margin:40px auto;color:#111827;padding:0 20px}
   .header{text-align:center;margin-bottom:24px}
   .biz-name{font-size:19px;font-weight:700;margin-bottom:2px}
-  .receipt-label{font-size:12px;color:#75887F;letter-spacing:1px;text-transform:uppercase;margin-top:6px}
-  .meta-row{display:flex;justify-content:space-between;font-size:13px;color:#4A5B54;padding:4px 0}
-  hr{border:none;border-top:1px dashed #D9E4DF;margin:16px 0}
+  .receipt-label{font-size:12px;color:#6B7280;letter-spacing:1px;text-transform:uppercase;margin-top:6px}
+  .meta-row{display:flex;justify-content:space-between;font-size:13px;color:#4B5563;padding:4px 0}
+  hr{border:none;border-top:1px dashed #E5E7EB;margin:16px 0}
   table{width:100%;border-collapse:collapse;font-size:13px}
-  th{text-align:left;font-size:10.5px;text-transform:uppercase;color:#75887F;padding-bottom:6px;border-bottom:1px solid #E2E8E5}
+  th{text-align:left;font-size:10.5px;text-transform:uppercase;color:#6B7280;padding-bottom:6px;border-bottom:1px solid #E5E7EB}
   th:nth-child(2){text-align:center} th:nth-child(3){text-align:right}
-  .total-row{display:flex;justify-content:space-between;font-size:17px;font-weight:700;margin-top:14px;padding-top:14px;border-top:2px solid #16241F}
+  .total-row{display:flex;justify-content:space-between;font-size:17px;font-weight:700;margin-top:14px;padding-top:14px;border-top:2px solid #111827}
   .status-badge{display:inline-block;margin-top:10px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600}
-  .footer{text-align:center;margin-top:32px;font-size:12px;color:#75887F}
-  .print-btn{display:block;width:100%;margin-top:28px;padding:12px;border:none;border-radius:9px;background:#0F6E56;color:#fff;font-size:14px;font-weight:600;cursor:pointer}
+  .footer{text-align:center;margin-top:32px;font-size:12px;color:#6B7280}
+  .print-btn{display:block;width:100%;margin-top:28px;padding:12px;border:none;border-radius:9px;background:#4F46E5;color:#fff;font-size:14px;font-weight:600;cursor:pointer}
   @media print{.print-btn{display:none}}
 </style></head>
 <body>
@@ -2415,11 +2417,11 @@ async function openReceipt(orderId) {
   </table>
   <div class="total-row"><span>Total</span><span>${naira(o.amount)}</span></div>
   ${o.paymentStatus === 'Partial' || (o.amountPaid > 0 && o.amountPaid < o.amount) ? `
-  <div class="meta-row" style="margin-top:8px"><span>Amount paid</span><span style="color:#0F6E56;font-weight:600">${naira(o.amountPaid)}</span></div>
-  <div class="meta-row"><span>Balance due</span><span style="color:#BA7517;font-weight:600">${naira(o.balanceRemaining)}</span></div>
+  <div class="meta-row" style="margin-top:8px"><span>Amount paid</span><span style="color:#4F46E5;font-weight:600">${naira(o.amountPaid)}</span></div>
+  <div class="meta-row"><span>Balance due</span><span style="color:#D97706;font-weight:600">${naira(o.balanceRemaining)}</span></div>
   ` : ''}
   <div style="text-align:center">
-    <span class="status-badge" style="background:${o.paymentStatus === 'Paid' ? '#E1F5EE;color:#085041' : o.paymentStatus === 'Partial' ? '#FAEEDA;color:#633806' : '#FCEBEB;color:#791F1F'}">${o.paymentStatus === 'Paid' ? 'PAID IN FULL' : o.paymentStatus === 'Partial' ? 'PARTIALLY PAID' : 'PAYMENT PENDING'}</span>
+    <span class="status-badge" style="background:${o.paymentStatus === 'Paid' ? '#D1FAE5;color:#1E1B4B' : o.paymentStatus === 'Partial' ? '#FEF3C7;color:#92400E' : '#FEE2E2;color:#991B1B'}">${o.paymentStatus === 'Paid' ? 'PAID IN FULL' : o.paymentStatus === 'Partial' ? 'PARTIALLY PAID' : 'PAYMENT PENDING'}</span>
   </div>
   <div class="footer">Thank you for your business!</div>
   <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
@@ -2440,8 +2442,8 @@ function showRestockRecommendation() {
   const needsRestock = products.filter(p => p.quantity <= p.threshold);
   if (!needsRestock.length) {
     openModal(`
-      <div class="modal-title"><i class="ti ti-box" style="color:#1D9E75" aria-hidden="true"></i> Restock recommendation</div>
-      <p style="font-size:13px;color:#75887F;margin-bottom:16px">Everything is above its threshold — nothing needs restocking right now.</p>
+      <div class="modal-title"><i class="ti ti-box" style="color:#6366F1" aria-hidden="true"></i> Restock recommendation</div>
+      <p style="font-size:13px;color:#6B7280;margin-bottom:16px">Everything is above its threshold — nothing needs restocking right now.</p>
       <button class="modal-btn modal-btn-secondary" style="width:100%" onclick="closeModal()">Close</button>
     `);
     return;
@@ -2450,12 +2452,12 @@ function showRestockRecommendation() {
     const target = p.threshold * 3;
     const suggested = Math.max(target - p.quantity, p.threshold);
     return `<div class="modal-list-row">
-      <span>${p.name} <span style="color:#A3B3AC;font-size:11px">(${p.quantity} left)</span></span>
-      <strong style="color:#0F6E56">+${suggested} units</strong>
+      <span>${p.name} <span style="color:#9CA3AF;font-size:11px">(${p.quantity} left)</span></span>
+      <strong style="color:#4F46E5">+${suggested} units</strong>
     </div>`;
   }).join('');
   openModal(`
-    <div class="modal-title"><i class="ti ti-box" style="color:#1D9E75" aria-hidden="true"></i> Restock recommendation</div>
+    <div class="modal-title"><i class="ti ti-box" style="color:#6366F1" aria-hidden="true"></i> Restock recommendation</div>
     <div class="modal-sub">Based on current stock vs. each product's threshold (target: 3× threshold)</div>
     ${rows}
     <div class="modal-actions"><button class="modal-btn modal-btn-secondary" style="width:100%" onclick="closeModal()">Close</button></div>
@@ -2477,7 +2479,7 @@ function showStorePreview() {
   const link = `${STOREFRONT_BASE}/?business=${businessId}`;
 
   openModal(`
-    <div class="modal-title"><i class="ti ti-eye" style="color:#1D9E75" aria-hidden="true"></i> Storefront preview</div>
+    <div class="modal-title"><i class="ti ti-eye" style="color:#6366F1" aria-hidden="true"></i> Storefront preview</div>
     <div class="modal-sub">This is roughly how your store looks to a customer on their phone.</div>
     <div style="border:1px solid var(--color-border-tertiary);border-radius:14px;overflow:hidden;margin-top:12px;">
       <iframe src="${link}" style="width:100%;height:600px;border:none;display:block;"></iframe>
@@ -2493,7 +2495,7 @@ function showStorePreview() {
 let paymentBanksCache = null;
 
 async function showPaymentSettings() {
-  openModal(`<div class="modal-title"><i class="ti ti-building-bank" style="color:#1D9E75" aria-hidden="true"></i> Payment settings</div>
+  openModal(`<div class="modal-title"><i class="ti ti-building-bank" style="color:#6366F1" aria-hidden="true"></i> Payment settings</div>
     <div class="modal-sub">Loading…</div>`);
 
   let account, banks;
@@ -2513,9 +2515,9 @@ async function showPaymentSettings() {
 
   if (account.paystack_subaccount_code) {
     openModal(`
-      <div class="modal-title"><i class="ti ti-building-bank" style="color:#1D9E75" aria-hidden="true"></i> Payment settings</div>
+      <div class="modal-title"><i class="ti ti-building-bank" style="color:#6366F1" aria-hidden="true"></i> Payment settings</div>
       <div class="modal-sub">Storefront sales are paid directly to this account — BizFlow's 1.5% fee is deducted automatically, no manual work needed.</div>
-      <div style="background:var(--color-bg-secondary,#F7F7F5);border-radius:12px;padding:16px;margin-top:14px;">
+      <div style="background:var(--color-bg-secondary,#F9FAFB);border-radius:12px;padding:16px;margin-top:14px;">
         <div style="font-size:13px;font-weight:700;margin-bottom:4px;">${account.paystack_account_name}</div>
         <div style="font-size:12.5px;color:var(--color-text-secondary);">${account.paystack_bank_name} · ${account.paystack_account_number}</div>
       </div>
@@ -2533,7 +2535,7 @@ async function showPaymentSettings() {
 function showPaymentSettingsForm() {
   const banks = paymentBanksCache || [];
   openModal(`
-    <div class="modal-title"><i class="ti ti-building-bank" style="color:#1D9E75" aria-hidden="true"></i> Link your bank account</div>
+    <div class="modal-title"><i class="ti ti-building-bank" style="color:#6366F1" aria-hidden="true"></i> Link your bank account</div>
     <div class="modal-sub">Storefront sales are paid straight to this account, usually within 24 hours. BizFlow takes a 1.5% fee automatically — you never send anything manually.</div>
 
     <div class="modal-field">
@@ -2587,7 +2589,7 @@ async function verifyPaymentAccount() {
     if (!res.ok) throw new Error(data.error || 'Could not verify account');
 
     document.getElementById('ps-verified-name').value = data.accountName;
-    resultEl.innerHTML = `<div style="font-size:13px;font-weight:700;color:#1D9E75;">✓ ${data.accountName}</div>`;
+    resultEl.innerHTML = `<div style="font-size:13px;font-weight:700;color:#6366F1;">✓ ${data.accountName}</div>`;
     document.getElementById('ps-connect-btn').disabled = false;
   } catch (err) {
     resultEl.innerHTML = '';
@@ -2630,13 +2632,13 @@ function zoneRowHTML(zone) {
   return `<div class="zone-row" data-zone-id="${zone.id}" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
     <input type="text" class="modal-input zone-location" value="${(zone.location_name || '').replace(/"/g, '&quot;')}" placeholder="Location" style="flex:2;">
     <input type="number" min="0" step="1" class="modal-input zone-fee" value="${zone.fee}" placeholder="Fee (₦)" style="flex:1;">
-    <div onclick="saveDeliveryZone(${zone.id})" style="cursor:pointer;color:#1D9E75;" title="Save"><i class="ti ti-check" style="font-size:18px" aria-hidden="true"></i></div>
+    <div onclick="saveDeliveryZone(${zone.id})" style="cursor:pointer;color:#6366F1;" title="Save"><i class="ti ti-check" style="font-size:18px" aria-hidden="true"></i></div>
     <div onclick="deleteDeliveryZone(${zone.id})" style="cursor:pointer;color:var(--color-text-secondary);" title="Remove"><i class="ti ti-trash" style="font-size:16px" aria-hidden="true"></i></div>
   </div>`;
 }
 
 async function showDeliveryZones() {
-  openModal(`<div class="modal-title"><i class="ti ti-map-pin" style="color:#1D9E75" aria-hidden="true"></i> Delivery zones</div>
+  openModal(`<div class="modal-title"><i class="ti ti-map-pin" style="color:#6366F1" aria-hidden="true"></i> Delivery zones</div>
     <div class="modal-sub">Loading…</div>`);
 
   let zones;
@@ -2649,7 +2651,7 @@ async function showDeliveryZones() {
   }
 
   openModal(`
-    <div class="modal-title"><i class="ti ti-map-pin" style="color:#1D9E75" aria-hidden="true"></i> Delivery zones</div>
+    <div class="modal-title"><i class="ti ti-map-pin" style="color:#6366F1" aria-hidden="true"></i> Delivery zones</div>
     <div class="modal-sub">Set a different delivery fee per location. Customers pick their location at checkout — pickup is always free.</div>
     <button class="btn" style="font-size:12px;margin-top:10px;" onclick="openImportModal('deliveryZones')"><i class="ti ti-upload" style="font-size:12px" aria-hidden="true"></i> Import CSV</button>
 
@@ -2747,16 +2749,16 @@ function showStoreLink() {
   const link = `${STOREFRONT_BASE}/?business=${businessId}`;
 
   openModal(`
-    <div class="modal-title"><i class="ti ti-link" style="color:#1D9E75" aria-hidden="true"></i> Your store link</div>
+    <div class="modal-title"><i class="ti ti-link" style="color:#6366F1" aria-hidden="true"></i> Your store link</div>
     <div class="modal-sub">Share this with customers on WhatsApp, Instagram, or anywhere else — anyone who opens it can browse your products and order.</div>
 
     <div style="display:flex;gap:8px;margin-top:14px;">
       <input id="store-link-input" type="text" readonly value="${link}"
-        style="flex:1;padding:10px 12px;border:1px solid var(--color-border-tertiary);border-radius:8px;font-size:13px;font-family:monospace;background:var(--color-bg-secondary,#F7F7F5);color:var(--color-text-primary)"
+        style="flex:1;padding:10px 12px;border:1px solid var(--color-border-tertiary);border-radius:8px;font-size:13px;font-family:monospace;background:var(--color-bg-secondary,#F9FAFB);color:var(--color-text-primary)"
         onclick="this.select()">
       <button class="modal-btn modal-btn-primary" style="white-space:nowrap" onclick="copyStoreLink()">Copy</button>
     </div>
-    <div id="store-link-copied" style="font-size:12px;color:#0F6E56;margin-top:8px;display:none;">Copied to clipboard ✓</div>
+    <div id="store-link-copied" style="font-size:12px;color:#4F46E5;margin-top:8px;display:none;">Copied to clipboard ✓</div>
 
     <div class="modal-actions"><button class="modal-btn modal-btn-secondary" style="width:100%" onclick="closeModal()">Close</button></div>
   `);
@@ -2791,7 +2793,7 @@ const STORE_THEMES = {
 };
 
 async function showStoreSettings() {
-  openModal(`<div class="modal-title"><i class="ti ti-palette" style="color:#1D9E75" aria-hidden="true"></i> Store settings</div>
+  openModal(`<div class="modal-title"><i class="ti ti-palette" style="color:#6366F1" aria-hidden="true"></i> Store settings</div>
     <div class="modal-sub">Loading…</div>`);
 
   let business;
@@ -2812,13 +2814,13 @@ async function showStoreSettings() {
   `).join('');
 
   openModal(`
-    <div class="modal-title"><i class="ti ti-palette" style="color:#1D9E75" aria-hidden="true"></i> Store settings</div>
+    <div class="modal-title"><i class="ti ti-palette" style="color:#6366F1" aria-hidden="true"></i> Store settings</div>
     <div class="modal-sub">This is what customers see on your storefront.</div>
 
     <div class="modal-field">
       <label class="modal-label">Store logo</label>
       <div id="ss-logo-preview" onclick="document.getElementById('ss-logo-file').click()"
-        style="width:90px;height:90px;border:1.5px dashed var(--color-border-tertiary);border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--color-bg-secondary,#F7F7F5);overflow:hidden;color:var(--color-text-secondary);font-size:11px;text-align:center;padding:6px">
+        style="width:90px;height:90px;border:1.5px dashed var(--color-border-tertiary);border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--color-bg-secondary,#F9FAFB);overflow:hidden;color:var(--color-text-secondary);font-size:11px;text-align:center;padding:6px">
         ${business.logo_url ? `<img src="${business.logo_url}" style="width:100%;height:100%;object-fit:cover;">` : 'Click to upload'}
       </div>
       <input id="ss-logo-file" type="file" accept="image/*" style="display:none" onchange="uploadProductImage(this, 'ss-logo-preview', 'ss-logo-url')">
@@ -2828,7 +2830,7 @@ async function showStoreSettings() {
     <div class="modal-field">
       <label class="modal-label">Cover / banner image</label>
       <div id="ss-banner-preview" onclick="document.getElementById('ss-banner-file').click()"
-        style="width:100%;height:100px;border:1.5px dashed var(--color-border-tertiary);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--color-bg-secondary,#F7F7F5);overflow:hidden;color:var(--color-text-secondary);font-size:12px;text-align:center;padding:10px">
+        style="width:100%;height:100px;border:1.5px dashed var(--color-border-tertiary);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--color-bg-secondary,#F9FAFB);overflow:hidden;color:var(--color-text-secondary);font-size:12px;text-align:center;padding:10px">
         ${business.banner_url ? `<img src="${business.banner_url}" style="width:100%;height:100%;object-fit:cover;">` : 'Click to upload a banner (shown at the top of your storefront)'}
       </div>
       <input id="ss-banner-file" type="file" accept="image/*" style="display:none" onchange="uploadProductImage(this, 'ss-banner-preview', 'ss-banner-url')">
@@ -2887,28 +2889,28 @@ function showBusinessSummary() {
   const top = window._lastTopProducts || [];
   if (!s) { alert('Dashboard data is still loading — try again in a second.'); return; }
   openModal(`
-    <div class="modal-title"><i class="ti ti-report-analytics" style="color:#1D9E75" aria-hidden="true"></i> Business summary</div>
+    <div class="modal-title"><i class="ti ti-report-analytics" style="color:#6366F1" aria-hidden="true"></i> Business summary</div>
     <div class="modal-sub">A quick read on how things stand right now</div>
 
     <div class="modal-list-row">
-      <span style="display:flex;align-items:center;gap:8px;color:#4A5B54"><i class="ti ti-trending-up" style="color:#0F6E56" aria-hidden="true"></i> Revenue today</span>
-      <strong>${naira(s.revenueToday)}${s.revenueChangePct !== null ? ` <span style="font-weight:400;font-size:11px;color:${s.revenueChangePct > 0 ? '#0F6E56' : '#A32D2D'}">(${s.revenueChangePct > 0 ? '+' : ''}${s.revenueChangePct}%)</span>` : ''}</strong>
+      <span style="display:flex;align-items:center;gap:8px;color:#4B5563"><i class="ti ti-trending-up" style="color:#4F46E5" aria-hidden="true"></i> Revenue today</span>
+      <strong>${naira(s.revenueToday)}${s.revenueChangePct !== null ? ` <span style="font-weight:400;font-size:11px;color:${s.revenueChangePct > 0 ? '#4F46E5' : '#DC2626'}">(${s.revenueChangePct > 0 ? '+' : ''}${s.revenueChangePct}%)</span>` : ''}</strong>
     </div>
     <div class="modal-list-row">
-      <span style="display:flex;align-items:center;gap:8px;color:#4A5B54"><i class="ti ti-shopping-bag" style="color:#4A5B54" aria-hidden="true"></i> Orders today</span>
+      <span style="display:flex;align-items:center;gap:8px;color:#4B5563"><i class="ti ti-shopping-bag" style="color:#4B5563" aria-hidden="true"></i> Orders today</span>
       <strong>${s.ordersToday}</strong>
     </div>
     <div class="modal-list-row">
-      <span style="display:flex;align-items:center;gap:8px;color:#4A5B54"><i class="ti ti-clock" style="color:#BA7517" aria-hidden="true"></i> Unpaid</span>
-      <strong>${naira(s.unpaidAmount)} <span style="font-weight:400;font-size:11px;color:#75887F">(${s.unpaidCount} order${s.unpaidCount !== 1 ? 's' : ''})</span></strong>
+      <span style="display:flex;align-items:center;gap:8px;color:#4B5563"><i class="ti ti-clock" style="color:#D97706" aria-hidden="true"></i> Unpaid</span>
+      <strong>${naira(s.unpaidAmount)} <span style="font-weight:400;font-size:11px;color:#6B7280">(${s.unpaidCount} order${s.unpaidCount !== 1 ? 's' : ''})</span></strong>
     </div>
     <div class="modal-list-row">
-      <span style="display:flex;align-items:center;gap:8px;color:#4A5B54"><i class="ti ti-alert-triangle" style="color:#A32D2D" aria-hidden="true"></i> Needs restocking</span>
+      <span style="display:flex;align-items:center;gap:8px;color:#4B5563"><i class="ti ti-alert-triangle" style="color:#DC2626" aria-hidden="true"></i> Needs restocking</span>
       <strong>${s.lowStockCount} item${s.lowStockCount !== 1 ? 's' : ''}</strong>
     </div>
     ${top.length ? `<div class="modal-list-row">
-      <span style="display:flex;align-items:center;gap:8px;color:#4A5B54"><i class="ti ti-trophy" style="color:#EF9F27" aria-hidden="true"></i> Best seller</span>
-      <strong>${top[0].name} <span style="font-weight:400;font-size:11px;color:#75887F">(${top[0].units} sold)</span></strong>
+      <span style="display:flex;align-items:center;gap:8px;color:#4B5563"><i class="ti ti-trophy" style="color:#F59E0B" aria-hidden="true"></i> Best seller</span>
+      <strong>${top[0].name} <span style="font-weight:400;font-size:11px;color:#6B7280">(${top[0].units} sold)</span></strong>
     </div>` : ''}
 
     <div class="modal-actions"><button class="modal-btn modal-btn-secondary" style="width:100%" onclick="closeModal()">Close</button></div>
@@ -2931,7 +2933,7 @@ function showSegmentMembers(key, title) {
     const phone = c.phone.replace(/[^0-9]/g, '');
     return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--color-border-tertiary);font-size:13px">
       <span>${c.name}</span>
-      <a href="https://wa.me/${phone}" target="_blank" style="color:#0F6E56;font-size:12px;text-decoration:none">Message ↗</a>
+      <a href="https://wa.me/${phone}" target="_blank" style="color:#4F46E5;font-size:12px;text-decoration:none">Message ↗</a>
     </div>`;
   }).join('') || `<p style="font-size:13px;color:var(--color-text-secondary)">No customers in this segment yet.</p>`;
 
