@@ -34,7 +34,8 @@ input:focus{border-color:var(--g2);box-shadow:0 0 0 3px rgba(29,158,117,0.12)}
 .stat-card{background:#fff;border-radius:12px;padding:18px;border:1px solid var(--border);display:flex;flex-direction:column;gap:2px}
 .stat-label{font-size:11.5px;color:var(--text-secondary);margin-bottom:2px}
 .stat-val{font-size:22px;font-weight:600}
-.stat-spark{width:100%;height:32px;margin-top:6px}
+.stat-spark-wrap{position:relative;width:100%;height:32px;margin-top:6px}
+.stat-spark{position:absolute;top:0;left:0;width:100%;height:100%}
 
 .section-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-secondary);margin:26px 0 12px}
 .charts-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-bottom:14px}
@@ -73,6 +74,24 @@ tr:last-child td{border-bottom:none}
 @media (max-width: 420px){
   .stat-row{grid-template-columns:1fr}
 }
+
+/* Store detail modal */
+.biz-row{cursor:pointer}
+.biz-row:hover{background:#F7FBF9}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,30,25,0.45);z-index:100;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal-card{background:#fff;border-radius:16px;width:640px;max-width:100%;max-height:88vh;overflow-y:auto;padding:26px 28px}
+.modal-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
+.modal-title{font-size:17px;font-weight:600}
+.modal-sub{font-size:12.5px;color:var(--text-secondary);margin-top:3px}
+.modal-close{cursor:pointer;color:var(--text-secondary);font-size:20px;line-height:1;padding:2px 6px}
+.modal-close:hover{color:var(--text)}
+.modal-stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.modal-stat{background:var(--bg);border-radius:10px;padding:12px 14px}
+.modal-stat-label{font-size:10.5px;color:var(--text-secondary);margin-bottom:4px}
+.modal-stat-val{font-size:16px;font-weight:600}
+.modal-chart-wrap{position:relative;height:220px}
+.modal-loading{text-align:center;color:var(--text-secondary);font-size:13px;padding:30px 0}
 </style>
 </head>
 <body>
@@ -141,19 +160,19 @@ tr:last-child td{border-bottom:none}
   <div class="stat-row" id="stat-row">
     <div class="stat-card">
       <div class="stat-label">Total businesses</div><div class="stat-val" id="stat-businesses">—</div>
-      <canvas class="stat-spark" id="spark-businesses"></canvas>
+      <div class="stat-spark-wrap"><canvas class="stat-spark" id="spark-businesses"></canvas></div>
     </div>
     <div class="stat-card">
       <div class="stat-label">New this week</div><div class="stat-val" id="stat-new">—</div>
-      <canvas class="stat-spark" id="spark-new"></canvas>
+      <div class="stat-spark-wrap"><canvas class="stat-spark" id="spark-new"></canvas></div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Total orders</div><div class="stat-val" id="stat-orders">—</div>
-      <canvas class="stat-spark" id="spark-orders"></canvas>
+      <div class="stat-spark-wrap"><canvas class="stat-spark" id="spark-orders"></canvas></div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Total revenue</div><div class="stat-val" id="stat-revenue">—</div>
-      <canvas class="stat-spark" id="spark-revenue"></canvas>
+      <div class="stat-spark-wrap"><canvas class="stat-spark" id="spark-revenue"></canvas></div>
     </div>
   </div>
 
@@ -203,6 +222,32 @@ tr:last-child td{border-bottom:none}
       <thead><tr><th>Business</th><th>Signed up</th><th>Products</th><th>Customers</th><th>Orders</th><th>Revenue</th><th></th></tr></thead>
       <tbody id="biz-tbody"><tr><td colspan="7" class="empty-state">Loading…</td></tr></tbody>
     </table>
+  </div>
+</div>
+
+<div class="modal-overlay" id="store-modal-overlay" onclick="if(event.target===this) closeStoreDetail()">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="modal-store-name">—</div>
+        <div class="modal-sub" id="modal-store-sub">—</div>
+      </div>
+      <div class="modal-close" onclick="closeStoreDetail()">&times;</div>
+    </div>
+
+    <div class="modal-stat-row">
+      <div class="modal-stat"><div class="modal-stat-label">Products</div><div class="modal-stat-val" id="modal-products">—</div></div>
+      <div class="modal-stat"><div class="modal-stat-label">Customers</div><div class="modal-stat-val" id="modal-customers">—</div></div>
+      <div class="modal-stat"><div class="modal-stat-label">Orders</div><div class="modal-stat-val" id="modal-orders">—</div></div>
+      <div class="modal-stat"><div class="modal-stat-label">Total revenue</div><div class="modal-stat-val" id="modal-revenue">—</div></div>
+    </div>
+
+    <div class="chart-title" style="margin-bottom:4px">Orders &amp; revenue over time</div>
+    <div class="chart-sub" style="margin-bottom:12px" id="modal-chart-sub">Last 8 weeks for this store</div>
+    <div class="modal-chart-wrap">
+      <div class="modal-loading" id="modal-chart-loading">Loading chart…</div>
+      <canvas id="modal-store-chart"></canvas>
+    </div>
   </div>
 </div>
 
@@ -353,14 +398,14 @@ function renderBusinessesTable(businesses) {
   }
 
   document.getElementById('biz-tbody').innerHTML = businesses.map(b => `
-    <tr>
+    <tr class="biz-row" onclick="openStoreDetail(${b.id})">
       <td><div class="biz-name">${b.name}</div><div class="biz-email">${b.ownerEmail}</div></td>
       <td>${new Date(b.createdAt).toLocaleDateString()}</td>
       <td>${b.productCount}</td>
       <td>${b.customerCount}</td>
       <td>${b.orderCount}</td>
       <td>${naira(b.totalRevenue)}</td>
-      <td><button class="del-btn" onclick="deleteBusiness(${b.id}, '${b.name.replace(/'/g, "\\'")}')">Delete</button></td>
+      <td><button class="del-btn" onclick="event.stopPropagation(); deleteBusiness(${b.id}, '${b.name.replace(/'/g, "\\'")}')">Delete</button></td>
     </tr>
   `).join('');
 }
@@ -628,6 +673,106 @@ function renderAllCharts(businesses, timeseries) {
     <div class="legend-item"><span class="legend-dot" style="background:#0F6E56"></span>Top 5 — ${pct(top5Sum)}%</div>
     <div class="legend-item"><span class="legend-dot" style="background:#E2E8E5"></span>Rest — ${pct(restSum)}%</div>
   `;
+}
+
+// ---------- Store detail modal ----------
+let _modalChart = null;
+
+function openStoreDetail(id) {
+  const business = (window._lastBusinesses || []).find(b => b.id === id);
+  if (!business) return;
+
+  document.getElementById('modal-store-name').textContent = business.name;
+  document.getElementById('modal-store-sub').textContent =
+    `${business.ownerEmail} · Signed up ${new Date(business.createdAt).toLocaleDateString()}`;
+  document.getElementById('modal-products').textContent = business.productCount;
+  document.getElementById('modal-customers').textContent = business.customerCount;
+  document.getElementById('modal-orders').textContent = business.orderCount;
+  document.getElementById('modal-revenue').textContent = naira(business.totalRevenue);
+
+  document.getElementById('modal-chart-loading').style.display = 'block';
+  document.getElementById('modal-store-chart').style.display = 'none';
+  document.getElementById('store-modal-overlay').classList.add('open');
+
+  loadStoreTimeseries(id);
+}
+
+function closeStoreDetail() {
+  document.getElementById('store-modal-overlay').classList.remove('open');
+}
+
+async function loadStoreTimeseries(id) {
+  const loadingEl = document.getElementById('modal-chart-loading');
+  const canvas = document.getElementById('modal-store-chart');
+  const subEl = document.getElementById('modal-chart-sub');
+
+  let series = null;
+  try {
+    const res = await apiFetch(`${API_BASE}/api/admin/businesses/${id}/timeseries?days=56`);
+    if (res.ok) series = await res.json();
+  } catch (e) { /* handled below */ }
+
+  if (!series) {
+    loadingEl.textContent = "Couldn't load this store's order history. Make sure the /businesses/:id/timeseries route is deployed.";
+    return;
+  }
+
+  loadingEl.style.display = 'none';
+  canvas.style.display = 'block';
+  subEl.textContent = 'Last 8 weeks, real daily order data for this store';
+
+  const weekStarts = getWeekStarts();
+  const labels = weekLabels(weekStarts);
+  const earliestWindowStart = weekStarts[0];
+  const revBuckets = weekStarts.map(() => 0);
+  const orderBuckets = weekStarts.map(() => 0);
+  let baselineRevenue = 0, baselineOrders = 0;
+
+  series.forEach(day => {
+    const date = new Date(day.date + 'T00:00:00');
+    const revenue = Number(day.revenue) || 0;
+    const orders = Number(day.orderCount) || 0;
+    if (date < earliestWindowStart) { baselineRevenue += revenue; baselineOrders += orders; return; }
+    for (let i = weekStarts.length - 1; i >= 0; i--) {
+      if (date >= weekStarts[i]) { revBuckets[i] += revenue; orderBuckets[i] += orders; break; }
+    }
+  });
+
+  const cumulativeRevenue = [], cumulativeOrders = [];
+  let runRev = baselineRevenue, runOrd = baselineOrders;
+  revBuckets.forEach((r, i) => {
+    runRev += r; runOrd += orderBuckets[i];
+    cumulativeRevenue.push(runRev);
+    cumulativeOrders.push(runOrd);
+  });
+
+  const grid = getComputedStyle(document.documentElement).getPropertyValue('--grid');
+  const textSec = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary');
+
+  if (_modalChart) _modalChart.destroy();
+  _modalChart = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Cumulative revenue', data: cumulativeRevenue, yAxisID: 'y', borderColor: '#0F6E56', backgroundColor: '#0F6E5622', fill: true, tension: 0.3, pointRadius: 2 },
+        { label: 'Cumulative orders', data: cumulativeOrders, yAxisID: 'y1', borderColor: '#3D6B8C', backgroundColor: 'transparent', borderDash: [4, 3], tension: 0.3, pointRadius: 2 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 8, boxHeight: 8, usePointStyle: true, font: { size: 11 }, color: textSec } },
+        tooltip: { callbacks: { label: ctx => ctx.dataset.label === 'Cumulative revenue' ? ` ${naira(ctx.parsed.y)}` : ` ${ctx.parsed.y} orders` } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: textSec, font: { size: 10 } } },
+        y: { position: 'left', grid: { color: grid }, ticks: { color: textSec, font: { size: 10 }, callback: v => naira(v) } },
+        y1: { position: 'right', grid: { display: false }, ticks: { color: textSec, font: { size: 10 } } }
+      }
+    }
+  });
 }
 
 async function deleteBusiness(id, name) {
