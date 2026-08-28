@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BizFlow — Admin</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.44.0/tabler-icons.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.1/chart.umd.min.js"></script>
 <style>
 :root{
   --g:#0F6E56; --g2:#1D9E75; --bg:#F4F8F6; --border:#E2E8E5;
@@ -88,6 +88,46 @@ tr:last-child td{border-bottom:none}
       <input id="login-password" type="password" placeholder="Password">
       <div id="login-error" style="color:#C0392B;font-size:12px;min-height:14px"></div>
       <button onclick="doLogin()" style="width:100%;padding:11px;border:none;border-radius:9px;background:#0F6E56;color:#fff;font-size:14px;font-weight:600;cursor:pointer">Log in</button>
+      <div style="text-align:center;font-size:12.5px;color:var(--text-secondary);cursor:pointer" onclick="showForgotScreen()">Forgot password?</div>
+    </div>
+  </div>
+</div>
+
+<div id="forgot-screen" style="display:none;min-height:100vh;align-items:center;justify-content:center">
+  <div class="login-card">
+    <div class="logo-row">
+      <svg width="28" height="28" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#0F6E56"/><path d="M11 27 L11 13" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M20 27 L20 9" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity="0.85"/><path d="M29 27 L29 17" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M8 20 L32 12" stroke="#9FE1CB" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+      <span style="font-size:17px;font-weight:600">Reset password</span>
+    </div>
+    <div id="forgot-form" style="display:flex;flex-direction:column;gap:12px">
+      <div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:2px">Enter your admin email and we'll send you a link to reset your password.</div>
+      <input id="forgot-email" type="email" placeholder="Admin email">
+      <div id="forgot-error" style="color:#C0392B;font-size:12px;min-height:14px"></div>
+      <button onclick="submitForgotPassword()" style="width:100%;padding:11px;border:none;border-radius:9px;background:#0F6E56;color:#fff;font-size:14px;font-weight:600;cursor:pointer">Send reset link</button>
+      <div style="text-align:center;font-size:12.5px;color:var(--text-secondary);cursor:pointer" onclick="backToLogin()">Back to log in</div>
+    </div>
+    <div id="forgot-success" style="display:none;flex-direction:column;gap:14px;text-align:center">
+      <div style="font-size:13px;color:var(--text)">If that email is registered, a reset link is on its way. Check your inbox — the link expires in 30 minutes.</div>
+      <div style="text-align:center;font-size:12.5px;color:var(--g2);cursor:pointer;font-weight:600" onclick="backToLogin()">Back to log in</div>
+    </div>
+  </div>
+</div>
+
+<div id="reset-screen" style="display:none;min-height:100vh;align-items:center;justify-content:center">
+  <div class="login-card">
+    <div class="logo-row">
+      <svg width="28" height="28" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#0F6E56"/><path d="M11 27 L11 13" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M20 27 L20 9" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity="0.85"/><path d="M29 27 L29 17" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M8 20 L32 12" stroke="#9FE1CB" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+      <span style="font-size:17px;font-weight:600">Set a new password</span>
+    </div>
+    <div id="reset-form" style="display:flex;flex-direction:column;gap:12px">
+      <input id="reset-password" type="password" placeholder="New password (min 8 characters)">
+      <input id="reset-password-confirm" type="password" placeholder="Confirm new password">
+      <div id="reset-error" style="color:#C0392B;font-size:12px;min-height:14px"></div>
+      <button onclick="submitResetPassword()" style="width:100%;padding:11px;border:none;border-radius:9px;background:#0F6E56;color:#fff;font-size:14px;font-weight:600;cursor:pointer">Update password</button>
+    </div>
+    <div id="reset-success" style="display:none;flex-direction:column;gap:14px;text-align:center">
+      <div style="font-size:13px;color:var(--text)">Your password has been updated.</div>
+      <div style="text-align:center;font-size:12.5px;color:var(--g2);cursor:pointer;font-weight:600" onclick="backToLogin()">Go to log in</div>
     </div>
   </div>
 </div>
@@ -211,6 +251,84 @@ function logout() {
   localStorage.removeItem('bizflow_admin_token');
   location.reload();
 }
+
+// ---------- Forgot / reset password ----------
+function showForgotScreen() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('forgot-screen').style.display = 'flex';
+  document.getElementById('forgot-form').style.display = 'flex';
+  document.getElementById('forgot-success').style.display = 'none';
+  document.getElementById('forgot-error').textContent = '';
+}
+
+function backToLogin() {
+  document.getElementById('forgot-screen').style.display = 'none';
+  document.getElementById('reset-screen').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  // Clear the token from the URL so refreshing doesn't reopen the reset screen
+  if (window.history.replaceState) {
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+}
+
+async function submitForgotPassword() {
+  const email = document.getElementById('forgot-email').value.trim();
+  const errorEl = document.getElementById('forgot-error');
+  errorEl.textContent = '';
+  if (!email) { errorEl.textContent = 'Enter your email address.'; return; }
+
+  try {
+    const response = await fetch(`${API_BASE}/api/auth/forgot-password`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.error || 'Something went wrong. Try again.');
+    }
+    document.getElementById('forgot-form').style.display = 'none';
+    document.getElementById('forgot-success').style.display = 'flex';
+  } catch (err) {
+    errorEl.textContent = err.message;
+  }
+}
+
+async function submitResetPassword() {
+  const password = document.getElementById('reset-password').value;
+  const confirm = document.getElementById('reset-password-confirm').value;
+  const errorEl = document.getElementById('reset-error');
+  errorEl.textContent = '';
+
+  if (password.length < 8) { errorEl.textContent = 'Password must be at least 8 characters.'; return; }
+  if (password !== confirm) { errorEl.textContent = 'Passwords do not match.'; return; }
+
+  const token = new URLSearchParams(window.location.search).get('token');
+  if (!token) { errorEl.textContent = 'Reset link is missing its token.'; return; }
+
+  try {
+    const response = await fetch(`${API_BASE}/api/auth/reset-password`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, password })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || 'This reset link is invalid or has expired.');
+
+    document.getElementById('reset-form').style.display = 'none';
+    document.getElementById('reset-success').style.display = 'flex';
+  } catch (err) {
+    errorEl.textContent = err.message;
+  }
+}
+
+// If the page was opened from a reset-password email link (?token=...),
+// skip straight to the "set a new password" screen.
+(function checkForResetToken() {
+  const token = new URLSearchParams(window.location.search).get('token');
+  if (token) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('reset-screen').style.display = 'flex';
+  }
+})();
 
 async function enterAdmin() {
   document.getElementById('login-screen').style.display = 'none';
@@ -522,8 +640,10 @@ async function deleteBusiness(id, name) {
   }
 }
 
-// On load: skip straight to the admin panel if we already have a token
-if (localStorage.getItem('bizflow_admin_token')) {
+// On load: a reset-password link takes priority over auto-login, since the
+// person followed that link intentionally, even if an old session is stored.
+const _urlToken = new URLSearchParams(window.location.search).get('token');
+if (!_urlToken && localStorage.getItem('bizflow_admin_token')) {
   enterAdmin();
 }
 </script>
