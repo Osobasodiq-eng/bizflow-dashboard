@@ -346,6 +346,10 @@ input[type=text]:focus,select:focus{border-color:#4F46E5}
       <div class="s-item" id="s-nav-orders" onclick="go('orders',this)"><i class="ti ti-shopping-bag" aria-hidden="true"></i> Orders <span class="badge" id="s-badge-orders" style="display:none">0</span></div>
       <div class="s-item" id="s-nav-payments" onclick="go('payments',this)"><i class="ti ti-credit-card" aria-hidden="true"></i> Payments</div>
       <div class="s-item" id="s-nav-expenses" onclick="go('expenses',this)"><i class="ti ti-receipt-2" aria-hidden="true"></i> Expenses</div>
+      <div class="s-section">STOREFRONT</div>
+      <div class="s-item" onclick="showStorefrontHub()"><i class="ti ti-building-store" aria-hidden="true"></i> Storefront</div>
+      <div class="s-item" onclick="showPaymentSettings()"><i class="ti ti-building-bank" aria-hidden="true"></i> Payment settings</div>
+      <div class="s-item" onclick="showDeliveryZones()"><i class="ti ti-map-pin" aria-hidden="true"></i> Delivery zones</div>
       <div class="s-section">GROWTH</div>
       <div class="s-item" style="opacity:0.45;cursor:default"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i> WhatsApp <span class="badge">Soon</span></div>
       <div class="s-item" style="opacity:0.45;cursor:default"><i class="ti ti-chart-line" aria-hidden="true"></i> Analytics <span class="badge">Soon</span></div>
@@ -368,11 +372,6 @@ input[type=text]:focus,select:focus{border-color:#4F46E5}
       </div>
       <div class="topbar-right">
         <button class="btn" onclick="showBusinessSummary()"><i class="ti ti-sparkles" style="font-size:13px" aria-hidden="true"></i> <span class="btn-text">Business summary</span></button>
-        <button class="btn" onclick="showStorePreview()"><i class="ti ti-eye" style="font-size:13px" aria-hidden="true"></i> <span class="btn-text">Preview store</span></button>
-        <button class="btn" onclick="showStoreLink()"><i class="ti ti-link" style="font-size:13px" aria-hidden="true"></i> <span class="btn-text">Store link</span></button>
-        <button class="btn" onclick="showStoreSettings()"><i class="ti ti-palette" style="font-size:13px" aria-hidden="true"></i> <span class="btn-text">Store settings</span></button>
-        <button class="btn" onclick="showDeliveryZones()"><i class="ti ti-map-pin" style="font-size:13px" aria-hidden="true"></i> <span class="btn-text">Delivery zones</span></button>
-        <button class="btn" onclick="showPaymentSettings()"><i class="ti ti-building-bank" style="font-size:13px" aria-hidden="true"></i> <span class="btn-text">Payment settings</span></button>
         <button class="btn btn-g" onclick="openNewOrderModal()"><i class="ti ti-plus" style="font-size:13px" aria-hidden="true"></i> <span class="btn-text">New Order</span></button>
       </div>
     </div>
@@ -381,6 +380,7 @@ input[type=text]:focus,select:focus{border-color:#4F46E5}
     <div class="scroll">
 
       <div id="p-dashboard" class="panel on">
+        <div id="payment-setup-banner"></div>
         <div class="kpi-row">
           <div class="kpi">
             <div class="kpi-label">Revenue today <i class="ti ti-trending-up" style="font-size:13px;color:#4F46E5" aria-hidden="true"></i></div>
@@ -926,6 +926,7 @@ function renderActivity(items) {
 }
 
 async function loadDashboard() {
+  checkPaymentSetupBanner(); // separate from the KPI fetch below — should never block the rest of the dashboard if it fails
   try {
     const [summary, trend, pm, statusRows, topProducts, activity] = await Promise.all([
       apiFetch(`${API_BASE}/api/dashboard/summary`).then(r => r.json()),
@@ -2723,6 +2724,49 @@ async function deleteDeliveryZone(id) {
   } catch (err) {
     document.getElementById('zones-error').textContent = err.message;
   }
+}
+
+// --- Payment setup prompt (Dashboard banner) ---
+let paymentBannerDismissed = false;
+async function checkPaymentSetupBanner() {
+  if (paymentBannerDismissed) return;
+  const banner = document.getElementById('payment-setup-banner');
+  if (!banner) return;
+  try {
+    const account = await apiFetch(`${API_BASE}/api/paystack/subaccount`).then(r => r.json());
+    if (account.paystack_subaccount_code) { banner.innerHTML = ''; return; }
+    banner.innerHTML = `
+      <div style="display:flex;align-items:center;gap:12px;background:#EDE9FE;border:1px solid #C4B5FD;border-radius:12px;padding:14px 16px;margin-bottom:18px;">
+        <i class="ti ti-building-bank" style="font-size:20px;color:#6366F1;flex-shrink:0" aria-hidden="true"></i>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;color:#1E1B4B">Add your bank details to start accepting payments</div>
+          <div style="font-size:12px;color:#4B5563">Customers can't pay you online on your storefront until this is set up — it takes a minute.</div>
+        </div>
+        <button class="btn btn-g" style="font-size:12px;flex-shrink:0" onclick="showPaymentSettings()">Set up now</button>
+        <i class="ti ti-x" style="font-size:15px;color:#6B7280;cursor:pointer;flex-shrink:0" onclick="dismissPaymentBanner()" title="Dismiss" aria-hidden="true"></i>
+      </div>
+    `;
+  } catch (err) {
+    banner.innerHTML = ''; // fail quietly — this is a nice-to-have prompt, not critical
+  }
+}
+function dismissPaymentBanner() {
+  paymentBannerDismissed = true;
+  document.getElementById('payment-setup-banner').innerHTML = '';
+}
+
+// --- Storefront hub (groups Store settings, Preview, and Store link) ---
+function showStorefrontHub() {
+  openModal(`
+    <div class="modal-title"><i class="ti ti-building-store" style="color:#6366F1" aria-hidden="true"></i> Storefront</div>
+    <div class="modal-sub">Manage how your storefront looks and get its shareable link.</div>
+    <div style="display:flex;flex-direction:column;gap:9px;margin-top:16px;">
+      <button class="btn" style="justify-content:flex-start;width:100%" onclick="closeModal(); showStoreSettings();"><i class="ti ti-palette" style="font-size:14px" aria-hidden="true"></i> Store settings</button>
+      <button class="btn" style="justify-content:flex-start;width:100%" onclick="closeModal(); showStorePreview();"><i class="ti ti-eye" style="font-size:14px" aria-hidden="true"></i> Preview store</button>
+      <button class="btn" style="justify-content:flex-start;width:100%" onclick="closeModal(); showStoreLink();"><i class="ti ti-link" style="font-size:14px" aria-hidden="true"></i> Store link</button>
+    </div>
+    <div class="modal-actions"><button class="modal-btn modal-btn-secondary" style="width:100%" onclick="closeModal()">Close</button></div>
+  `);
 }
 
 // --- Store link (top bar) ---
