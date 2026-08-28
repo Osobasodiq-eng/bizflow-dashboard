@@ -5,10 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BizFlow — Admin</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.44.0/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <style>
 :root{
   --g:#0F6E56; --g2:#1D9E75; --bg:#F4F8F6; --border:#E2E8E5;
   --text:#16241F; --text-secondary:#75887F;
+  --amber:#D98E39; --blue:#3D6B8C; --rose:#C0526B; --grid:#EEF3F1;
   --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -28,10 +30,28 @@ input:focus{border-color:var(--g2);box-shadow:0 0 0 3px rgba(29,158,117,0.12)}
 .logout-link{font-size:13px;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;gap:5px}
 .logout-link:hover{color:var(--g)}
 
-.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
-.stat-card{background:#fff;border-radius:12px;padding:18px;border:1px solid var(--border)}
-.stat-label{font-size:11.5px;color:var(--text-secondary);margin-bottom:6px}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat-card{background:#fff;border-radius:12px;padding:18px;border:1px solid var(--border);display:flex;flex-direction:column;gap:2px}
+.stat-label{font-size:11.5px;color:var(--text-secondary);margin-bottom:2px}
 .stat-val{font-size:22px;font-weight:600}
+.stat-spark{width:100%;height:32px;margin-top:6px}
+
+.section-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-secondary);margin:26px 0 12px}
+.charts-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-bottom:14px}
+.charts-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:6px}
+.chart-card{background:#fff;border-radius:14px;border:1px solid var(--border);padding:18px 20px}
+.chart-card-head{display:flex;flex-direction:column;gap:2px;margin-bottom:14px}
+.chart-title{font-size:14px;font-weight:600}
+.chart-sub{font-size:11px;color:var(--text-secondary)}
+.chart-canvas-wrap{position:relative;height:220px}
+.chart-canvas-wrap.short{height:180px}
+.legend-row{display:flex;gap:16px;margin-top:10px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text-secondary)}
+.legend-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+
+@media (max-width: 860px){
+  .charts-grid, .charts-grid-2{grid-template-columns:1fr}
+}
 
 .table-card{background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden}
 .table-head{padding:16px 20px;border-bottom:1px solid var(--border);font-size:15px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
@@ -79,12 +99,61 @@ tr:last-child td{border-bottom:none}
   </div>
 
   <div class="stat-row" id="stat-row">
-    <div class="stat-card"><div class="stat-label">Total businesses</div><div class="stat-val" id="stat-businesses">—</div></div>
-    <div class="stat-card"><div class="stat-label">New this week</div><div class="stat-val" id="stat-new">—</div></div>
-    <div class="stat-card"><div class="stat-label">Total orders</div><div class="stat-val" id="stat-orders">—</div></div>
-    <div class="stat-card"><div class="stat-label">Total revenue</div><div class="stat-val" id="stat-revenue">—</div></div>
+    <div class="stat-card">
+      <div class="stat-label">Total businesses</div><div class="stat-val" id="stat-businesses">—</div>
+      <canvas class="stat-spark" id="spark-businesses"></canvas>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">New this week</div><div class="stat-val" id="stat-new">—</div>
+      <canvas class="stat-spark" id="spark-new"></canvas>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total orders</div><div class="stat-val" id="stat-orders">—</div>
+      <canvas class="stat-spark" id="spark-orders"></canvas>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total revenue</div><div class="stat-val" id="stat-revenue">—</div>
+      <canvas class="stat-spark" id="spark-revenue"></canvas>
+    </div>
   </div>
 
+  <div class="section-label">Growth</div>
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-card-head">
+        <div class="chart-title">Revenue &amp; orders growth</div>
+        <div class="chart-sub" data-growth-sub>Cumulative totals, grouped by each business's signup week</div>
+      </div>
+      <div class="chart-canvas-wrap"><canvas id="chart-growth"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-head">
+        <div class="chart-title">New businesses per week</div>
+        <div class="chart-sub">Last 8 weeks, by signup date</div>
+      </div>
+      <div class="chart-canvas-wrap"><canvas id="chart-signups"></canvas></div>
+    </div>
+  </div>
+
+  <div class="charts-grid-2">
+    <div class="chart-card">
+      <div class="chart-card-head">
+        <div class="chart-title">Top businesses by revenue</div>
+        <div class="chart-sub">Highest earners on the platform right now</div>
+      </div>
+      <div class="chart-canvas-wrap short"><canvas id="chart-top-businesses"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-head">
+        <div class="chart-title">Revenue concentration</div>
+        <div class="chart-sub">Share of total revenue from top 5 businesses</div>
+      </div>
+      <div class="chart-canvas-wrap short"><canvas id="chart-revenue-share"></canvas></div>
+      <div class="legend-row" id="revenue-share-legend"></div>
+    </div>
+  </div>
+
+  <div class="section-label">All businesses</div>
   <div class="table-card">
     <div class="table-head">All businesses <span id="biz-count" style="font-weight:400;font-size:12px;color:var(--text-secondary)"></span></div>
     <div style="padding:14px 20px;border-bottom:1px solid var(--border)">
@@ -191,6 +260,256 @@ async function loadBusinesses() {
   const businesses = await apiFetch(`${API_BASE}/api/admin/businesses`).then(r => r.json());
   window._lastBusinesses = businesses;
   renderBusinessesTable(businesses);
+
+  let timeseries = null;
+  try {
+    const tsRes = await apiFetch(`${API_BASE}/api/admin/timeseries?days=56`);
+    if (tsRes.ok) timeseries = await tsRes.json();
+  } catch (e) { /* endpoint not deployed yet — fall back below */ }
+
+  renderAllCharts(businesses, timeseries);
+}
+
+// ---------- Chart data derivation ----------
+// The backend only gives us a snapshot (current totals) plus each business's
+// createdAt/productCount/orderCount/totalRevenue. There's no per-order timestamp
+// yet, so "growth over time" here is grouped by each business's SIGNUP week, not
+// by when individual orders happened. It's a real, honest trend (it shows the
+// platform's growth cohort by cohort) but if you want true day-by-day revenue/order
+// trends, the backend would need a timeseries endpoint (e.g. daily order sums).
+
+const CHART_WEEKS = 8;
+
+function startOfWeek(d) {
+  const date = new Date(d);
+  const day = date.getDay(); // 0 = Sunday
+  const diff = (day === 0 ? -6 : 1) - day; // shift to Monday
+  date.setHours(0, 0, 0, 0);
+  date.setDate(date.getDate() + diff);
+  return date;
+}
+
+function getWeekStarts() {
+  const now = new Date();
+  const thisWeekStart = startOfWeek(now);
+  const weekStarts = [];
+  for (let i = CHART_WEEKS - 1; i >= 0; i--) {
+    const d = new Date(thisWeekStart);
+    d.setDate(d.getDate() - i * 7);
+    weekStarts.push(d);
+  }
+  return weekStarts;
+}
+
+function weekLabels(weekStarts) {
+  return weekStarts.map(d => d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }));
+}
+
+// Signup-based buckets — these ARE exact, since business.createdAt is a real timestamp.
+function buildWeeklyBuckets(businesses) {
+  const weekStarts = getWeekStarts();
+  const labels = weekLabels(weekStarts);
+  const earliestWindowStart = weekStarts[0];
+  let baselineCount = 0;
+  const counts = weekStarts.map(() => 0);
+
+  businesses.forEach(b => {
+    const created = new Date(b.createdAt);
+    if (created < earliestWindowStart) { baselineCount += 1; return; }
+    for (let i = weekStarts.length - 1; i >= 0; i--) {
+      if (created >= weekStarts[i]) { counts[i] += 1; break; }
+    }
+  });
+
+  const cumulativeCount = [];
+  let run = baselineCount;
+  counts.forEach(c => { run += c; cumulativeCount.push(run); });
+
+  // Fallback approximation, used only if the /timeseries endpoint isn't available yet.
+  let baselineRevenue = 0, baselineOrders = 0;
+  const revBuckets = weekStarts.map(() => 0);
+  const orderBuckets = weekStarts.map(() => 0);
+  businesses.forEach(b => {
+    const created = new Date(b.createdAt);
+    const revenue = Number(b.totalRevenue) || 0;
+    const orders = Number(b.orderCount) || 0;
+    if (created < earliestWindowStart) { baselineRevenue += revenue; baselineOrders += orders; return; }
+    for (let i = weekStarts.length - 1; i >= 0; i--) {
+      if (created >= weekStarts[i]) { revBuckets[i] += revenue; orderBuckets[i] += orders; break; }
+    }
+  });
+  const cumulativeRevenueApprox = [], cumulativeOrdersApprox = [];
+  let runRev = baselineRevenue, runOrd = baselineOrders;
+  revBuckets.forEach((r, i) => {
+    runRev += r; runOrd += orderBuckets[i];
+    cumulativeRevenueApprox.push(runRev);
+    cumulativeOrdersApprox.push(runOrd);
+  });
+
+  return { labels, cumulativeCount, weeklyNew: counts, cumulativeRevenueApprox, cumulativeOrdersApprox };
+}
+
+// Real day-level order/revenue data from /api/admin/timeseries, bucketed to match the same weeks.
+function buildWeeklyFromTimeseries(timeseries) {
+  const weekStarts = getWeekStarts();
+  const earliestWindowStart = weekStarts[0];
+  let baselineRevenue = 0, baselineOrders = 0;
+  const revBuckets = weekStarts.map(() => 0);
+  const orderBuckets = weekStarts.map(() => 0);
+
+  timeseries.forEach(day => {
+    const date = new Date(day.date + 'T00:00:00');
+    const revenue = Number(day.revenue) || 0;
+    const orders = Number(day.orderCount) || 0;
+    if (date < earliestWindowStart) { baselineRevenue += revenue; baselineOrders += orders; return; }
+    for (let i = weekStarts.length - 1; i >= 0; i--) {
+      if (date >= weekStarts[i]) { revBuckets[i] += revenue; orderBuckets[i] += orders; break; }
+    }
+  });
+
+  const cumulativeRevenue = [], cumulativeOrders = [];
+  let runRev = baselineRevenue, runOrd = baselineOrders;
+  revBuckets.forEach((r, i) => {
+    runRev += r; runOrd += orderBuckets[i];
+    cumulativeRevenue.push(runRev);
+    cumulativeOrders.push(runOrd);
+  });
+
+  return { cumulativeRevenue, cumulativeOrders };
+}
+
+let _charts = {};
+function upsertChart(id, config) {
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  if (_charts[id]) { _charts[id].destroy(); }
+  _charts[id] = new Chart(canvas, config);
+}
+
+function sparklineConfig(data, color) {
+  return {
+    type: 'line',
+    data: { labels: data.map((_, i) => i), datasets: [{ data, borderColor: color, borderWidth: 2, pointRadius: 0, tension: 0.35, fill: true, backgroundColor: color + '1A' }] },
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: false,
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      scales: { x: { display: false }, y: { display: false } },
+      elements: { line: { borderJoinStyle: 'round' } }
+    }
+  };
+}
+
+function renderAllCharts(businesses, timeseries) {
+  const { labels, cumulativeCount, weeklyNew, cumulativeRevenueApprox, cumulativeOrdersApprox } = buildWeeklyBuckets(businesses);
+
+  const usingRealData = Array.isArray(timeseries) && timeseries.length > 0;
+  const { cumulativeRevenue, cumulativeOrders } = usingRealData
+    ? buildWeeklyFromTimeseries(timeseries)
+    : { cumulativeRevenue: cumulativeRevenueApprox, cumulativeOrders: cumulativeOrdersApprox };
+
+  document.querySelectorAll('.chart-sub[data-growth-sub]').forEach(el => {
+    el.textContent = usingRealData
+      ? 'Cumulative totals from real daily order data (last 8 weeks)'
+      : "Cumulative totals, grouped by each business's signup week (approximate — deploy /api/admin/timeseries for exact daily data)";
+  });
+
+  // Stat card sparklines
+  upsertChart('spark-businesses', sparklineConfig(cumulativeCount, getComputedStyle(document.documentElement).getPropertyValue('--g2')));
+  upsertChart('spark-new', sparklineConfig(weeklyNew, getComputedStyle(document.documentElement).getPropertyValue('--amber')));
+  upsertChart('spark-orders', sparklineConfig(cumulativeOrders, getComputedStyle(document.documentElement).getPropertyValue('--blue')));
+  upsertChart('spark-revenue', sparklineConfig(cumulativeRevenue, getComputedStyle(document.documentElement).getPropertyValue('--g')));
+
+  const grid = getComputedStyle(document.documentElement).getPropertyValue('--grid');
+  const textSec = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary');
+
+  // Growth combo chart (revenue line + orders line, dual axis)
+  upsertChart('chart-growth', {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Cumulative revenue', data: cumulativeRevenue, yAxisID: 'y',
+          borderColor: '#0F6E56', backgroundColor: '#0F6E5622', fill: true, tension: 0.3, pointRadius: 2
+        },
+        {
+          label: 'Cumulative orders', data: cumulativeOrders, yAxisID: 'y1',
+          borderColor: '#3D6B8C', backgroundColor: 'transparent', borderDash: [4, 3], tension: 0.3, pointRadius: 2
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 8, boxHeight: 8, usePointStyle: true, font: { size: 11 }, color: textSec } },
+        tooltip: {
+          callbacks: {
+            label: ctx => ctx.dataset.label === 'Cumulative revenue' ? ` ${naira(ctx.parsed.y)}` : ` ${ctx.parsed.y} orders`
+          }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: textSec, font: { size: 10 } } },
+        y: { position: 'left', grid: { color: grid }, ticks: { color: textSec, font: { size: 10 }, callback: v => naira(v) } },
+        y1: { position: 'right', grid: { display: false }, ticks: { color: textSec, font: { size: 10 } } }
+      }
+    }
+  });
+
+  // New signups per week
+  upsertChart('chart-signups', {
+    type: 'bar',
+    data: { labels, datasets: [{ label: 'New businesses', data: weeklyNew, backgroundColor: '#1D9E75', borderRadius: 5, maxBarThickness: 28 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: textSec, font: { size: 10 } } },
+        y: { grid: { color: grid }, ticks: { color: textSec, font: { size: 10 }, precision: 0 } }
+      }
+    }
+  });
+
+  // Top businesses by revenue (horizontal bar)
+  const top = [...businesses].sort((a, b) => Number(b.totalRevenue) - Number(a.totalRevenue)).slice(0, 6);
+  upsertChart('chart-top-businesses', {
+    type: 'bar',
+    data: {
+      labels: top.map(b => b.name),
+      datasets: [{ data: top.map(b => Number(b.totalRevenue) || 0), backgroundColor: '#0F6E56', borderRadius: 5, maxBarThickness: 20 }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${naira(ctx.parsed.x)}` } } },
+      scales: {
+        x: { grid: { color: grid }, ticks: { color: textSec, font: { size: 10 }, callback: v => naira(v) } },
+        y: { grid: { display: false }, ticks: { color: textSec, font: { size: 11 } } }
+      }
+    }
+  });
+
+  // Revenue concentration donut (top 5 vs rest)
+  const sorted = [...businesses].sort((a, b) => Number(b.totalRevenue) - Number(a.totalRevenue));
+  const top5Sum = sorted.slice(0, 5).reduce((s, b) => s + (Number(b.totalRevenue) || 0), 0);
+  const restSum = sorted.slice(5).reduce((s, b) => s + (Number(b.totalRevenue) || 0), 0);
+  upsertChart('chart-revenue-share', {
+    type: 'doughnut',
+    data: {
+      labels: ['Top 5 businesses', 'All other businesses'],
+      datasets: [{ data: [top5Sum, restSum], backgroundColor: ['#0F6E56', '#E2E8E5'], borderWidth: 0 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '68%',
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${naira(ctx.parsed)}` } } }
+    }
+  });
+  const total = top5Sum + restSum;
+  const pct = n => total ? Math.round((n / total) * 100) : 0;
+  document.getElementById('revenue-share-legend').innerHTML = `
+    <div class="legend-item"><span class="legend-dot" style="background:#0F6E56"></span>Top 5 — ${pct(top5Sum)}%</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#E2E8E5"></span>Rest — ${pct(restSum)}%</div>
+  `;
 }
 
 async function deleteBusiness(id, name) {
