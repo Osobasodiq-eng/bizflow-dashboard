@@ -2375,14 +2375,26 @@ async function deleteOrder(orderId) {
 // needed — window.print() covers both cases.
 async function openReceipt(orderId) {
   try {
-    const o = await apiFetch(`${API_BASE}/api/orders/${orderId}`).then(r => r.json());
-    const businessName = localStorage.getItem('bizflow_business') || 'My Business';
-    const itemRows = o.items.map(i => `
+    const [o, business] = await Promise.all([
+      apiFetch(`${API_BASE}/api/orders/${orderId}`).then(r => r.json()),
+      apiFetch(`${API_BASE}/api/business`).then(r => r.json()).catch(() => null),
+    ]);
+    const businessName = (business && business.name) || localStorage.getItem('bizflow_business') || 'My Business';
+    const logoUrl = business && business.logo_url;
+
+    // Use each item's own real price. Fall back to splitting the order
+    // total evenly ONLY for the rare legacy order that predates storing a
+    // price per line item — every order created since has a real one.
+    const totalQty = o.items.reduce((s, x) => s + x.qty, 0);
+    const itemRows = o.items.map(i => {
+      const lineAmount = i.price != null ? i.price * i.qty : (totalQty > 0 ? (o.amount / totalQty) * i.qty : 0);
+      return `
       <tr>
         <td style="padding:8px 0">${i.name}</td>
         <td style="padding:8px 0;text-align:center">${i.qty}</td>
-        <td style="padding:8px 0;text-align:right">${naira(i.qty > 0 ? o.amount / o.items.reduce((s, x) => s + x.qty, 0) * i.qty : 0)}</td>
-      </tr>`).join('');
+        <td style="padding:8px 0;text-align:right">${naira(lineAmount)}</td>
+      </tr>`;
+    }).join('');
 
     const receiptHtml = `
 <!DOCTYPE html>
@@ -2390,6 +2402,7 @@ async function openReceipt(orderId) {
 <style>
   body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:420px;margin:40px auto;color:#111827;padding:0 20px}
   .header{text-align:center;margin-bottom:24px}
+  .logo{width:52px;height:52px;border-radius:14px;margin:0 auto 10px;object-fit:cover;display:block}
   .biz-name{font-size:19px;font-weight:700;margin-bottom:2px}
   .receipt-label{font-size:12px;color:#6B7280;letter-spacing:1px;text-transform:uppercase;margin-top:6px}
   .meta-row{display:flex;justify-content:space-between;font-size:13px;color:#4B5563;padding:4px 0}
@@ -2405,6 +2418,7 @@ async function openReceipt(orderId) {
 </style></head>
 <body>
   <div class="header">
+    ${logoUrl ? `<img class="logo" src="${logoUrl}">` : ''}
     <div class="biz-name">${businessName}</div>
     <div class="receipt-label">Receipt</div>
   </div>
