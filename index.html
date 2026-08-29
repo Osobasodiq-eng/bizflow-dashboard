@@ -977,7 +977,7 @@ function renderOrders(orders) {
     <tr style="cursor:pointer" onclick="showOrderDetail('${o.id}')">
       <td style="padding:10px 14px;font-size:11px;color:var(--color-text-secondary)">${o.id}</td>
       <td style="padding:10px 6px"><div class="cr"><div class="av">${initials(o.customerName)}</div>${o.customerName}</div></td>
-      <td style="padding:10px 6px">${o.items.map(i => i.name + (i.qty > 1 ? ' × ' + i.qty : '')).join(', ')}</td>
+      <td style="padding:10px 6px">${o.items.map(i => i.name + (i.variantLabel ? ` (${i.variantLabel})` : '') + (i.qty > 1 ? ' × ' + i.qty : '')).join(', ')}</td>
       <td style="padding:10px 6px" class="amt">${naira(o.amount)}</td>
       <td style="padding:10px 6px"><span class="pill ${paymentPill[o.paymentStatus] || 'p-gray'}">${o.paymentStatus}</span></td>
       <td style="padding:10px 6px"><span class="pill ${statusPill[o.status] || 'p-gray'}">${o.status}</span></td>
@@ -1264,7 +1264,7 @@ async function exportProductsCSV() {
 
 async function exportOrdersCSV() {
   const orders = await apiFetch(`${API_BASE}/api/orders`).then(r => r.json());
-  const rows = orders.map(o => ({ ...o, itemsText: o.items.map(i => `${i.name} x${i.qty}`).join('; ') }));
+  const rows = orders.map(o => ({ ...o, itemsText: o.items.map(i => `${i.name}${i.variantLabel ? ` (${i.variantLabel})` : ''} x${i.qty}`).join('; ') }));
   downloadCSV('orders.csv', [
     { key: 'id', label: 'Order ID' }, { key: 'customerName', label: 'Customer' }, { key: 'itemsText', label: 'Items' },
     { key: 'amount', label: 'Amount' }, { key: 'paymentStatus', label: 'Payment Status' }, { key: 'status', label: 'Status' },
@@ -1550,8 +1550,84 @@ async function uploadProductImage(fileInput, previewId, hiddenId) {
 }
 
 // --- Edit product (price / cost / quantity / threshold) ---
+// --- Product variants (sizes) — each row saves/deletes live against the
+// API immediately, same pattern as delivery zones, since variants are
+// their own database rows (not just part of the product's own JSON like
+// specifications are).
+function variantRowHTML(v) {
+  const label = (v.label || '').replace(/"/g, '&quot;');
+  return `<div class="variant-row" data-variant-id="${v.id || ''}" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+    <input type="text" placeholder="Label (e.g. Size 43)" class="modal-input variant-label" value="${label}" style="flex:2;">
+    <input type="number" min="0" placeholder="Price (₦)" class="modal-input variant-price" value="${v.price ?? ''}" style="flex:1;">
+    <input type="number" min="0" placeholder="Stock" class="modal-input variant-qty" value="${v.quantity ?? ''}" style="flex:1;">
+    <div onclick="saveVariantRow(this)" style="cursor:pointer;color:#1D9E75;" title="Save"><i class="ti ti-check" style="font-size:18px" aria-hidden="true"></i></div>
+    <div onclick="deleteVariantRow(this)" style="cursor:pointer;color:var(--color-text-secondary);" title="Remove"><i class="ti ti-trash" style="font-size:16px" aria-hidden="true"></i></div>
+  </div>`;
+}
+function addVariantRow(productId) {
+  document.getElementById('ep-variants-list').insertAdjacentHTML('beforeend', variantRowHTML({}));
+}
+async function saveVariantRow(iconEl) {
+  const row = iconEl.closest('.variant-row');
+  const productId = document.getElementById('ep-variants-list').dataset.productId;
+  const variantId = row.dataset.variantId;
+  const label = row.querySelector('.variant-label').value.trim();
+  const price = Number(row.querySelector('.variant-price').value);
+  const quantity = Number(row.querySelector('.variant-qty').value);
+  const errorEl = document.getElementById('ep-variants-error');
+
+  if (!label) { errorEl.textContent = 'Every size needs a label.'; return; }
+  if (isNaN(price) || price < 0) { errorEl.textContent = 'Price must be a number 0 or greater.'; return; }
+  if (isNaN(quantity) || quantity < 0) { errorEl.textContent = 'Stock must be a number 0 or greater.'; return; }
+  errorEl.textContent = '';
+
+  try {
+    if (variantId) {
+      const res = await apiFetch(`${API_BASE}/api/products/variants/${variantId}`, {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ label, price, quantity })
+      });
+      if (!res.ok) throw new Error((await res.json()).error || 'Could not save');
+    } else {
+      const res = await apiFetch(`${API_BASE}/api/products/${productId}/variants`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ label, price, quantity })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Could not add size');
+      row.dataset.variantId = data.id; // so editing this same row again does a PATCH, not another POST
+    }
+    // Reflect the now-auto-computed total quantity on the disabled qty field
+    const updatedProduct = await apiFetch(`${API_BASE}/api/products/${productId}`).then(r => r.json());
+    const qtyInput = document.getElementById('ep-qty');
+    if (qtyInput) { qtyInput.value = updatedProduct.quantity; qtyInput.disabled = true; }
+  } catch (err) {
+    errorEl.textContent = err.message;
+  }
+}
+async function deleteVariantRow(iconEl) {
+  const row = iconEl.closest('.variant-row');
+  const productId = document.getElementById('ep-variants-list').dataset.productId;
+  const variantId = row.dataset.variantId;
+  if (!variantId) { row.remove(); return; } // never saved — just remove locally
+
+  if (!confirm('Remove this size?')) return;
+  try {
+    const res = await apiFetch(`${API_BASE}/api/products/variants/${variantId}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error((await res.json()).error || 'Could not remove size');
+    row.remove();
+    const remaining = document.querySelectorAll('#ep-variants-list .variant-row').length;
+    const updatedProduct = await apiFetch(`${API_BASE}/api/products/${productId}`).then(r => r.json());
+    const qtyInput = document.getElementById('ep-qty');
+    if (qtyInput) { qtyInput.value = updatedProduct.quantity; qtyInput.disabled = remaining > 0; }
+  } catch (err) {
+    document.getElementById('ep-variants-error').textContent = err.message;
+  }
+}
+
 async function showEditProduct(productId) {
-  const p = await apiFetch(`${API_BASE}/api/products/${productId}`).then(r => r.json());
+  const [p, variants] = await Promise.all([
+    apiFetch(`${API_BASE}/api/products/${productId}`).then(r => r.json()),
+    apiFetch(`${API_BASE}/api/products/${productId}/variants`).then(r => r.json()),
+  ]);
   openModal(`
     <div class="modal-title"><i class="ti ti-edit" style="color:#6366F1" aria-hidden="true"></i> Edit product</div>
     <div class="modal-sub">${p.name}</div>
@@ -1573,7 +1649,8 @@ async function showEditProduct(productId) {
     <div class="modal-row modal-field">
       <div>
         <label class="modal-label">Quantity in stock</label>
-        <input id="ep-qty" type="number" value="${p.quantity}" class="modal-input">
+        <input id="ep-qty" type="number" value="${p.quantity}" class="modal-input" ${variants.length ? 'disabled' : ''}>
+        ${variants.length ? '<div style="font-size:11px;color:var(--color-text-secondary);margin-top:4px;">Managed automatically from the sizes below</div>' : ''}
       </div>
       <div>
         <label class="modal-label">Low-stock threshold</label>
@@ -1598,6 +1675,13 @@ async function showEditProduct(productId) {
       <div id="ep-specs-list">${(p.specifications || []).map(s => specRowHTML(s.label, s.value)).join('')}</div>
       <button type="button" class="btn" style="font-size:12px" onclick="addSpecRow('ep-specs-list')"><i class="ti ti-plus" style="font-size:12px" aria-hidden="true"></i> Add spec</button>
     </div>
+    <div class="modal-field">
+      <label class="modal-label">Sizes / variants (optional)</label>
+      <div style="font-size:11.5px;color:var(--color-text-secondary);margin-bottom:9px;">Each size gets its own price and stock — e.g. "Size 43" with 5 in stock.</div>
+      <div id="ep-variants-list" data-product-id="${p.id}">${variants.map(variantRowHTML).join('')}</div>
+      <button type="button" class="btn" style="font-size:12px" onclick="addVariantRow(${p.id})"><i class="ti ti-plus" style="font-size:12px" aria-hidden="true"></i> Add size</button>
+      <div id="ep-variants-error" class="modal-error"></div>
+    </div>
     <div id="ep-error" class="modal-error"></div>
     <div class="modal-actions">
       <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Cancel</button>
@@ -1607,16 +1691,20 @@ async function showEditProduct(productId) {
 }
 
 async function submitEditProduct(productId) {
+  const qtyInput = document.getElementById('ep-qty');
   const body = {
     name: document.getElementById('ep-name').value.trim(),
     cost: Number(document.getElementById('ep-cost').value),
     price: Number(document.getElementById('ep-price').value),
-    quantity: Number(document.getElementById('ep-qty').value),
     threshold: Number(document.getElementById('ep-threshold').value),
     image_url: document.getElementById('ep-image-url').value || null,
     description: document.getElementById('ep-description').value.trim() || null,
     specifications: collectSpecs('ep-specs-list'),
   };
+  // Only send quantity when it's actually editable — when variants exist,
+  // it's disabled and auto-computed server-side, so sending it here would
+  // just overwrite that correct computed value with a stale one.
+  if (!qtyInput.disabled) body.quantity = Number(qtyInput.value);
   try {
     const response = await apiFetch(`${API_BASE}/api/products/${productId}`, {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
@@ -2183,7 +2271,7 @@ async function showOrderDetail(orderId) {
       <div class="modal-sub">${new Date(o.date).toLocaleString()}</div>
 
       <div class="modal-list-row"><span style="color:#6B7280">Customer</span><strong>${o.customerName}</strong></div>
-      <div class="modal-list-row"><span style="color:#6B7280">Items</span><span style="text-align:right">${o.items.map(i => `${i.name} × ${i.qty}`).join(', ')}</span></div>
+      <div class="modal-list-row"><span style="color:#6B7280">Items</span><span style="text-align:right">${o.items.map(i => `${i.name}${i.variantLabel ? ` (${i.variantLabel})` : ''} × ${i.qty}`).join(', ')}</span></div>
       <div class="modal-list-row"><span style="color:#6B7280">Amount</span><strong>${naira(o.amount)}</strong></div>
       ${o.paymentStatus === 'Partial' || (o.amountPaid > 0 && o.amountPaid < o.amount) ? `
       <div class="modal-list-row"><span style="color:#6B7280">Paid so far</span><span style="color:#4F46E5">${naira(o.amountPaid)}</span></div>
@@ -2390,7 +2478,7 @@ async function openReceipt(orderId) {
       const lineAmount = i.price != null ? i.price * i.qty : (totalQty > 0 ? (o.amount / totalQty) * i.qty : 0);
       return `
       <tr>
-        <td style="padding:8px 0">${i.name}</td>
+        <td style="padding:8px 0">${i.name}${i.variantLabel ? `<br><span style="color:#6B7280;font-size:11px">${i.variantLabel}</span>` : ''}</td>
         <td style="padding:8px 0;text-align:center">${i.qty}</td>
         <td style="padding:8px 0;text-align:right">${naira(lineAmount)}</td>
       </tr>`;
