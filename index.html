@@ -520,7 +520,7 @@ input[type=text]:focus,select:focus{border-color:#4F46E5}
         </div>
         <div class="row2b">
           <div class="card" style="grid-column:1/-1">
-            <div class="card-head"><div class="card-title">Product inventory</div><div style="display:flex;gap:8px"><button class="btn" style="font-size:12px" onclick="showInventoryHistory()"><i class="ti ti-history" style="font-size:12px" aria-hidden="true"></i> History</button><button class="btn" style="font-size:12px" onclick="openImportModal('products')"><i class="ti ti-upload" style="font-size:12px" aria-hidden="true"></i> Import CSV</button><button class="btn" style="font-size:12px" onclick="exportProductsCSV()"><i class="ti ti-download" style="font-size:12px" aria-hidden="true"></i> Export CSV</button><button class="btn" style="font-size:12px;color:#DC2626" onclick="confirmDeleteAllProducts()"><i class="ti ti-trash" style="font-size:12px" aria-hidden="true"></i> Delete all</button><button class="btn btn-g" style="font-size:12px" onclick="openAddProductModal()"><i class="ti ti-plus" style="font-size:12px" aria-hidden="true"></i> Add product</button></div></div>
+            <div class="card-head"><div class="card-title">Product inventory</div><div style="display:flex;gap:8px"><button class="btn" style="font-size:12px" onclick="showInventoryHistory()"><i class="ti ti-history" style="font-size:12px" aria-hidden="true"></i> History</button><button class="btn" style="font-size:12px" onclick="openImportModal('products')"><i class="ti ti-upload" style="font-size:12px" aria-hidden="true"></i> Import CSV</button><button class="btn" style="font-size:12px" onclick="exportProductsCSV()"><i class="ti ti-download" style="font-size:12px" aria-hidden="true"></i> Export CSV</button><button class="btn btn-g" style="font-size:12px" onclick="openAddProductModal()"><i class="ti ti-plus" style="font-size:12px" aria-hidden="true"></i> Add product</button></div></div>
             <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
               <input type="text" id="inventory-search" placeholder="Search by product name..." style="flex:1;min-width:160px" oninput="filterInventory()">
               <select id="inventory-category-filter" onchange="filterInventory()"><option value="">All categories</option></select>
@@ -1729,48 +1729,6 @@ async function deleteProduct(productId) {
   }
 }
 
-// --- Delete ALL products — irreversible, so this uses a typed-confirmation
-// modal instead of a plain confirm() dialog, unlike single-product delete.
-function confirmDeleteAllProducts() {
-  const count = (window._lastProducts || []).length;
-  if (!count) { alert('There are no products to delete.'); return; }
-
-  openModal(`
-    <div class="modal-title"><i class="ti ti-alert-triangle" style="color:#DC2626" aria-hidden="true"></i> Delete all products</div>
-    <div class="modal-sub">This will permanently delete <strong>${count} product${count !== 1 ? 's' : ''}</strong> and every size/variant attached to them. This cannot be undone.</div>
-    <div class="modal-info-box">Type <strong>DELETE</strong> below to confirm.</div>
-    <div class="modal-field">
-      <input id="da-confirm-text" type="text" class="modal-input" placeholder="Type DELETE to confirm" oninput="document.getElementById('da-confirm-btn').disabled = this.value !== 'DELETE'">
-    </div>
-    <div id="da-error" class="modal-error"></div>
-    <div class="modal-actions">
-      <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Cancel</button>
-      <button class="modal-btn modal-btn-danger" id="da-confirm-btn" disabled onclick="submitDeleteAllProducts()">Delete all products</button>
-    </div>
-  `);
-}
-
-async function submitDeleteAllProducts() {
-  const btn = document.getElementById('da-confirm-btn');
-  const errorEl = document.getElementById('da-error');
-  btn.disabled = true;
-  btn.textContent = 'Deleting…';
-
-  try {
-    const response = await apiFetch(`${API_BASE}/api/products/all`, { method: 'DELETE' });
-    if (!response.ok) throw new Error((await response.json()).error || 'Request failed');
-    const data = await response.json();
-    closeModal();
-    loadInventory();
-    updateInventoryBadge();
-    alert(`${data.deleted} product(s) deleted.`);
-  } catch (err) {
-    errorEl.textContent = 'Could not delete products: ' + err.message;
-    btn.disabled = false;
-    btn.textContent = 'Delete all products';
-  }
-}
-
 // --- Inventory History — audit trail of every stock change, for accountability ---
 async function showInventoryHistory() {
   openModal(`
@@ -2303,6 +2261,39 @@ async function submitNewOrder() {
 }
 
 // --- Order detail popup (clicking a row in Orders) ---
+// Visual step tracker (New → Processing → Shipped → Delivered) shown on
+// both the order detail view and the edit screen. Cancelled orders get a
+// distinct banner instead, since "cancelled" isn't a step further along
+// the same path — it's a different outcome entirely.
+function orderProgressBarHTML(status) {
+  const steps = ['New', 'Processing', 'Shipped', 'Delivered'];
+  if (status === 'Cancelled') {
+    return `<div style="display:flex;align-items:center;gap:10px;background:#FEE2E2;border-radius:10px;padding:12px 14px;margin-bottom:18px;">
+      <i class="ti ti-x" style="color:#991B1B;font-size:18px" aria-hidden="true"></i>
+      <span style="font-size:13px;font-weight:600;color:#991B1B">This order was cancelled</span>
+    </div>`;
+  }
+  const currentIndex = Math.max(0, steps.indexOf(status));
+
+  const parts = steps.map((s, i) => {
+    const done = i <= currentIndex;
+    const node = `
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <div style="width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;
+          background:${done ? '#6366F1' : '#fff'};color:${done ? '#fff' : '#9CA3AF'};border:2px solid ${done ? '#6366F1' : '#E5E7EB'};">
+          ${done ? '<i class="ti ti-check" style="font-size:13px" aria-hidden="true"></i>' : (i + 1)}
+        </div>
+        <div style="font-size:10px;margin-top:6px;color:${i === currentIndex ? '#111827' : '#9CA3AF'};font-weight:${i === currentIndex ? '700' : '500'};white-space:nowrap;">${s}</div>
+      </div>`;
+    if (i === steps.length - 1) return node;
+    const lineColor = i < currentIndex ? '#6366F1' : '#E5E7EB';
+    const line = `<div style="flex:1;height:2px;background:${lineColor};margin:0 4px;position:relative;top:-12px;"></div>`;
+    return node + line;
+  }).join('');
+
+  return `<div style="display:flex;align-items:flex-start;margin-bottom:18px;">${parts}</div>`;
+}
+
 async function showOrderDetail(orderId) {
   try {
     const o = await apiFetch(`${API_BASE}/api/orders/${orderId}`).then(r => r.json());
@@ -2311,6 +2302,8 @@ async function showOrderDetail(orderId) {
     openModal(`
       <div class="modal-title">${o.id}</div>
       <div class="modal-sub">${new Date(o.date).toLocaleString()}</div>
+
+      ${orderProgressBarHTML(o.status)}
 
       <div class="modal-list-row"><span style="color:#6B7280">Customer</span><strong>${o.customerName}</strong></div>
       <div class="modal-list-row"><span style="color:#6B7280">Items</span><span style="text-align:right">${o.items.map(i => `${i.name}${i.variantLabel ? ` (${i.variantLabel})` : ''} × ${i.qty}`).join(', ')}</span></div>
@@ -2344,6 +2337,8 @@ async function showEditOrder(orderId) {
   openModal(`
     <div class="modal-title"><i class="ti ti-edit" style="color:#6366F1" aria-hidden="true"></i> Edit ${o.id}</div>
     <div class="modal-sub">${o.customerName} · ${naira(o.amountPaid)} paid of ${naira(o.amount)}</div>
+
+    ${orderProgressBarHTML(o.status)}
 
     <div class="modal-field">
       <label class="modal-label">Order status</label>
