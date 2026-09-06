@@ -197,6 +197,67 @@ input[type=text]:focus,select:focus{border-color:#4F46E5}
   .tb-date{display:none}
   #modal-box{padding:16px!important}
 }
+
+/* ============ Animation system ============ */
+@keyframes kzFadeInUp{ from{ opacity:0; transform:translateY(14px); } to{ opacity:1; transform:translateY(0); } }
+@keyframes kzFadeIn{ from{ opacity:0; } to{ opacity:1; } }
+@keyframes kzScaleIn{ from{ opacity:0; transform:scale(0.94); } to{ opacity:1; transform:scale(1); } }
+@keyframes kzShimmer{ 0%{ background-position:-200px 0; } 100%{ background-position:calc(200px + 100%) 0; } }
+@keyframes kzPop{ 0%{ transform:scale(0.85); opacity:0; } 60%{ transform:scale(1.06); opacity:1; } 100%{ transform:scale(1); } }
+@keyframes kzCheckDraw{ from{ stroke-dashoffset:24; } to{ stroke-dashoffset:0; } }
+
+.kz-fade-in{ animation:kzFadeInUp 0.5s cubic-bezier(.2,.8,.25,1) both; }
+.kz-fade-in-fast{ animation:kzFadeIn 0.3s ease both; }
+.kz-scale-in{ animation:kzScaleIn 0.28s cubic-bezier(.34,1.4,.64,1) both; }
+.kz-delay-1{ animation-delay:.06s; }
+.kz-delay-2{ animation-delay:.12s; }
+.kz-delay-3{ animation-delay:.18s; }
+.kz-delay-4{ animation-delay:.24s; }
+.kz-delay-5{ animation-delay:.30s; }
+.kz-delay-6{ animation-delay:.36s; }
+
+/* Panels get a soft entrance every time they're switched to */
+.panel.on{ animation:kzFadeInUp 0.35s cubic-bezier(.2,.8,.25,1) both; }
+
+/* Hoverable cards/rows lift slightly with a soft shadow — applied broadly
+   via a shared class rather than redeclaring per component */
+.kz-lift{ transition:transform .18s ease, box-shadow .18s ease; }
+.kz-lift:hover{ transform:translateY(-3px); box-shadow:0 12px 28px rgba(30,27,75,0.10); }
+
+/* Buttons get a satisfying press-down on click, everywhere, with no HTML
+   changes needed — just react to the existing .btn / .modal-btn classes */
+.btn, .modal-btn, .auth-btn{ transition:transform .12s ease, box-shadow .12s ease, background .15s ease; }
+.btn:active, .modal-btn:active, .auth-btn:active{ transform:scale(0.96); }
+.btn-g:hover, .auth-btn:hover{ box-shadow:0 8px 20px rgba(99,102,241,0.30); }
+
+/* Sidebar items get a subtle slide + accent-bar animation on hover/active */
+.s-item{ position:relative; transition:background .15s ease, color .15s ease, padding-left .15s ease; }
+.s-item:hover{ padding-left:22px; }
+.s-item.on::before{
+  content:""; position:absolute; left:0; top:50%; transform:translateY(-50%); width:3px; height:60%;
+  background:#6366F1; border-radius:0 3px 3px 0; animation:kzFadeIn .2s ease both;
+}
+
+/* KPI/stat cards pop in on load, staggered via the delay classes above */
+.kpi{ animation:kzFadeInUp 0.45s cubic-bezier(.2,.8,.25,1) both; transition:transform .18s ease, box-shadow .18s ease; }
+.kpi:hover{ transform:translateY(-3px); box-shadow:0 12px 28px rgba(30,27,75,0.10); }
+.kpi:nth-child(1){ animation-delay:.04s; } .kpi:nth-child(2){ animation-delay:.09s; }
+.kpi:nth-child(3){ animation-delay:.14s; } .kpi:nth-child(4){ animation-delay:.19s; }
+
+/* Loading skeleton shimmer, for anywhere data hasn't arrived yet */
+.kz-skeleton{
+  background:linear-gradient(90deg, #F3F4F6 25%, #E9EAF3 37%, #F3F4F6 63%);
+  background-size:400px 100%; animation:kzShimmer 1.4s ease infinite; border-radius:8px;
+}
+
+/* Success checkmark burst, used after saves complete */
+.kz-check-pop{ animation:kzPop 0.4s cubic-bezier(.34,1.4,.64,1) both; }
+.kz-check-pop svg path{ stroke-dasharray:24; stroke-dashoffset:24; animation:kzCheckDraw 0.35s ease-out 0.15s forwards; }
+
+@media (prefers-reduced-motion: reduce){
+  .kz-fade-in, .kz-fade-in-fast, .kz-scale-in, .panel.on, .kpi-card, .kz-check-pop, .kz-check-pop svg path{ animation:none !important; }
+  .kz-lift:hover{ transform:none; }
+}
 </style>
 </head>
 <body>
@@ -205,8 +266,10 @@ input[type=text]:focus,select:focus{border-color:#4F46E5}
   <div class="auth-panels" style="display:flex;width:100%;max-width:920px;margin:auto;box-shadow:0 20px 60px rgba(11,84,66,0.15);border-radius:20px;overflow:hidden">
 
     <!-- Left brand panel -->
-    <div class="auth-brand-panel" style="flex:1;background:linear-gradient(160deg,#4F46E5 0%,#3730A3 55%,#1E1B4B 100%);padding:48px 40px;display:flex;flex-direction:column;justify-content:space-between;color:#fff;min-width:280px">
-      <div style="display:flex;align-items:center;gap:10px">
+    <div class="auth-brand-panel kz-fade-in" style="flex:1;position:relative;padding:48px 40px;display:flex;flex-direction:column;justify-content:space-between;color:#fff;min-width:280px;overflow:hidden;background:#1E1B4B;">
+      <img src="https://images.unsplash.com/photo-1485217988980-11786ced9454?auto=format&fit=crop&w=900&q=80" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.55;">
+      <div style="position:absolute;inset:0;background:linear-gradient(165deg, rgba(79,70,229,0.88) 0%, rgba(55,48,163,0.90) 55%, rgba(30,27,75,0.95) 100%);"></div>
+      <div style="display:flex;align-items:center;gap:10px;position:relative;z-index:1;">
         <svg width="34" height="34" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
           <rect width="40" height="40" rx="10" fill="rgba(255,255,255,0.16)"/>
           <path d="M11 27 L11 13" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
@@ -216,15 +279,15 @@ input[type=text]:focus,select:focus{border-color:#4F46E5}
         </svg>
         <span style="font-size:19px;font-weight:600;letter-spacing:-0.3px">Kooza</span>
       </div>
-      <div>
+      <div style="position:relative;z-index:1;">
         <h1 style="font-size:26px;font-weight:600;line-height:1.3;margin-bottom:12px">Run your business<br>from one place.</h1>
         <p style="font-size:13px;color:rgba(255,255,255,0.72);line-height:1.6;max-width:280px">Orders, customers, inventory, and payments — tracked in real time, from anywhere.</p>
       </div>
-      <div style="font-size:11px;color:rgba(255,255,255,0.45)">© 2026 Kooza</div>
+      <div style="position:relative;z-index:1;font-size:11px;color:rgba(255,255,255,0.45)">© 2026 Kooza</div>
     </div>
 
     <!-- Right form panel -->
-    <div class="auth-form-panel" style="flex:1.15;background:#fff;padding:48px 44px;display:flex;flex-direction:column;justify-content:center;min-width:320px">
+    <div class="auth-form-panel kz-fade-in kz-delay-1" style="flex:1.15;background:#fff;padding:48px 44px;display:flex;flex-direction:column;justify-content:center;min-width:320px">
 
       <div id="auth-login">
         <h2 style="font-size:20px;font-weight:600;color:#1E1B4B;margin-bottom:4px">Welcome back</h2>
@@ -841,6 +904,48 @@ if (localStorage.getItem('bizflow_token')) {
 // naira formatter helper — used everywhere we show money
 function naira(n) { return '₦' + Number(n).toLocaleString(); }
 
+// A small animated confirmation that pops in after a save completes —
+// the "did that actually work?" feedback a plain modal-close doesn't give.
+function showSuccessBurst(message) {
+  const el = document.createElement('div');
+  el.className = 'kz-check-pop';
+  el.style.cssText = 'position:fixed;top:24px;right:24px;z-index:9999;background:#fff;border-radius:14px;box-shadow:0 12px 30px rgba(30,27,75,0.18);padding:14px 18px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:#111827;';
+  el.innerHTML = `
+    <div style="width:26px;height:26px;border-radius:50%;background:#D1FAE5;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+    </div>
+    <span>${message || 'Saved successfully'}</span>
+  `;
+  document.body.appendChild(el);
+  setTimeout(() => {
+    el.style.transition = 'opacity .3s ease, transform .3s ease';
+    el.style.opacity = '0'; el.style.transform = 'translateY(-8px)';
+    setTimeout(() => el.remove(), 300);
+  }, 1800);
+}
+
+// Animates a KPI number counting up from 0 to its real value, instead of
+// just appearing — small touch, but it's what makes the dashboard feel
+// alive on every load rather than static. Respects reduced-motion.
+function animateKpiNumber(elId, target, formatter) {
+  const el = document.getElementById(elId);
+  if (!el || target == null || isNaN(target)) { if (el) el.textContent = formatter ? formatter(target ?? 0) : (target ?? 0); return; }
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    el.textContent = formatter ? formatter(target) : target;
+    return;
+  }
+  const duration = 700;
+  const start = performance.now();
+  function tick(now) {
+    const progress = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+    const current = Math.round(target * eased);
+    el.textContent = formatter ? formatter(current) : current;
+    if (progress < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
 // ================================================================
 // DASHBOARD — 4 KPIs (already wired) + 4 charts + activity feed
 // ================================================================
@@ -937,14 +1042,14 @@ async function loadDashboard() {
       apiFetch(`${API_BASE}/api/dashboard/activity`).then(r => r.json()),
     ]);
 
-    document.getElementById('kpi-revenue').textContent = naira(summary.revenueToday);
+    animateKpiNumber('kpi-revenue', summary.revenueToday, naira);
     document.getElementById('kpi-revenue-foot').textContent =
       summary.revenueChangePct !== null ? `${summary.revenueChangePct > 0 ? '+' : ''}${summary.revenueChangePct}% vs yesterday` : 'No data for yesterday';
-    document.getElementById('kpi-orders').textContent = summary.ordersToday;
+    animateKpiNumber('kpi-orders', summary.ordersToday);
     document.getElementById('kpi-orders-foot').textContent = `${summary.ordersToday} order(s) today`;
-    document.getElementById('kpi-unpaid').textContent = naira(summary.unpaidAmount);
+    animateKpiNumber('kpi-unpaid', summary.unpaidAmount, naira);
     document.getElementById('kpi-unpaid-foot').textContent = `${summary.unpaidCount} orders pending`;
-    document.getElementById('kpi-lowstock').textContent = summary.lowStockCount;
+    animateKpiNumber('kpi-lowstock', summary.lowStockCount);
     window._lastSummary = summary;
     window._lastTopProducts = topProducts;
 
@@ -1502,6 +1607,7 @@ async function submitAddProduct() {
     });
     if (!response.ok) throw new Error((await response.json()).error || 'Request failed');
     closeModal();
+    showSuccessBurst('Product added');
     loadInventory(); // refresh so the new product appears immediately
     updateInventoryBadge();
   } catch (err) {
@@ -1711,6 +1817,7 @@ async function submitEditProduct(productId) {
     });
     if (!response.ok) throw new Error('Request failed');
     closeModal();
+    showSuccessBurst('Changes saved');
     loadInventory();
     updateInventoryBadge();
   } catch (err) {
@@ -2474,6 +2581,7 @@ async function submitEditOrder(orderId) {
     if (!response.ok) throw new Error('Request failed');
 
     closeModal();
+    showSuccessBurst(`Order marked ${status}`);
     if (window._ordersDone) loadOrders();
     updateOrdersBadge();
     if (window._payDone) loadPayments(); // keep the Payments panel in sync too, if it's already loaded
