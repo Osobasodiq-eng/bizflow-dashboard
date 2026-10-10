@@ -258,6 +258,22 @@ input[type=text]:focus,select:focus{border-color:#4F46E5}
   .kz-fade-in, .kz-fade-in-fast, .kz-scale-in, .panel.on, .kpi-card, .kz-check-pop, .kz-check-pop svg path{ animation:none !important; }
   .kz-lift:hover{ transform:none; }
 }
+
+/* Fulfilment board */
+.ful-board{display:grid;grid-template-columns:repeat(4,minmax(220px,1fr));gap:12px;overflow-x:auto;padding-bottom:4px}
+.ful-col{background:#F9FAFB;border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:10px;min-height:140px}
+.ful-col-head{display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:600;color:#111827;margin-bottom:10px}
+.ful-count{font-size:11px;font-weight:600;background:#E5E7EB;color:#374151;border-radius:20px;padding:1px 8px}
+.ful-card{background:#fff;border:0.5px solid var(--color-border-tertiary);border-radius:10px;padding:10px;margin-bottom:8px;font-size:12px}
+.ful-card.sel{border-color:#6366F1;box-shadow:0 0 0 2px rgba(99,102,241,0.15)}
+.ful-card-top{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.ful-id{font-weight:600;color:#111827}
+.ful-meta{color:var(--color-text-secondary);font-size:11px;line-height:1.5}
+.ful-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.ful-actions .btn{font-size:11px;padding:5px 9px}
+.ful-empty{font-size:11px;color:var(--color-text-secondary);text-align:center;padding:14px 0}
+.ful-done-title{font-size:11px;font-weight:600;color:#6B7280;margin:12px 0 6px;text-transform:uppercase;letter-spacing:.5px}
+@media(max-width:900px){.ful-board{grid-template-columns:repeat(4,240px)}}
 </style>
 </head>
 <body>
@@ -407,6 +423,7 @@ input[type=text]:focus,select:focus{border-color:#4F46E5}
       <div class="s-item" id="s-nav-inventory" onclick="go('inventory',this)"><i class="ti ti-box" aria-hidden="true"></i> Inventory <span class="badge" id="s-badge-inventory" style="background:rgba(231,76,60,0.25);color:#FCA5A5;display:none">0</span></div>
       <div class="s-item" id="s-nav-customers" onclick="go('customers',this)"><i class="ti ti-users" aria-hidden="true"></i> Customers</div>
       <div class="s-item" id="s-nav-orders" onclick="go('orders',this)"><i class="ti ti-shopping-bag" aria-hidden="true"></i> Orders <span class="badge" id="s-badge-orders" style="display:none">0</span></div>
+      <div class="s-item" id="s-nav-fulfilment" onclick="go('fulfilment',this)"><i class="ti ti-truck-delivery" aria-hidden="true"></i> Fulfilment <span class="badge" id="s-badge-fulfilment" style="display:none">0</span></div>
       <div class="s-item" id="s-nav-payments" onclick="go('payments',this)"><i class="ti ti-credit-card" aria-hidden="true"></i> Payments</div>
       <div class="s-item" id="s-nav-expenses" onclick="go('expenses',this)"><i class="ti ti-receipt-2" aria-hidden="true"></i> Expenses</div>
       <div class="s-section">STOREFRONT</div>
@@ -661,6 +678,27 @@ input[type=text]:focus,select:focus{border-color:#4F46E5}
         </div>
       </div>
 
+      <div id="p-fulfilment" class="panel">
+        <div class="card" style="margin-bottom:14px">
+          <div class="card-head">
+            <div class="card-title">Fulfilment board</div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span style="font-size:11px;color:var(--color-text-secondary)"><i class="ti ti-mail" style="font-size:12px" aria-hidden="true"></i> Customers with an email are notified at every step</span>
+              <button class="btn" style="font-size:12px" onclick="loadFulfilment()"><i class="ti ti-refresh" style="font-size:12px" aria-hidden="true"></i> Refresh</button>
+            </div>
+          </div>
+          <div id="ful-toolbar" style="display:none;gap:8px;align-items:center;padding:8px 10px;background:#EEF2FF;border-radius:8px;margin-bottom:12px;font-size:12px">
+            <span id="ful-selected-count" style="font-weight:600;color:#3730A3"></span>
+            <span style="flex:1"></span>
+            <span id="ful-bulk-buttons" style="display:flex;gap:6px"></span>
+            <button class="btn" style="font-size:12px" onclick="fulClearSelection()">Clear</button>
+          </div>
+          <div id="ful-board" class="ful-board">
+            <div style="padding:14px;color:var(--color-text-secondary);font-size:12px">Loading…</div>
+          </div>
+        </div>
+      </div>
+
       <div id="p-whatsapp" class="panel">
         <div class="row2b">
           <div class="card">
@@ -691,13 +729,14 @@ function go(name, el) {
   const p = document.getElementById('p-' + name);
   if (p) p.classList.add('on');
   if (el) el.classList.add('on');
-  const titles = {dashboard:'Dashboard',orders:'Orders',customers:'Customers',inventory:'Inventory',payments:'Payments',expenses:'Expenses',whatsapp:'WhatsApp'};
+  const titles = {dashboard:'Dashboard',orders:'Orders',customers:'Customers',inventory:'Inventory',payments:'Payments',expenses:'Expenses',fulfilment:'Fulfilment',whatsapp:'WhatsApp'};
   document.getElementById('pg-title').textContent = titles[name] || name;
   if (name === 'orders' && !window._ordersDone) { loadOrders(); window._ordersDone = true; }
   if (name === 'customers' && !window._custDone) { loadCustomers(); window._custDone = true; }
   if (name === 'inventory' && !window._invDone) { loadInventory(); window._invDone = true; }
   if (name === 'payments' && !window._payDone) { loadPayments(); window._payDone = true; }
   if (name === 'expenses' && !window._expDone) { loadExpenses(); window._expDone = true; }
+  if (name === 'fulfilment') { loadFulfilment(); } // always refresh: the board changes outside this page too
   if (name === 'whatsapp' && !window._waDone) { loadWhatsapp(); window._waDone = true; }
   closeMobileMenu(); // picking a page on a phone should close the drawer, not leave it open
 }
@@ -874,6 +913,14 @@ async function updateOrdersBadge() {
     badge.style.display = orders.length > 0 ? 'inline-block' : 'none';
   } catch (err) { /* leave badge as-is if this fails — non-critical */ }
 }
+async function updateFulfilmentBadge() {
+  try {
+    const board = await apiFetch(`${API_BASE}/api/fulfilment/board`).then(r => r.json());
+    const active = board.counts.New + board.counts.Processing;
+    const badge = document.getElementById('s-badge-fulfilment');
+    badge.textContent = active; badge.style.display = active > 0 ? 'inline-block' : 'none';
+  } catch (err) { /* non-critical */ }
+}
 async function updateInventoryBadge() {
   try {
     const summary = await apiFetch(`${API_BASE}/api/products/summary`).then(r => r.json());
@@ -894,6 +941,7 @@ function enterApp() {
   loadDashboard();
   updateOrdersBadge();
   updateInventoryBadge();
+  updateFulfilmentBadge();
 }
 
 // On page load: if we already have a saved token, skip straight to the app.
@@ -2194,6 +2242,212 @@ async function submitMarkPaid() {
   }
 }
 
+
+// ================================================================
+// FULFILMENT — board of orders by stage; every move emails the buyer
+// ================================================================
+const FUL_COLUMNS = [
+  { key: 'New', label: 'New', icon: 'ti-inbox' },
+  { key: 'Processing', label: 'Preparing', icon: 'ti-package' },
+  { key: 'Shipped', label: 'Shipped', icon: 'ti-truck-delivery' },
+  { key: 'Delivered', label: 'Delivered', icon: 'ti-circle-check' },
+];
+let _fulBoard = null;
+const _fulSelected = new Set();
+
+function fulEsc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function fulAge(iso) {
+  const mins = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
+  if (mins < 60) return `${mins}m ago`;
+  if (mins < 1440) return `${Math.round(mins / 60)}h ago`;
+  return `${Math.round(mins / 1440)}d ago`;
+}
+// Wording that fits the order: a pickup order is "ready for pickup", not "shipped"
+function fulStageName(stage, isPickup) {
+  if (stage === 'Processing') return 'Preparing';
+  if (stage === 'Shipped') return isPickup ? 'Ready for pickup' : 'Shipped';
+  if (stage === 'Delivered') return isPickup ? 'Collected' : 'Delivered';
+  return stage;
+}
+
+async function loadFulfilment() {
+  try {
+    const res = await apiFetch(`${API_BASE}/api/fulfilment/board`);
+    if (!res.ok) throw new Error((await res.json()).error || 'Request failed');
+    _fulBoard = await res.json();
+    // drop selections for orders that have since moved or vanished
+    const open = new Set(Object.values(_fulBoard.stages).flat().map(o => o.id));
+    [..._fulSelected].forEach(id => { if (!open.has(id)) _fulSelected.delete(id); });
+    renderFulfilment();
+    const active = _fulBoard.counts.New + _fulBoard.counts.Processing;
+    const badge = document.getElementById('s-badge-fulfilment');
+    badge.textContent = active; badge.style.display = active > 0 ? 'inline-block' : 'none';
+  } catch (err) {
+    document.getElementById('ful-board').innerHTML = `<div style="padding:14px;color:#DC2626;font-size:12px">Could not load fulfilment board: ${fulEsc(err.message)}</div>`;
+  }
+}
+
+function renderFulfilment() {
+  const { stages, counts } = _fulBoard;
+  document.getElementById('ful-board').innerHTML = FUL_COLUMNS.map(col => {
+    const orders = stages[col.key] || [];
+    let inner = orders.length ? orders.map(fulCardHtml).join('') : `<div class="ful-empty">Nothing here</div>`;
+    if (col.key === 'Delivered' && (stages.Cancelled || []).length) {
+      inner += `<div class="ful-done-title">Cancelled</div>` + stages.Cancelled.map(fulCardHtml).join('');
+    }
+    return `<div class="ful-col"><div class="ful-col-head"><span><i class="ti ${col.icon}" style="font-size:14px;vertical-align:-2px" aria-hidden="true"></i> ${col.label}</span><span class="ful-count">${counts[col.key]}</span></div>${inner}</div>`;
+  }).join('');
+  fulUpdateToolbar();
+}
+
+function fulCardHtml(o) {
+  const items = (o.items || []).map(i => `${i.qty}× ${fulEsc(i.name)}${i.variantLabel ? ' (' + fulEsc(i.variantLabel) + ')' : ''}`).join(', ');
+  const open = o.status === 'New' || o.status === 'Processing' || o.status === 'Shipped';
+  const next = o.nextOptions.filter(n => n !== 'Cancelled');
+  const primary = next[0];
+  const canCancel = o.nextOptions.includes('Cancelled');
+  const emailNote = o.customerEmail
+    ? `<span title="${fulEsc(o.customerEmail)}"><i class="ti ti-mail" style="font-size:11px" aria-hidden="true"></i> will be emailed</span>`
+    : `<span style="color:#B45309"><i class="ti ti-mail-off" style="font-size:11px" aria-hidden="true"></i> no email on file</span>`;
+  const tracking = o.trackingNumber || o.courier
+    ? `<div class="ful-meta"><i class="ti ti-truck" style="font-size:11px" aria-hidden="true"></i> ${fulEsc(o.courier || '')} ${fulEsc(o.trackingNumber || '')}</div>` : '';
+  const payPill = o.paymentStatus === 'Paid' ? '<span class="pill p-green">Paid</span>' : `<span class="pill p-amber">${fulEsc(o.paymentStatus)}</span>`;
+  return `<div class="ful-card ${_fulSelected.has(o.id) ? 'sel' : ''}">
+    <div class="ful-card-top">
+      ${open && primary ? `<input type="checkbox" ${_fulSelected.has(o.id) ? 'checked' : ''} onchange="fulToggle('${o.id}',this.checked)" aria-label="Select ${o.id}">` : ''}
+      <span class="ful-id">${o.id}</span>${payPill}
+      ${o.isPickup ? '<span class="pill p-blue">Pickup</span>' : ''}
+      <span style="margin-left:auto" class="ful-meta">${fulAge(o.createdAt)}</span>
+    </div>
+    <div style="font-weight:500;color:#111827">${fulEsc(o.customerName)}</div>
+    <div class="ful-meta">${items}</div>
+    <div class="ful-meta">₦${Number(o.amount).toLocaleString()} · ${fulEsc(o.delivery || 'No delivery info')}</div>
+    ${tracking}
+    ${open ? `<div class="ful-meta" style="margin-top:4px">${emailNote}</div>` : ''}
+    <div class="ful-actions">
+      ${open && primary ? `<button class="btn btn-g" onclick="fulOpenMove('${o.id}','${primary}')">${fulMoveLabel(o, primary)}</button>` : ''}
+      ${canCancel ? `<button class="btn" style="color:#DC2626" onclick="fulOpenMove('${o.id}','Cancelled')">Cancel</button>` : ''}
+      <button class="btn" onclick="fulShowHistory('${o.id}')">History</button>
+    </div>
+  </div>`;
+}
+function fulMoveLabel(o, to) {
+  if (to === 'Processing') return 'Start preparing';
+  if (to === 'Shipped') return o.isPickup ? 'Ready for pickup' : 'Mark shipped';
+  if (to === 'Delivered') return o.isPickup ? 'Mark collected' : 'Mark delivered';
+  return to;
+}
+function fulFindOrder(id) { return Object.values(_fulBoard.stages).flat().find(o => o.id === id); }
+
+// ---- selection + bulk moves ----
+function fulToggle(id, on) { if (on) _fulSelected.add(id); else _fulSelected.delete(id); renderFulfilment(); }
+function fulClearSelection() { _fulSelected.clear(); renderFulfilment(); }
+function fulUpdateToolbar() {
+  const bar = document.getElementById('ful-toolbar');
+  if (!_fulSelected.size) { bar.style.display = 'none'; return; }
+  const selected = [..._fulSelected].map(fulFindOrder).filter(Boolean);
+  bar.style.display = 'flex';
+  document.getElementById('ful-selected-count').textContent = `${selected.length} selected`;
+  // offer only moves that every selected order can make
+  const common = ['Processing', 'Shipped', 'Delivered'].filter(t => selected.every(o => o.nextOptions.includes(t)));
+  const label = { Processing: 'Start preparing', Shipped: 'Mark shipped / ready', Delivered: 'Mark delivered' };
+  document.getElementById('ful-bulk-buttons').innerHTML = common.length
+    ? common.map(t => `<button class="btn btn-g" style="font-size:12px" onclick="fulBulkMove('${t}')">${label[t]}</button>`).join('')
+    : `<span style="color:var(--color-text-secondary)">These orders are at different stages — select orders in the same column.</span>`;
+}
+async function fulBulkMove(status) {
+  const ids = [..._fulSelected];
+  if (!confirm(`Move ${ids.length} order${ids.length > 1 ? 's' : ''} to "${fulStageName(status)}"? Customers with an email will be notified.`)) return;
+  try {
+    const res = await apiFetch(`${API_BASE}/api/fulfilment/bulk-status`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orderIds: ids, status })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Request failed');
+    _fulSelected.clear();
+    showSuccessBurst(`${data.moved} moved · ${data.emailed} customer${data.emailed === 1 ? '' : 's'} emailed${data.failed ? ' · ' + data.failed + ' failed' : ''}`);
+    loadFulfilment(); updateOrdersBadge(); window._ordersDone = false;
+  } catch (err) { alert('Could not move orders: ' + err.message); }
+}
+
+// ---- single move (with courier/tracking/note) ----
+function fulOpenMove(id, to) {
+  const o = fulFindOrder(id);
+  if (!o) return;
+  const isShip = to === 'Shipped' && !o.isPickup;
+  const title = to === 'Cancelled' ? `Cancel ${id}?` : `${fulMoveLabel(o, to)} — ${id}`;
+  const emailLine = o.customerEmail
+    ? `<label style="display:flex;align-items:center;gap:8px;font-size:12.5px;margin:6px 0 4px"><input type="checkbox" id="ful-notify" checked> Email ${fulEsc(o.customerName)} (${fulEsc(o.customerEmail)})</label>`
+    : `<div class="modal-info-box" style="margin:6px 0 4px">${fulEsc(o.customerName)} didn't give an email address, so they can't be notified automatically. Phone: <strong>${fulEsc(o.customerPhone || '—')}</strong></div><input type="hidden" id="ful-notify" value="">`;
+  openModal(`
+    <div class="modal-title">${title}</div>
+    <div class="modal-sub">${to === 'Cancelled' ? 'The items will be put back into your inventory.' : 'The order moves to “' + fulStageName(to, o.isPickup) + '”.'}</div>
+    ${isShip ? `
+      <div class="modal-row">
+        <div class="modal-field"><label class="modal-label">Courier / rider (optional)</label><input id="ful-courier" class="modal-input" placeholder="e.g. GIG Logistics" maxlength="60" value="${fulEsc(o.courier || '')}"></div>
+        <div class="modal-field"><label class="modal-label">Tracking number (optional)</label><input id="ful-tracking" class="modal-input" placeholder="e.g. GIG123456" maxlength="80" value="${fulEsc(o.trackingNumber || '')}"></div>
+      </div>` : ''}
+    <div class="modal-field"><label class="modal-label">Message to the customer (optional)</label><input id="ful-note" class="modal-input" placeholder="${to === 'Cancelled' ? 'e.g. Item is out of stock, refund on the way' : 'e.g. Expect delivery between 2pm and 5pm'}" maxlength="500"></div>
+    ${emailLine}
+    <div class="modal-error" id="ful-error"></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Back</button>
+      <button class="modal-btn ${to === 'Cancelled' ? 'modal-btn-danger' : 'modal-btn-primary'}" id="ful-confirm" onclick="fulConfirmMove('${id}','${to}')">${to === 'Cancelled' ? 'Cancel order' : 'Confirm'}</button>
+    </div>`);
+}
+
+async function fulConfirmMove(id, to) {
+  const errorEl = document.getElementById('ful-error');
+  const btn = document.getElementById('ful-confirm');
+  const notifyEl = document.getElementById('ful-notify');
+  const body = {
+    status: to,
+    note: document.getElementById('ful-note').value.trim() || undefined,
+    courier: document.getElementById('ful-courier')?.value.trim() || undefined,
+    trackingNumber: document.getElementById('ful-tracking')?.value.trim() || undefined,
+    notify: notifyEl && notifyEl.type === 'checkbox' ? notifyEl.checked : false,
+  };
+  btn.disabled = true; errorEl.textContent = '';
+  try {
+    const res = await apiFetch(`${API_BASE}/api/fulfilment/${id}/status`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Request failed');
+    closeModal();
+    const e = data.email || {};
+    let msg = `${id} → ${fulStageName(to, fulFindOrder(id)?.isPickup)}`;
+    if (e.sent) msg += ' · customer emailed';
+    else if (e.attempted && e.reason === 'not_configured') msg += ' · email not sent (Mailgun not set up)';
+    else if (e.attempted && e.reason === 'send_failed') msg += ' · email failed to send';
+    else if (e.attempted && e.reason === 'no_email') msg += ' · no email on file';
+    showSuccessBurst(msg);
+    loadFulfilment(); updateOrdersBadge(); window._ordersDone = false; // Orders tab reloads next visit
+  } catch (err) {
+    errorEl.textContent = err.message; btn.disabled = false;
+  }
+}
+
+// ---- timeline ----
+async function fulShowHistory(id) {
+  openModal(`<div class="modal-title">${id} — timeline</div><div class="modal-sub">Loading…</div>`);
+  try {
+    const res = await apiFetch(`${API_BASE}/api/fulfilment/${id}/history`);
+    const hist = await res.json();
+    if (!res.ok) throw new Error(hist.error || 'Request failed');
+    const o = fulFindOrder(id);
+    const rows = [`<div class="modal-list-row"><span><strong>Order placed</strong></span><span style="color:#6B7280;font-size:12px">${o ? new Date(o.createdAt).toLocaleString('en-GB') : ''}</span></div>`]
+      .concat(hist.map(h => `<div class="modal-list-row" style="align-items:flex-start"><span><strong>${fulEsc(fulStageName(h.to, o && o.isPickup))}</strong>
+        ${h.note ? `<div style="font-size:12px;color:#6B7280">“${fulEsc(h.note)}”</div>` : ''}
+        <div style="font-size:11px;color:${h.customerNotified ? '#059669' : '#9CA3AF'}">${h.customerNotified ? '✓ customer emailed' : 'customer not emailed'}</div></span>
+        <span style="color:#6B7280;font-size:12px;white-space:nowrap">${new Date(h.at).toLocaleString('en-GB')}</span></div>`));
+    openModal(`<div class="modal-title">${id} — timeline</div><div class="modal-sub">Every status change, and whether the customer was emailed.</div>${rows.join('')}
+      <div class="modal-actions"><button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button></div>`);
+  } catch (err) {
+    openModal(`<div class="modal-title">${id} — timeline</div><div class="modal-error">${fulEsc(err.message)}</div><div class="modal-actions"><button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button></div>`);
+  }
+}
+
 // ================================================================
 // WHATSAPP — incoming message inbox (AI-detected order) + broadcasts
 // ================================================================
@@ -2985,7 +3239,7 @@ async function deleteDeliveryZone(id) {
 }
 
 // --- Payment setup prompt (Dashboard banner) ---
-let paymentBannerDismissed = false;
+var paymentBannerDismissed = false; // var (not let): enterApp() can run before this line on page reload
 async function checkPaymentSetupBanner() {
   if (paymentBannerDismissed) return;
   const banner = document.getElementById('payment-setup-banner');
