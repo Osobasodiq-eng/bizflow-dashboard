@@ -359,7 +359,7 @@ input[type=text]:focus,select:focus{border-color:#4F46E5}
 
       <div id="auth-reset" style="display:none">
         <h2 style="font-size:20px;font-weight:600;color:#1E1B4B;margin-bottom:4px">Choose a new password</h2>
-        <p style="font-size:13px;color:#6B7280;margin-bottom:26px">Paste the reset code you were given, and set a new password</p>
+        <p style="font-size:13px;color:#6B7280;margin-bottom:26px">Open the link we emailed you, or paste your reset code here, and set a new password</p>
         <div style="display:flex;flex-direction:column;gap:16px">
           <div>
             <label class="auth-label">Reset code</label>
@@ -729,7 +729,16 @@ function apiFetch(url, options = {}) {
   const token = localStorage.getItem('bizflow_token');
   const headers = { ...(options.headers || {}) };
   if (token) headers['Authorization'] = `Bearer ${token}`;
-  return fetch(url, { ...options, headers });
+  return fetch(url, { ...options, headers }).then(res => {
+    // Expired/invalid login: clear it and go back to the login screen
+    // instead of leaving every panel silently empty.
+    if (res.status === 401 && token) {
+      ['bizflow_token', 'bizflow_business', 'bizflow_business_id', 'bizflow_email'].forEach(k => localStorage.removeItem(k));
+      alert('Your session has expired. Please log in again.');
+      location.reload();
+    }
+    return res;
+  });
 }
 
 function togglePw(inputId, btn) {
@@ -771,16 +780,12 @@ async function submitForgot() {
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || 'Something went wrong');
 
+    errorEl.textContent = '';
     resultEl.style.display = 'block';
     if (data.devToken) {
-      // Honest limitation: no email service is connected yet, so we show the
-      // reset code directly here instead of it arriving by email.
-      resultEl.innerHTML = `
-        <strong style="color:#1E1B4B">No email service is connected yet</strong>, so here's your reset code directly
-        (this box wouldn't exist in a real production version — you'd get this by email instead):
-        <div style="margin-top:8px;padding:8px;background:#fff;border-radius:6px;font-family:monospace;font-size:11px;word-break:break-all;border:1px solid #E5E7EB">${data.devToken}</div>
-        <button class="auth-btn" style="margin-top:12px;padding:9px" onclick="showReset('${data.devToken}')">Continue to reset password</button>
-      `;
+      // Only present when the server runs with ALLOW_DEV_RESET_TOKEN=true (local development)
+      resultEl.innerHTML = `Dev mode: your reset code is <code style="word-break:break-all">${data.devToken}</code>
+        <button class="auth-btn" style="margin-top:12px;padding:9px" onclick="showReset('${data.devToken}')">Continue to reset password</button>`;
     } else {
       resultEl.textContent = data.message;
     }
@@ -895,7 +900,13 @@ function enterApp() {
 // Otherwise show the login screen. We don't deeply verify the token here —
 // if it's expired/invalid, the first API call will 401 and we could add a
 // redirect-to-login on 401 later; keeping this simple for now.
-if (localStorage.getItem('bizflow_token')) {
+const _resetParam = new URLSearchParams(window.location.search).get('reset');
+if (_resetParam) {
+  // Opened from the password-reset email: go straight to "set a new password"
+  document.getElementById('auth-screen').style.display = 'flex';
+  showReset(_resetParam);
+  history.replaceState({}, '', window.location.pathname); // keep the token out of the address bar/history
+} else if (localStorage.getItem('bizflow_token')) {
   enterApp();
 } else {
   document.getElementById('auth-screen').style.display = 'flex';
