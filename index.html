@@ -274,6 +274,27 @@ input[type=text]:focus,select:focus{border-color:#4F46E5}
 .ful-empty{font-size:11px;color:var(--color-text-secondary);text-align:center;padding:14px 0}
 .ful-done-title{font-size:11px;font-weight:600;color:#6B7280;margin:12px 0 6px;text-transform:uppercase;letter-spacing:.5px}
 @media(max-width:900px){.ful-board{grid-template-columns:repeat(4,240px)}}
+
+/* Marketing */
+.mk-tabs{display:flex;gap:6px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.mk-tab{border:none;background:transparent;font-size:13px;font-weight:500;color:var(--color-text-secondary);padding:8px 14px;border-radius:8px;cursor:pointer;font-family:var(--font-sans)}
+.mk-tab:hover{background:#F3F4F6}
+.mk-tab.on{background:#EEF2FF;color:#3730A3;font-weight:600}
+.mk-warn{background:#FEF3C7;color:#92400E;border-radius:10px;padding:10px 14px;font-size:12.5px;margin-bottom:14px;line-height:1.5}
+.mk-empty{padding:18px;text-align:center;color:var(--color-text-secondary);font-size:12px}
+.mk-seg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.mk-seg{border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:14px;background:#fff}
+.mk-seg-name{font-weight:600;font-size:13px;color:#111827}
+.mk-seg-desc{font-size:11px;color:var(--color-text-secondary);margin:2px 0 10px;min-height:28px}
+.mk-seg-num{font-size:24px;font-weight:600;color:#111827}
+.mk-seg-sub{font-size:11px;color:var(--color-text-secondary)}
+.mk-bar{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:0.5px solid var(--color-border-tertiary)}
+.mk-bar:first-child{border-top:none}
+.mk-bar-label{width:84px;font-size:13px;font-weight:500}
+.mk-bar-track{flex:1;height:8px;background:#F3F4F6;border-radius:6px;overflow:hidden}
+.mk-bar-fill{height:100%;background:#6366F1;border-radius:6px}
+.mk-bar-val{width:150px;text-align:right;font-size:12px;color:var(--color-text-secondary)}
+textarea.modal-input{resize:vertical;min-height:130px;line-height:1.5}
 </style>
 </head>
 <body>
@@ -430,6 +451,10 @@ input[type=text]:focus,select:focus{border-color:#4F46E5}
       <div class="s-item" onclick="showStorefrontHub()"><i class="ti ti-building-store" aria-hidden="true"></i> Storefront</div>
       <div class="s-item" onclick="showPaymentSettings()"><i class="ti ti-building-bank" aria-hidden="true"></i> Payment settings</div>
       <div class="s-item" onclick="showDeliveryZones()"><i class="ti ti-map-pin" aria-hidden="true"></i> Delivery zones</div>
+      <div class="s-section">MARKETING</div>
+      <div class="s-item" id="s-nav-marketing" onclick="go('marketing',this)"><i class="ti ti-speakerphone" aria-hidden="true"></i> Marketing</div>
+      <div class="s-item" style="opacity:0.45;cursor:default" title="Needs a connected WhatsApp / Instagram account"><i class="ti ti-inbox" aria-hidden="true"></i> Inbox <span class="badge">Soon</span></div>
+      <div class="s-item" style="opacity:0.45;cursor:default"><i class="ti ti-calendar-event" aria-hidden="true"></i> Content calendar <span class="badge">Soon</span></div>
       <div class="s-section">GROWTH</div>
       <div class="s-item" style="opacity:0.45;cursor:default"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i> WhatsApp <span class="badge">Soon</span></div>
       <div class="s-item" style="opacity:0.45;cursor:default"><i class="ti ti-chart-line" aria-hidden="true"></i> Analytics <span class="badge">Soon</span></div>
@@ -699,6 +724,62 @@ input[type=text]:focus,select:focus{border-color:#4F46E5}
         </div>
       </div>
 
+      <div id="p-marketing" class="panel">
+        <div class="mk-tabs" id="mk-tabs">
+          <button class="mk-tab on" data-tab="overview" onclick="mkShowTab('overview')">Overview</button>
+          <button class="mk-tab" data-tab="campaigns" onclick="mkShowTab('campaigns')">Campaigns</button>
+          <button class="mk-tab" data-tab="segments" onclick="mkShowTab('segments')">Segments</button>
+          <button class="mk-tab" data-tab="analytics" onclick="mkShowTab('analytics')">Analytics</button>
+          <span style="flex:1"></span>
+          <button class="btn btn-g" style="font-size:12px" onclick="mkOpenEditor()"><i class="ti ti-plus" style="font-size:12px" aria-hidden="true"></i> New campaign</button>
+        </div>
+
+        <div id="mk-view-overview" class="mk-view">
+          <div id="mk-email-warning" style="display:none" class="mk-warn"><i class="ti ti-alert-triangle" aria-hidden="true"></i> Email sending isn't set up on the server yet. Add <strong>MAILGUN_API_KEY</strong> and <strong>MAILGUN_DOMAIN</strong> in your API's environment settings, then campaigns can be sent.</div>
+          <div class="kpi-row">
+            <div class="kpi"><div class="kpi-label">Reachable by email</div><div class="kpi-val" id="mk-kpi-reach">—</div><div class="kpi-foot" style="color:var(--color-text-secondary)" id="mk-kpi-reach-foot">Loading…</div></div>
+            <div class="kpi"><div class="kpi-label">Emails sent (30d)</div><div class="kpi-val" id="mk-kpi-sent">—</div><div class="kpi-foot" style="color:var(--color-text-secondary)" id="mk-kpi-sent-foot">&nbsp;</div></div>
+            <div class="kpi"><div class="kpi-label">Orders from campaigns (30d)</div><div class="kpi-val" id="mk-kpi-orders">—</div><div class="kpi-foot" style="color:var(--color-text-secondary)">Via “Shop now” links</div></div>
+            <div class="kpi"><div class="kpi-label">Revenue attributed (30d)</div><div class="kpi-val" id="mk-kpi-rev">—</div><div class="kpi-foot up">Paid orders only</div></div>
+          </div>
+          <div class="card" style="margin-bottom:14px">
+            <div class="card-head"><div class="card-title">Recent campaigns</div><button class="btn" style="font-size:12px" onclick="mkShowTab('campaigns')">See all</button></div>
+            <div id="mk-recent"><div class="mk-empty">Loading…</div></div>
+          </div>
+          <div class="card" style="background:#F9FAFB">
+            <div class="card-head"><div class="card-title">Coming next</div></div>
+            <div style="font-size:12.5px;color:var(--color-text-secondary);line-height:1.7">
+              <strong style="color:#111827">WhatsApp &amp; Instagram messaging</strong>, a shared <strong style="color:#111827">inbox</strong>, and a <strong style="color:#111827">content calendar</strong> need your WhatsApp Business and Instagram accounts connected through Meta (approval takes days to weeks). Email campaigns, segments and sales tracking above work today.
+            </div>
+          </div>
+        </div>
+
+        <div id="mk-view-campaigns" class="mk-view" style="display:none">
+          <div class="card">
+            <div class="card-head"><div class="card-title">All campaigns</div></div>
+            <div id="mk-campaigns"><div class="mk-empty">Loading…</div></div>
+          </div>
+        </div>
+
+        <div id="mk-view-segments" class="mk-view" style="display:none">
+          <div class="card">
+            <div class="card-head"><div class="card-title">Customer segments</div><span style="font-size:11px;color:var(--color-text-secondary)">Updated live from your orders</span></div>
+            <div id="mk-segments" class="mk-seg-grid"><div class="mk-empty">Loading…</div></div>
+          </div>
+        </div>
+
+        <div id="mk-view-analytics" class="mk-view" style="display:none">
+          <div class="card" style="margin-bottom:14px">
+            <div class="card-head"><div class="card-title">Revenue by channel</div><span style="font-size:11px;color:var(--color-text-secondary)">Paid orders placed through a campaign's “Shop now” button</span></div>
+            <div id="mk-channels"><div class="mk-empty">Loading…</div></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Campaign performance</div></div>
+            <div id="mk-perf"><div class="mk-empty">Loading…</div></div>
+          </div>
+        </div>
+      </div>
+
       <div id="p-whatsapp" class="panel">
         <div class="row2b">
           <div class="card">
@@ -729,13 +810,14 @@ function go(name, el) {
   const p = document.getElementById('p-' + name);
   if (p) p.classList.add('on');
   if (el) el.classList.add('on');
-  const titles = {dashboard:'Dashboard',orders:'Orders',customers:'Customers',inventory:'Inventory',payments:'Payments',expenses:'Expenses',fulfilment:'Fulfilment',whatsapp:'WhatsApp'};
+  const titles = {dashboard:'Dashboard',orders:'Orders',customers:'Customers',inventory:'Inventory',payments:'Payments',expenses:'Expenses',fulfilment:'Fulfilment',marketing:'Marketing',whatsapp:'WhatsApp'};
   document.getElementById('pg-title').textContent = titles[name] || name;
   if (name === 'orders' && !window._ordersDone) { loadOrders(); window._ordersDone = true; }
   if (name === 'customers' && !window._custDone) { loadCustomers(); window._custDone = true; }
   if (name === 'inventory' && !window._invDone) { loadInventory(); window._invDone = true; }
   if (name === 'payments' && !window._payDone) { loadPayments(); window._payDone = true; }
   if (name === 'expenses' && !window._expDone) { loadExpenses(); window._expDone = true; }
+  if (name === 'marketing') { mkShowTab(window._mkTab || 'overview'); }
   if (name === 'fulfilment') { loadFulfilment(); } // always refresh: the board changes outside this page too
   if (name === 'whatsapp' && !window._waDone) { loadWhatsapp(); window._waDone = true; }
   closeMobileMenu(); // picking a page on a phone should close the drawer, not leave it open
@@ -2446,6 +2528,252 @@ async function fulShowHistory(id) {
   } catch (err) {
     openModal(`<div class="modal-title">${id} — timeline</div><div class="modal-error">${fulEsc(err.message)}</div><div class="modal-actions"><button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button></div>`);
   }
+}
+
+
+// ================================================================
+// MARKETING — email campaigns to live customer segments, with sales tracking
+// ================================================================
+let _mkSegments = [];
+let _mkPoll = null;
+
+function mkEsc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function mkDate(iso) { return iso ? new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—'; }
+async function mkApi(path, options) {
+  const res = await apiFetch(`${API_BASE}/api/marketing${path}`, options);
+  if (res.status === 204) return null;
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+function mkPost(path, body) { return mkApi(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) }); }
+
+function mkShowTab(tab) {
+  window._mkTab = tab;
+  document.querySelectorAll('.mk-tab').forEach(t => t.classList.toggle('on', t.dataset.tab === tab));
+  document.querySelectorAll('.mk-view').forEach(v => v.style.display = v.id === 'mk-view-' + tab ? 'block' : 'none');
+  clearTimeout(_mkPoll);
+  if (tab === 'overview') mkLoadOverview();
+  if (tab === 'campaigns') mkLoadCampaigns();
+  if (tab === 'segments') mkLoadSegments();
+  if (tab === 'analytics') mkLoadAnalytics();
+}
+
+function mkStatusPill(c) {
+  const map = { draft: ['p-gray', 'Draft'], scheduled: ['p-amber', 'Scheduled'], sending: ['p-blue', 'Sending…'], sent: ['p-green', 'Sent'], failed: ['p-red', 'Failed'] };
+  const [cls, label] = map[c.status] || ['p-gray', c.status];
+  return `<span class="pill ${cls}">${label}</span>`;
+}
+
+function mkCampaignsTable(list, { actions }) {
+  if (!list.length) return `<div class="mk-empty">No campaigns yet. Click “New campaign” to send your first email.</div>`;
+  return `<table><thead><tr><th>Campaign</th><th>Audience</th><th>Status</th><th>Sent</th><th>Orders</th><th>Revenue</th><th>When</th>${actions ? '<th></th>' : ''}</tr></thead><tbody>` +
+    list.map(c => `<tr>
+      <td><div style="font-weight:600;color:#111827">${mkEsc(c.name)}</div><div style="font-size:11px;color:var(--color-text-secondary)">${mkEsc(c.subject)}</div></td>
+      <td>${mkEsc(c.segmentLabel)}</td>
+      <td>${mkStatusPill(c)}</td>
+      <td>${c.status === 'draft' || c.status === 'scheduled' ? '—' : `${c.sentCount}/${c.recipientCount}${c.failedCount ? ` <span style="color:#DC2626">(${c.failedCount} failed)</span>` : ''}`}</td>
+      <td>${c.orders || '—'}</td>
+      <td>${c.revenue ? naira(c.revenue) : '—'}</td>
+      <td style="font-size:11px;color:var(--color-text-secondary)">${c.status === 'scheduled' ? mkDate(c.scheduledAt) : mkDate(c.sentAt || c.createdAt)}</td>
+      ${actions ? `<td style="white-space:nowrap;text-align:right">
+        ${c.status === 'draft' || c.status === 'scheduled' ? `<button class="btn" style="font-size:11px" onclick="mkOpenEditor(${c.id})">Edit</button>` : `<button class="btn" style="font-size:11px" onclick="mkViewCampaign(${c.id})">Details</button>`}
+        ${c.status !== 'sending' ? `<button class="btn" style="font-size:11px;color:#DC2626" onclick="mkDeleteCampaign(${c.id})" title="Delete">✕</button>` : ''}
+      </td>` : ''}
+    </tr>`).join('') + '</tbody></table>';
+}
+
+async function mkLoadOverview() {
+  try {
+    const o = await mkApi('/overview');
+    document.getElementById('mk-email-warning').style.display = o.emailConfigured ? 'none' : 'block';
+    document.getElementById('mk-kpi-reach').textContent = o.reachableCustomers;
+    document.getElementById('mk-kpi-reach-foot').textContent = `of ${o.totalCustomers} customers have an email`;
+    document.getElementById('mk-kpi-sent').textContent = o.emailsSent30d;
+    document.getElementById('mk-kpi-sent-foot').textContent = `${o.campaignsSent} campaign${o.campaignsSent === 1 ? '' : 's'} sent · ${o.campaignsScheduled} scheduled`;
+    document.getElementById('mk-kpi-orders').textContent = o.ordersAttributed30d;
+    document.getElementById('mk-kpi-rev').textContent = naira(o.revenueAttributed30d);
+    document.getElementById('mk-recent').innerHTML = mkCampaignsTable(o.recentCampaigns, { actions: false });
+  } catch (err) {
+    document.getElementById('mk-recent').innerHTML = `<div class="mk-empty" style="color:#DC2626">Could not load marketing overview: ${mkEsc(err.message)}</div>`;
+  }
+}
+
+async function mkLoadCampaigns() {
+  const box = document.getElementById('mk-campaigns');
+  try {
+    const list = await mkApi('/campaigns');
+    box.innerHTML = mkCampaignsTable(list, { actions: true });
+    // while anything is mid-send, keep the numbers fresh
+    if (list.some(c => c.status === 'sending') && window._mkTab === 'campaigns') _mkPoll = setTimeout(mkLoadCampaigns, 4000);
+  } catch (err) {
+    box.innerHTML = `<div class="mk-empty" style="color:#DC2626">Could not load campaigns: ${mkEsc(err.message)}</div>`;
+  }
+}
+
+async function mkLoadSegments() {
+  const box = document.getElementById('mk-segments');
+  try {
+    _mkSegments = await mkApi('/segments');
+    box.innerHTML = _mkSegments.map(s => `<div class="mk-seg">
+      <div class="mk-seg-name">${mkEsc(s.label)}</div>
+      <div class="mk-seg-desc">${mkEsc(s.description)}</div>
+      <div class="mk-seg-num">${s.total}</div>
+      <div class="mk-seg-sub">${s.reachable} reachable by email</div>
+      <div style="display:flex;gap:6px;margin-top:10px">
+        <button class="btn" style="font-size:11px" onclick="mkViewSegment('${s.key}')">View</button>
+        <button class="btn btn-g" style="font-size:11px" ${s.reachable ? '' : 'disabled title="No one here has an email address"'} onclick="mkOpenEditor(null,'${s.key}')">Email them</button>
+      </div></div>`).join('');
+  } catch (err) {
+    box.innerHTML = `<div class="mk-empty" style="color:#DC2626">Could not load segments: ${mkEsc(err.message)}</div>`;
+  }
+}
+
+async function mkViewSegment(key) {
+  const seg = _mkSegments.find(s => s.key === key);
+  openModal(`<div class="modal-title">${mkEsc(seg.label)}</div><div class="modal-sub">Loading…</div>`);
+  try {
+    const data = await mkApi(`/segments/${key}/customers`);
+    const rows = data.customers.map(c => `<div class="modal-list-row" style="align-items:flex-start">
+      <span><strong>${mkEsc(c.name)}</strong><div style="font-size:11px;color:#6B7280">${c.email ? mkEsc(c.email) : '<span style="color:#B45309">no email</span>'}${c.optedOut ? ' · <span style="color:#DC2626">unsubscribed</span>' : ''}</div></span>
+      <span style="text-align:right;font-size:12px;color:#6B7280">${mkEsc(c.tag)}<div>${naira(c.spend)}</div></span></div>`).join('');
+    openModal(`<div class="modal-title">${mkEsc(seg.label)}</div>
+      <div class="modal-sub">${data.total} customer${data.total === 1 ? '' : 's'}${data.total > 200 ? ' (showing the first 200)' : ''} · ${seg.reachable} can be emailed</div>
+      ${rows || '<div class="mk-empty">No one is in this segment right now.</div>'}
+      <div class="modal-actions"><button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button></div>`);
+  } catch (err) {
+    openModal(`<div class="modal-title">${mkEsc(seg.label)}</div><div class="modal-error">${mkEsc(err.message)}</div><div class="modal-actions"><button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button></div>`);
+  }
+}
+
+async function mkLoadAnalytics() {
+  try {
+    const a = await mkApi('/analytics');
+    const max = Math.max(1, ...a.channels.map(c => c.revenue));
+    document.getElementById('mk-channels').innerHTML = a.channels.map(c => c.available
+      ? `<div class="mk-bar"><span class="mk-bar-label">${c.channel}</span><div class="mk-bar-track"><div class="mk-bar-fill" style="width:${Math.round(c.revenue / max * 100)}%"></div></div><span class="mk-bar-val">${naira(c.revenue)} · ${c.orders} order${c.orders === 1 ? '' : 's'}</span></div>`
+      : `<div class="mk-bar" style="opacity:.5"><span class="mk-bar-label">${c.channel}</span><div class="mk-bar-track"></div><span class="mk-bar-val">Coming soon</span></div>`).join('');
+    document.getElementById('mk-perf').innerHTML = a.campaigns.length
+      ? `<table><thead><tr><th>Campaign</th><th>Emails sent</th><th>Orders</th><th>Revenue</th><th>Revenue per email</th></tr></thead><tbody>` +
+        a.campaigns.map(c => `<tr><td style="font-weight:600">${mkEsc(c.name)}</td><td>${c.sentCount}</td><td>${c.orders}</td><td>${naira(c.revenue)}</td><td>${c.sentCount ? naira(Math.round(c.revenue / c.sentCount)) : '—'}</td></tr>`).join('') + '</tbody></table>'
+      : `<div class="mk-empty">Send a campaign and its results will show up here.</div>`;
+  } catch (err) {
+    document.getElementById('mk-perf').innerHTML = `<div class="mk-empty" style="color:#DC2626">Could not load analytics: ${mkEsc(err.message)}</div>`;
+  }
+}
+
+async function mkViewCampaign(id) {
+  openModal(`<div class="modal-title">Campaign</div><div class="modal-sub">Loading…</div>`);
+  try {
+    const c = await mkApi(`/campaigns/${id}`);
+    const fails = c.failures.length ? `<div class="modal-divider"></div><div class="modal-label">Why some didn't send</div>` +
+      c.failures.map(f => `<div style="font-size:11.5px;color:#991B1B;margin-bottom:6px"><strong>${mkEsc(f.email)}</strong> — ${mkEsc(f.error || 'failed')}</div>`).join('') +
+      `<div style="font-size:11px;color:#6B7280">On Mailgun's free sandbox, only email addresses you've authorised as recipients can receive mail.</div>` : '';
+    openModal(`<div class="modal-title">${mkEsc(c.name)} ${mkStatusPill(c)}</div>
+      <div class="modal-sub">To: ${mkEsc(c.segmentLabel)} · ${mkDate(c.sentAt || c.createdAt)}</div>
+      <div class="modal-info-box"><strong>Subject:</strong> ${mkEsc(c.subject)}<br><div style="white-space:pre-wrap;margin-top:6px">${mkEsc(c.body)}</div></div>
+      <div class="modal-list-row"><span>Delivered to</span><strong>${c.sentCount} of ${c.recipientCount}</strong></div>
+      <div class="modal-list-row"><span>Orders from this campaign</span><strong>${c.orders}</strong></div>
+      <div class="modal-list-row"><span>Revenue (paid)</span><strong>${naira(c.revenue)}</strong></div>
+      ${fails}
+      <div class="modal-actions"><button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button></div>`);
+  } catch (err) {
+    openModal(`<div class="modal-title">Campaign</div><div class="modal-error">${mkEsc(err.message)}</div><div class="modal-actions"><button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button></div>`);
+  }
+}
+
+async function mkDeleteCampaign(id) {
+  if (!confirm('Delete this campaign? Its results will be removed too. Emails already sent can\'t be recalled.')) return;
+  try { await mkApi(`/campaigns/${id}`, { method: 'DELETE' }); mkShowTab(window._mkTab); } catch (err) { alert(err.message); }
+}
+
+// ---- campaign editor ----
+let _mkEditingId = null;
+async function mkOpenEditor(id, presetSegment) {
+  _mkEditingId = id || null;
+  openModal(`<div class="modal-title">${id ? 'Edit campaign' : 'New email campaign'}</div><div class="modal-sub">Loading…</div>`);
+  try {
+    const [segments, existing] = await Promise.all([mkApi('/segments'), id ? mkApi(`/campaigns/${id}`) : null]);
+    _mkSegments = segments;
+    const c = existing || { name: '', segment: presetSegment || 'all', subject: '', body: '', status: 'draft' };
+    const minTime = new Date(Date.now() + 5 * 60000 - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    openModal(`
+      <div class="modal-title">${id ? 'Edit campaign' : 'New email campaign'}</div>
+      <div class="modal-sub">Sent by email to customers who have an address. Everyone gets an unsubscribe link.</div>
+      <div class="modal-field"><label class="modal-label">Campaign name (only you see this)</label><input id="mk-name" class="modal-input" maxlength="100" placeholder="e.g. Weekend sale" value="${mkEsc(c.name)}"></div>
+      <div class="modal-field"><label class="modal-label">Who should get it?</label>
+        <select id="mk-segment" class="modal-select" onchange="mkUpdateReach()">${segments.map(s => `<option value="${s.key}" ${s.key === c.segment ? 'selected' : ''}>${mkEsc(s.label)} — ${s.reachable} with email</option>`).join('')}</select>
+        <div id="mk-reach" style="font-size:11px;color:#6B7280;margin-top:5px"></div></div>
+      <div class="modal-field"><label class="modal-label">Subject</label><input id="mk-subject" class="modal-input" maxlength="150" placeholder="e.g. {{first_name}}, new arrivals just landed" value="${mkEsc(c.subject)}"></div>
+      <div class="modal-field"><label class="modal-label">Message</label><textarea id="mk-body" class="modal-input" maxlength="5000" placeholder="Hi {{first_name}},&#10;&#10;We just restocked your favourites…">${mkEsc(c.body)}</textarea>
+        <div style="font-size:11px;color:#6B7280;margin-top:5px">Personalise with <code>{{first_name}}</code>. A “Shop now” button to your store is added automatically.</div></div>
+      <div class="modal-error" id="mk-error"></div>
+      <div class="modal-row">
+        <button class="modal-btn modal-btn-secondary" id="mk-test-btn" onclick="mkSendTest()">Send test to me</button>
+        <button class="modal-btn modal-btn-secondary" id="mk-save-btn" onclick="mkSaveDraft()">Save draft</button>
+      </div>
+      <div class="modal-divider"></div>
+      <button class="modal-btn modal-btn-primary" style="width:100%" id="mk-send-btn" onclick="mkSendNow()">Send now</button>
+      <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
+        <span style="font-size:12px;color:#6B7280;white-space:nowrap">or schedule</span>
+        <input type="datetime-local" id="mk-when" class="modal-input" min="${minTime}" value="${c.scheduledAt ? new Date(new Date(c.scheduledAt).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''}">
+        <button class="modal-btn modal-btn-secondary" style="flex:none;padding:10px 14px" id="mk-sched-btn" onclick="mkSchedule()">Schedule</button>
+      </div>
+      <div style="font-size:10.5px;color:#9CA3AF;margin-top:6px">Scheduled campaigns go out within a minute of the chosen time while your server is awake.</div>
+      <div class="modal-actions" style="margin-top:12px"><button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button></div>`);
+    mkUpdateReach();
+  } catch (err) {
+    openModal(`<div class="modal-title">Campaign</div><div class="modal-error">${mkEsc(err.message)}</div><div class="modal-actions"><button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button></div>`);
+  }
+}
+function mkUpdateReach() {
+  const s = _mkSegments.find(x => x.key === document.getElementById('mk-segment').value);
+  if (s) document.getElementById('mk-reach').textContent = `${s.reachable} of ${s.total} customers can be emailed (have an address and haven't unsubscribed).`;
+}
+function mkFields() {
+  return {
+    name: document.getElementById('mk-name').value.trim(), segment: document.getElementById('mk-segment').value,
+    subject: document.getElementById('mk-subject').value.trim(), body: document.getElementById('mk-body').value.trim(),
+  };
+}
+function mkBusy(on) { ['mk-test-btn', 'mk-save-btn', 'mk-send-btn', 'mk-sched-btn'].forEach(id => { const b = document.getElementById(id); if (b) b.disabled = on; }); }
+async function mkSave() {
+  const f = mkFields();
+  const saved = _mkEditingId ? await mkApi(`/campaigns/${_mkEditingId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(f) }) : await mkPost('/campaigns', f);
+  _mkEditingId = saved.id;
+  return saved;
+}
+async function mkRun(fn) {
+  const err = document.getElementById('mk-error'); err.textContent = ''; err.style.color = ''; mkBusy(true);
+  try { await fn(); } catch (e) { err.textContent = e.message; mkBusy(false); }
+}
+function mkSaveDraft() { mkRun(async () => { await mkSave(); closeModal(); showSuccessBurst('Draft saved'); mkShowTab(window._mkTab); }); }
+function mkSendTest() {
+  mkRun(async () => {
+    const f = mkFields();
+    const r = await mkPost('/test', { subject: f.subject, body: f.body });
+    mkBusy(false); document.getElementById('mk-error').style.color = '#059669'; document.getElementById('mk-error').textContent = `Test sent to ${r.sentTo} — check your inbox (and spam).`;
+  });
+}
+function mkSendNow() {
+  mkRun(async () => {
+    const f = mkFields();
+    const seg = _mkSegments.find(s => s.key === f.segment);
+    if (!confirm(`Send “${f.name || 'this campaign'}” now to ${seg ? seg.reachable : 'the selected'} customer${seg && seg.reachable === 1 ? '' : 's'}? This can't be undone.`)) { mkBusy(false); return; }
+    const saved = await mkSave();
+    const r = await mkPost(`/campaigns/${saved.id}/send`);
+    closeModal(); showSuccessBurst(`Sending to ${r.recipientCount} customer${r.recipientCount === 1 ? '' : 's'}…`);
+    mkShowTab('campaigns');
+  });
+}
+function mkSchedule() {
+  mkRun(async () => {
+    const when = document.getElementById('mk-when').value;
+    if (!when) throw new Error('Pick a date and time first.');
+    const saved = await mkSave();
+    await mkPost(`/campaigns/${saved.id}/schedule`, { scheduledAt: new Date(when).toISOString() });
+    closeModal(); showSuccessBurst('Campaign scheduled'); mkShowTab('campaigns');
+  });
 }
 
 // ================================================================
