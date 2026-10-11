@@ -289,6 +289,35 @@ input[type=text]:focus,select:focus{border-color:#4F46E5}
 .mk-switch:disabled{opacity:.5;cursor:wait}
 .mk-auto-stats{display:flex;flex-wrap:wrap;gap:18px;margin-top:14px;padding-top:12px;border-top:1px solid #F3F4F6;font-size:12px;color:var(--color-text-secondary)}
 .mk-auto-stats strong{display:block;font-size:15px;color:#111827}
+.ib-wrap{display:grid;grid-template-columns:minmax(300px,420px) 1fr;gap:14px;align-items:start}
+.ib-list,.ib-thread{background:#fff;border:0.5px solid var(--color-border-tertiary);border-radius:14px;overflow:hidden}
+.ib-list-head{display:flex;justify-content:space-between;align-items:center;padding:14px 16px 8px;gap:8px}
+.ib-filters{display:flex;gap:6px;flex-wrap:wrap;padding:0 16px 10px}
+.ib-chip{border:none;background:#F3F4F6;color:#374151;font-size:12px;padding:5px 11px;border-radius:14px;cursor:pointer;font-family:var(--font-sans)}
+.ib-chip.on{background:#EEF2FF;color:#3730A3;font-weight:600}
+.ib-rows{max-height:calc(100vh - 290px);min-height:260px;overflow:auto}
+.ib-row{display:flex;gap:12px;padding:12px 16px;border-top:1px solid #F3F4F6;cursor:pointer;position:relative}
+.ib-row:hover{background:#F9FAFB}.ib-row.sel{background:#EEF2FF}
+.ib-av{width:38px;height:38px;border-radius:50%;background:#E0E7FF;color:#3730A3;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex:none}
+.ib-name{font-size:13.5px;font-weight:600;color:#111827;display:flex;justify-content:space-between;gap:8px}
+.ib-name small{font-weight:400;color:#6B7280;font-size:11px;white-space:nowrap}
+.ib-prev{font-size:12.5px;color:#4B5563;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px}
+.ib-row.unread .ib-prev{color:#111827;font-weight:600}
+.ib-dot{width:8px;height:8px;border-radius:50%;background:#4F46E5;position:absolute;left:5px;top:24px}
+.ib-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.ib-tag{font-size:10.5px;padding:2px 8px;border-radius:10px;background:#F3F4F6;color:#374151}
+.ib-tag.t-new{background:#DCFCE7;color:#166534}.ib-tag.t-vip{background:#FEF3C7;color:#92400E}.ib-tag.t-ch{background:#EEF2FF;color:#3730A3}
+.ib-th-head{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #F3F4F6}
+.ib-msgs{padding:16px;display:flex;flex-direction:column;gap:8px;max-height:calc(100vh - 400px);min-height:220px;overflow:auto;background:#FAFAFB}
+.ib-msg{max-width:78%;padding:9px 12px;border-radius:12px;font-size:13px;line-height:1.5;white-space:pre-wrap;word-break:break-word}
+.ib-msg.in{background:#fff;border:1px solid #E5E7EB;align-self:flex-start}
+.ib-msg.out{background:#4F46E5;color:#fff;align-self:flex-end}
+.ib-msg.failed{background:#FEE2E2;color:#991B1B}
+.ib-msg small{display:block;font-size:10px;opacity:.7;margin-top:3px}
+.ib-reply{display:flex;gap:8px;padding:12px 16px;border-top:1px solid #F3F4F6;align-items:flex-end}
+.ib-reply textarea{flex:1;border:1px solid #E5E7EB;border-radius:10px;padding:9px 11px;font:13px var(--font-sans);resize:none;min-height:42px;max-height:140px}
+.ib-back{display:none}
+@media(max-width:860px){.ib-wrap{grid-template-columns:1fr}.ib-wrap.open-thread .ib-list{display:none}.ib-wrap:not(.open-thread) .ib-thread{display:none}.ib-back{display:inline-flex}}
 .cc-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
 .cc-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
 .cc-dow{font-size:11px;font-weight:600;color:var(--color-text-secondary);text-align:center;padding:4px 0}
@@ -471,7 +500,7 @@ textarea.modal-input{resize:vertical;min-height:130px;line-height:1.5}
       <div class="s-item" onclick="showDeliveryZones()"><i class="ti ti-map-pin" aria-hidden="true"></i> Delivery zones</div>
       <div class="s-section">MARKETING</div>
       <div class="s-item" id="s-nav-marketing" onclick="go('marketing',this)"><i class="ti ti-speakerphone" aria-hidden="true"></i> Marketing</div>
-      <div class="s-item" style="opacity:0.45;cursor:default" title="Needs a connected WhatsApp / Instagram account"><i class="ti ti-inbox" aria-hidden="true"></i> Inbox <span class="badge">Soon</span></div>
+      <div class="s-item" id="s-nav-inbox" onclick="go('inbox',this)"><i class="ti ti-inbox" aria-hidden="true"></i> Inbox <span class="badge" id="s-badge-inbox" style="background:rgba(99,102,241,0.35);color:#fff;display:none">0</span></div>
       <div class="s-item" id="s-nav-content" onclick="go('content',this)"><i class="ti ti-calendar-event" aria-hidden="true"></i> Content calendar</div>
       <div class="s-section">GROWTH</div>
       <div class="s-item" style="opacity:0.45;cursor:default"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i> WhatsApp <span class="badge">Soon</span></div>
@@ -742,6 +771,20 @@ textarea.modal-input{resize:vertical;min-height:130px;line-height:1.5}
         </div>
       </div>
 
+      <div id="p-inbox" class="panel">
+        <div id="ib-warn" style="display:none" class="mk-warn"></div>
+        <div class="ib-wrap" id="ib-wrap">
+          <div class="ib-list">
+            <div class="ib-list-head"><div><div style="font-size:15px;font-weight:600">All conversations</div><div style="font-size:11.5px;color:var(--color-text-secondary)" id="ib-sub">Loading…</div></div>
+              <button class="btn" style="font-size:12px" onclick="ibChannels()">Channels</button></div>
+            <div style="padding:0 16px 8px"><input id="ib-q" class="modal-input" placeholder="Search name, email or message" oninput="ibSearchSoon()" style="padding:8px 11px;font-size:12.5px"></div>
+            <div class="ib-filters" id="ib-filters"></div>
+            <div class="ib-rows" id="ib-rows"><div class="mk-empty">Loading…</div></div>
+          </div>
+          <div class="ib-thread" id="ib-thread"><div class="mk-empty" style="padding:70px 20px">Select a conversation to read and reply.</div></div>
+        </div>
+      </div>
+
       <div id="p-content" class="panel">
         <div class="cc-head">
           <button class="btn" onclick="ccMove(-1)" aria-label="Previous month"><i class="ti ti-chevron-left" aria-hidden="true"></i></button>
@@ -849,7 +892,7 @@ function go(name, el) {
   const p = document.getElementById('p-' + name);
   if (p) p.classList.add('on');
   if (el) el.classList.add('on');
-  const titles = {dashboard:'Dashboard',orders:'Orders',customers:'Customers',inventory:'Inventory',payments:'Payments',expenses:'Expenses',fulfilment:'Fulfilment',marketing:'Marketing',content:'Content calendar',whatsapp:'WhatsApp'};
+  const titles = {dashboard:'Dashboard',orders:'Orders',customers:'Customers',inventory:'Inventory',payments:'Payments',expenses:'Expenses',fulfilment:'Fulfilment',marketing:'Marketing',content:'Content calendar',inbox:'Inbox',whatsapp:'WhatsApp'};
   document.getElementById('pg-title').textContent = titles[name] || name;
   if (name === 'orders' && !window._ordersDone) { loadOrders(); window._ordersDone = true; }
   if (name === 'customers' && !window._custDone) { loadCustomers(); window._custDone = true; }
@@ -858,6 +901,7 @@ function go(name, el) {
   if (name === 'expenses' && !window._expDone) { loadExpenses(); window._expDone = true; }
   if (name === 'marketing') { mkShowTab(window._mkTab || 'overview'); }
   if (name === 'content') { ccLoad(); }
+  if (name === 'inbox') { ibOpenPanel(); }
   if (name === 'fulfilment') { loadFulfilment(); } // always refresh: the board changes outside this page too
   if (name === 'whatsapp' && !window._waDone) { loadWhatsapp(); window._waDone = true; }
   closeMobileMenu(); // picking a page on a phone should close the drawer, not leave it open
@@ -1064,6 +1108,7 @@ function enterApp() {
   updateOrdersBadge();
   updateInventoryBadge();
   updateFulfilmentBadge();
+  ibBadge(); if (!window._ibBadgeTimer) window._ibBadgeTimer = setInterval(ibBadge, 60000);
 }
 
 // On page load: if we already have a saved token, skip straight to the app.
@@ -2911,6 +2956,124 @@ async function mkAutoSends(id) {
   } catch (err) {
     openModal(`<div class="modal-title">Activity</div><div class="modal-error">${mkEsc(err.message)}</div><div class="modal-actions"><button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button></div>`);
   }
+}
+
+// ================================================================
+// INBOX — all customer messages (email, storefront chat, later WhatsApp / Instagram / Facebook) in one place
+// ================================================================
+let _ib = { status: 'open', channel: '', unread: false, q: '', list: [], sel: null, summary: null }, _ibTimer = null, _ibSearchT = null;
+async function ibApi(path, options) {
+  const res = await apiFetch(`${API_BASE}/api/inbox${path}`, options);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) { const e = new Error(data.error || 'Request failed'); e.data = data; throw e; }
+  return data;
+}
+function ibAgo(iso) {
+  const m = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
+  if (m < 1) return 'now'; if (m < 60) return m + 'm'; if (m < 1440) return Math.round(m / 60) + 'h'; if (m < 10080) return Math.round(m / 1440) + 'd';
+  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+}
+const ibInitials = n => String(n || '?').replace(/[@.].*$/, '').split(/\s+/).filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase() || '?';
+async function ibBadge() {
+  try { const s = await ibApi('/summary'); const b = document.getElementById('s-badge-inbox'); b.textContent = s.unreadConversations; b.style.display = s.unreadConversations > 0 ? 'inline-block' : 'none'; } catch (e) { /* non-critical */ }
+}
+function ibOpenPanel() {
+  document.getElementById('ib-wrap').classList.remove('open-thread');
+  ibRefresh(true);
+  clearInterval(_ibTimer);
+  _ibTimer = setInterval(() => { if (document.getElementById('p-inbox').classList.contains('on')) ibRefresh(false); else clearInterval(_ibTimer); }, 20000);
+}
+function ibSearchSoon() { clearTimeout(_ibSearchT); _ibSearchT = setTimeout(() => { _ib.q = document.getElementById('ib-q').value.trim(); ibRefresh(true); }, 300); }
+function ibFilter(key, val) { if (key === 'status') { _ib.status = val; _ib.unread = false; } if (key === 'unread') { _ib.unread = !_ib.unread; } if (key === 'channel') _ib.channel = val; ibRefresh(true); }
+async function ibRefresh(showLoading) {
+  const rows = document.getElementById('ib-rows');
+  if (showLoading) rows.innerHTML = '<div class="mk-empty">Loading…</div>';
+  try {
+    const qs = new URLSearchParams({ status: _ib.status }); if (_ib.channel) qs.set('channel', _ib.channel); if (_ib.unread) qs.set('unread', '1'); if (_ib.q) qs.set('q', _ib.q);
+    const [list, sum] = await Promise.all([ibApi('/conversations?' + qs), ibApi('/summary')]);
+    _ib.list = list; _ib.summary = sum;
+    const chans = Object.keys(sum.byChannel).filter(k => sum.byChannel[k].open);
+    document.getElementById('ib-sub').textContent = `${sum.open} open${chans.length ? ' · ' + chans.map(k => (sum.channels.find(c => c.key === k) || {}).label || k).join(', ') : ''}`;
+    const b = document.getElementById('s-badge-inbox'); b.textContent = sum.unreadConversations; b.style.display = sum.unreadConversations > 0 ? 'inline-block' : 'none';
+    const w = document.getElementById('ib-warn');
+    if (!sum.email.configured) { w.style.display = 'block'; w.innerHTML = 'Email isn\'t set up on the server yet (Mailgun), so email replies can\'t be sent or received.'; }
+    else if (!sum.email.receiving) { w.style.display = 'block'; w.innerHTML = 'Customer emails aren\'t coming into the inbox yet. Tap <strong>Channels</strong> for the 2-minute setup. Storefront chat works already.'; }
+    else w.style.display = 'none';
+    document.getElementById('ib-filters').innerHTML =
+      [['status', 'open', 'Open'], ['unread', '', 'Unread'], ['status', 'closed', 'Closed']].map(([k, v, l]) => `<button class="ib-chip ${(k === 'status' && _ib.status === v && !_ib.unread) || (k === 'unread' && _ib.unread) ? 'on' : ''}" onclick="ibFilter('${k}','${v}')">${l}</button>`).join('') +
+      `<select class="ib-chip" style="padding:5px 8px" onchange="ibFilter('channel',this.value)" aria-label="Channel"><option value="">All channels</option>${sum.channels.map(c => `<option value="${c.key}" ${_ib.channel === c.key ? 'selected' : ''}>${mkEsc(c.label)}</option>`).join('')}</select>`;
+    rows.innerHTML = list.length ? list.map(c => `
+      <div class="ib-row ${c.unread ? 'unread' : ''} ${_ib.sel === c.id ? 'sel' : ''}" onclick="ibOpen(${c.id})">
+        ${c.unread ? '<span class="ib-dot"></span>' : ''}
+        <div class="ib-av">${mkEsc(ibInitials(c.name))}</div>
+        <div style="min-width:0;flex:1">
+          <div class="ib-name"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${mkEsc(c.name)}</span><small>${ibAgo(c.lastAt)}</small></div>
+          <div class="ib-prev">${c.lastDirection === 'out' ? 'You: ' : ''}${mkEsc(c.preview)}</div>
+          <div class="ib-tags"><span class="ib-tag t-ch">${mkEsc(c.channelLabel)}</span>${c.tags.map(t => `<span class="ib-tag ${t === 'New customer' ? 't-new' : t === 'VIP' ? 't-vip' : ''}">${mkEsc(t)}</span>`).join('')}</div>
+        </div>
+      </div>`).join('') : `<div class="mk-empty" style="padding:40px 16px">${_ib.q || _ib.unread || _ib.channel ? 'No conversations match.' : _ib.status === 'closed' ? 'Nothing closed yet.' : 'No messages yet. Customer emails and storefront chats will appear here.'}</div>`;
+    if (_ib.sel && !showLoading) ibLoadThread(_ib.sel, true);
+  } catch (err) { rows.innerHTML = `<div class="mk-empty">${mkEsc(err.message)}</div>`; }
+}
+async function ibOpen(id) {
+  _ib.sel = id;
+  document.getElementById('ib-wrap').classList.add('open-thread');
+  document.querySelectorAll('.ib-row').forEach(r => r.classList.remove('sel'));
+  await ibLoadThread(id, false);
+  ibRefresh(false);
+}
+function ibBack() { _ib.sel = null; document.getElementById('ib-wrap').classList.remove('open-thread'); }
+async function ibLoadThread(id, keepDraft) {
+  const box = document.getElementById('ib-thread');
+  const draft = keepDraft && document.getElementById('ib-text') ? document.getElementById('ib-text').value : '';
+  try {
+    const c = await ibApi('/conversations/' + id);
+    if (_ib.sel !== id) return;
+    box.innerHTML = `
+      <div class="ib-th-head"><button class="btn ib-back" onclick="ibBack()" aria-label="Back to conversations">←</button><div class="ib-av">${mkEsc(ibInitials(c.name))}</div>
+        <div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600">${mkEsc(c.name)}</div><div style="font-size:11.5px;color:var(--color-text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${mkEsc(c.channelLabel)}${c.handle ? ' · ' + mkEsc(c.handle) : ''}${c.subject ? ' · ' + mkEsc(c.subject) : ''}</div></div>
+        <button class="btn" style="font-size:12px" onclick="ibSetStatus(${c.id}, '${c.status === 'open' ? 'closed' : 'open'}')">${c.status === 'open' ? 'Mark done' : 'Reopen'}</button></div>
+      <div class="ib-msgs" id="ib-msgs">${c.messages.map(m => `<div class="ib-msg ${m.direction} ${m.status === 'failed' ? 'failed' : ''}">${mkEsc(m.body)}<small>${m.status === 'failed' ? 'Not sent — ' + mkEsc(m.error || 'error') + ' · ' : ''}${mkDate(m.at)}</small></div>`).join('')}</div>
+      ${c.canReply ? `<div class="ib-reply"><textarea id="ib-text" rows="1" maxlength="5000" placeholder="Write a reply…" onkeydown="if((event.ctrlKey||event.metaKey)&&event.key==='Enter')ibSend(${c.id})"></textarea><button class="btn btn-g" id="ib-send" onclick="ibSend(${c.id})">Send</button></div><div id="ib-err" style="font-size:12px;color:#DC2626;padding:0 16px 10px"></div>`
+        : `<div class="mk-empty" style="padding:16px">Replies for ${mkEsc(c.channelLabel)} aren't connected yet.</div>`}`;
+    const m = document.getElementById('ib-msgs'); if (m) m.scrollTop = m.scrollHeight;
+    const t = document.getElementById('ib-text'); if (t && draft) t.value = draft;
+    ibBadge();
+  } catch (err) { box.innerHTML = `<div class="mk-empty" style="padding:60px 20px">${mkEsc(err.message)}</div>`; }
+}
+async function ibSend(id) {
+  const t = document.getElementById('ib-text'), btn = document.getElementById('ib-send'), err = document.getElementById('ib-err');
+  const body = t.value.trim(); if (!body) return;
+  err.textContent = ''; btn.disabled = true;
+  try {
+    await ibApi(`/conversations/${id}/reply`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ body }) });
+    t.value = ''; await ibLoadThread(id, false); ibRefresh(false);
+  } catch (e) { err.textContent = e.message; }
+  btn.disabled = false;
+}
+async function ibSetStatus(id, status) {
+  try { await ibApi('/conversations/' + id, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) }); _ib.sel = null; document.getElementById('ib-thread').innerHTML = '<div class="mk-empty" style="padding:70px 20px">Select a conversation to read and reply.</div>'; document.getElementById('ib-wrap').classList.remove('open-thread'); ibRefresh(true); }
+  catch (e) { alert(e.message); }
+}
+function ibChannels() {
+  const s = _ib.summary || { email: {}, channels: [] };
+  const row = (name, status, ok, detail) => `<div style="display:flex;gap:12px;padding:12px 0;border-top:1px solid #F3F4F6"><div style="flex:1"><div style="font-size:13.5px;font-weight:600">${name}</div><div style="font-size:12px;color:#6B7280;line-height:1.5;margin-top:2px">${detail}</div></div><span class="pill ${ok ? 'p-green' : 'p-gray'}" style="align-self:flex-start">${status}</span></div>`;
+  openModal(`
+    <div class="modal-title">Inbox channels</div>
+    <div class="modal-sub">Where customer messages come from.</div>
+    ${row('Storefront chat', 'On', true, 'A “Message us” button on your storefront. Visitors write to you and you reply here — they see your reply in the same chat.')}
+    ${row('Email', s.email.receiving ? 'On' : s.email.configured ? 'Needs setup' : 'Needs Mailgun', !!s.email.receiving,
+      s.email.receiving ? `Customers who reply to your campaigns and order emails land here. Your inbox address: <strong>${mkEsc(s.email.address || '')}</strong>`
+      : s.email.configured ? `<ol style="margin:6px 0 0 16px;padding:0">
+          <li>In Mailgun: <strong>Receiving → Create route</strong>.</li>
+          <li>Expression type <strong>Match Recipient</strong>: <code>b.*@${mkEsc((s.email.address || '').split('@')[1] || 'your-domain')}</code></li>
+          <li>Action <strong>Forward</strong> to: <code>${mkEsc(API_BASE)}/api/inbound/email</code></li>
+          <li>In Render, add environment variable <code>MAILGUN_INBOUND</code> = <code>true</code>.</li></ol><div style="margin-top:6px">Your inbox address will be <strong>${mkEsc(s.email.address || '')}</strong>. Mailgun's free sandbox can't receive email — you need your own verified domain.</div>`
+      : 'Add MAILGUN_API_KEY and MAILGUN_DOMAIN on the server first.')}
+    ${row('WhatsApp', 'Soon', false, 'Needs a WhatsApp Business account connected through Meta.')}
+    ${row('Instagram', 'Soon', false, 'Needs your Instagram business account connected through Meta.')}
+    ${row('Facebook Messenger', 'Soon', false, 'Needs your Facebook page connected through Meta.')}
+    <div class="modal-actions" style="margin-top:12px"><button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button></div>`);
 }
 
 // ================================================================
