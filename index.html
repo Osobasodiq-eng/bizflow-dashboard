@@ -289,6 +289,16 @@ input[type=text]:focus,select:focus{border-color:#4F46E5}
 .mk-switch:disabled{opacity:.5;cursor:wait}
 .mk-auto-stats{display:flex;flex-wrap:wrap;gap:18px;margin-top:14px;padding-top:12px;border-top:1px solid #F3F4F6;font-size:12px;color:var(--color-text-secondary)}
 .mk-auto-stats strong{display:block;font-size:15px;color:#111827}
+.cc-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.cc-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cc-dow{font-size:11px;font-weight:600;color:var(--color-text-secondary);text-align:center;padding:4px 0}
+.cc-day{background:#fff;border:0.5px solid var(--color-border-tertiary);border-radius:10px;min-height:92px;padding:6px;cursor:pointer;overflow:hidden}
+.cc-day:hover{border-color:#6366F1}.cc-day.today{box-shadow:inset 0 0 0 1.5px #6366F1}.cc-day.blank{background:transparent;border:none;cursor:default}
+.cc-num{font-size:11px;color:var(--color-text-secondary);margin-bottom:4px}
+.cc-post{font-size:11px;border-radius:6px;padding:3px 6px;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:#EEF2FF;color:#3730A3}
+.cc-post.posted{background:#DCFCE7;color:#166534;text-decoration:line-through}
+.cc-post.c-whatsapp{background:#DCFCE7;color:#166534}.cc-post.c-facebook{background:#DBEAFE;color:#1E40AF}.cc-post.c-tiktok{background:#F3F4F6;color:#111827}.cc-post.c-instagram{background:#FCE7F3;color:#9D174D}
+@media(max-width:700px){.cc-day{min-height:60px;padding:3px}.cc-post{font-size:9px;padding:1px 3px}}
 .mk-empty{padding:18px;text-align:center;color:var(--color-text-secondary);font-size:12px}
 .mk-seg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
 .mk-seg{border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:14px;background:#fff}
@@ -462,7 +472,7 @@ textarea.modal-input{resize:vertical;min-height:130px;line-height:1.5}
       <div class="s-section">MARKETING</div>
       <div class="s-item" id="s-nav-marketing" onclick="go('marketing',this)"><i class="ti ti-speakerphone" aria-hidden="true"></i> Marketing</div>
       <div class="s-item" style="opacity:0.45;cursor:default" title="Needs a connected WhatsApp / Instagram account"><i class="ti ti-inbox" aria-hidden="true"></i> Inbox <span class="badge">Soon</span></div>
-      <div class="s-item" style="opacity:0.45;cursor:default"><i class="ti ti-calendar-event" aria-hidden="true"></i> Content calendar <span class="badge">Soon</span></div>
+      <div class="s-item" id="s-nav-content" onclick="go('content',this)"><i class="ti ti-calendar-event" aria-hidden="true"></i> Content calendar</div>
       <div class="s-section">GROWTH</div>
       <div class="s-item" style="opacity:0.45;cursor:default"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i> WhatsApp <span class="badge">Soon</span></div>
       <div class="s-item" style="opacity:0.45;cursor:default"><i class="ti ti-chart-line" aria-hidden="true"></i> Analytics <span class="badge">Soon</span></div>
@@ -732,6 +742,20 @@ textarea.modal-input{resize:vertical;min-height:130px;line-height:1.5}
         </div>
       </div>
 
+      <div id="p-content" class="panel">
+        <div class="cc-head">
+          <button class="btn" onclick="ccMove(-1)" aria-label="Previous month"><i class="ti ti-chevron-left" aria-hidden="true"></i></button>
+          <div id="cc-month" style="font-size:15px;font-weight:600;min-width:140px;text-align:center"></div>
+          <button class="btn" onclick="ccMove(1)" aria-label="Next month"><i class="ti ti-chevron-right" aria-hidden="true"></i></button>
+          <button class="btn" onclick="ccToday()">Today</button>
+          <span style="flex:1"></span>
+          <button class="btn btn-g" style="font-size:12px" onclick="ccOpen()"><i class="ti ti-plus" style="font-size:12px" aria-hidden="true"></i> New post</button>
+        </div>
+        <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px">Plan your posts by day. Click a day to add one, or click a post to edit it, copy the caption, or mark it posted. Posting happens on your own accounts — this is your planner.</div>
+        <div class="cc-grid" id="cc-dows"></div>
+        <div class="cc-grid" id="cc-grid" style="margin-top:6px"></div>
+      </div>
+
       <div id="p-marketing" class="panel">
         <div class="mk-tabs" id="mk-tabs">
           <button class="mk-tab on" data-tab="overview" onclick="mkShowTab('overview')">Overview</button>
@@ -825,7 +849,7 @@ function go(name, el) {
   const p = document.getElementById('p-' + name);
   if (p) p.classList.add('on');
   if (el) el.classList.add('on');
-  const titles = {dashboard:'Dashboard',orders:'Orders',customers:'Customers',inventory:'Inventory',payments:'Payments',expenses:'Expenses',fulfilment:'Fulfilment',marketing:'Marketing',whatsapp:'WhatsApp'};
+  const titles = {dashboard:'Dashboard',orders:'Orders',customers:'Customers',inventory:'Inventory',payments:'Payments',expenses:'Expenses',fulfilment:'Fulfilment',marketing:'Marketing',content:'Content calendar',whatsapp:'WhatsApp'};
   document.getElementById('pg-title').textContent = titles[name] || name;
   if (name === 'orders' && !window._ordersDone) { loadOrders(); window._ordersDone = true; }
   if (name === 'customers' && !window._custDone) { loadCustomers(); window._custDone = true; }
@@ -833,6 +857,7 @@ function go(name, el) {
   if (name === 'payments' && !window._payDone) { loadPayments(); window._payDone = true; }
   if (name === 'expenses' && !window._expDone) { loadExpenses(); window._expDone = true; }
   if (name === 'marketing') { mkShowTab(window._mkTab || 'overview'); }
+  if (name === 'content') { ccLoad(); }
   if (name === 'fulfilment') { loadFulfilment(); } // always refresh: the board changes outside this page too
   if (name === 'whatsapp' && !window._waDone) { loadWhatsapp(); window._waDone = true; }
   closeMobileMenu(); // picking a page on a phone should close the drawer, not leave it open
@@ -2886,6 +2911,98 @@ async function mkAutoSends(id) {
   } catch (err) {
     openModal(`<div class="modal-title">Activity</div><div class="modal-error">${mkEsc(err.message)}</div><div class="modal-actions"><button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button></div>`);
   }
+}
+
+// ================================================================
+// CONTENT CALENDAR — plan posts by day (no social account connection needed)
+// ================================================================
+let _ccMonth = new Date().toISOString().slice(0, 7), _ccPosts = [];
+const CC_CHANNELS = { instagram: 'Instagram', whatsapp: 'WhatsApp status', facebook: 'Facebook', tiktok: 'TikTok', other: 'Other' };
+function ccMove(d) { const [y, m] = _ccMonth.split('-').map(Number); const dt = new Date(y, m - 1 + d, 1); _ccMonth = dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0'); ccLoad(); }
+function ccToday() { _ccMonth = ymdLocal(new Date()).slice(0, 7); ccLoad(); }
+function ymdLocal(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+async function ccLoad() {
+  document.getElementById('cc-dows').innerHTML = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(d => `<div class="cc-dow">${d}</div>`).join('');
+  const [y, m] = _ccMonth.split('-').map(Number);
+  document.getElementById('cc-month').textContent = new Date(y, m - 1, 1).toLocaleString('en-GB', { month: 'long', year: 'numeric' });
+  try { _ccPosts = await mkApi(`/content?month=${_ccMonth}`); } catch (err) { document.getElementById('cc-grid').innerHTML = `<div class="mk-empty" style="grid-column:1/-1">${mkEsc(err.message)}</div>`; return; }
+  const first = new Date(y, m - 1, 1), days = new Date(y, m, 0).getDate(), lead = (first.getDay() + 6) % 7, today = ymdLocal(new Date());
+  let html = '<div class="cc-day blank"></div>'.repeat(lead);
+  for (let d = 1; d <= days; d++) {
+    const date = `${_ccMonth}-${String(d).padStart(2, '0')}`;
+    const posts = _ccPosts.filter(p => p.date === date);
+    html += `<div class="cc-day ${date === today ? 'today' : ''}" onclick="ccOpen(null,'${date}')"><div class="cc-num">${d}</div>${posts.map(p => `<div class="cc-post c-${p.channel} ${p.status}" title="${mkEsc(p.title)}" onclick="event.stopPropagation();ccOpen(${p.id})">${mkEsc(p.title)}</div>`).join('')}</div>`;
+  }
+  document.getElementById('cc-grid').innerHTML = html;
+}
+function ccOpen(id, date) {
+  const p = id ? _ccPosts.find(x => x.id === id) : { date: date || ymdLocal(new Date()), channel: 'instagram', title: '', caption: '', status: 'planned' };
+  if (!p) return;
+  window._ccEditing = id || null;
+  openModal(`
+    <div class="modal-title">${id ? 'Edit post' : 'New post'}</div>
+    <div class="modal-sub">Plan it here, then post it on your own account.</div>
+    <div class="modal-field"><label class="modal-label">Title (only you see this)</label><input id="cc-title" class="modal-input" maxlength="120" placeholder="e.g. Weekend sale teaser" value="${mkEsc(p.title)}"></div>
+    <div style="display:flex;gap:10px">
+      <div class="modal-field" style="flex:1"><label class="modal-label">Date</label><input id="cc-date" type="date" class="modal-input" value="${p.date}"></div>
+      <div class="modal-field" style="flex:1"><label class="modal-label">Where</label><select id="cc-channel" class="modal-select">${Object.entries(CC_CHANNELS).map(([k, v]) => `<option value="${k}" ${k === p.channel ? 'selected' : ''}>${v}</option>`).join('')}</select></div>
+    </div>
+    <div class="modal-field"><label class="modal-label" style="display:flex;justify-content:space-between;align-items:center">Caption <button type="button" class="btn" id="cc-ai-btn" style="font-size:11px;padding:3px 9px" onclick="ccWrite()">✨ Write for me</button></label>
+      <select id="cc-product" class="modal-select" style="margin-bottom:6px" aria-label="Product to feature"><option value="">Feature a product (optional)…</option></select>
+      <textarea id="cc-caption" class="modal-input" maxlength="3000" placeholder="Write the caption and hashtags here…">${mkEsc(p.caption)}</textarea></div>
+    <div class="modal-error" id="cc-error"></div>
+    <div class="modal-row">
+      <button class="modal-btn modal-btn-secondary" onclick="ccCopy()">Copy caption</button>
+      <button class="modal-btn modal-btn-primary" onclick="ccSave()">Save</button>
+    </div>
+    ${id ? `<div class="modal-row" style="margin-top:8px">
+      <button class="modal-btn modal-btn-secondary" onclick="ccSetStatus(${id}, '${p.status === 'posted' ? 'planned' : 'posted'}')">${p.status === 'posted' ? 'Mark as not posted' : 'Mark as posted ✓'}</button>
+      <button class="modal-btn modal-btn-secondary" style="color:#DC2626" onclick="ccDelete(${id})">Delete</button></div>` : ''}
+    <div class="modal-actions" style="margin-top:12px"><button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button></div>`);
+  ccFillProducts();
+}
+
+let _ccProducts = null;
+async function ccLoadProducts() {
+  if (_ccProducts) return _ccProducts;
+  try { const r = await apiFetch(`${API_BASE}/api/products`); const d = await r.json(); _ccProducts = Array.isArray(d) ? d : (d.products || []); } catch (e) { _ccProducts = []; }
+  return _ccProducts;
+}
+async function ccFillProducts() {
+  const list = await ccLoadProducts(), sel = document.getElementById('cc-product');
+  if (sel) sel.innerHTML += list.map(p => `<option value="${p.id}">${mkEsc(p.name)}</option>`).join('');
+}
+async function ccWrite() {
+  const e = document.getElementById('cc-error'), btn = document.getElementById('cc-ai-btn'), box = document.getElementById('cc-caption');
+  e.textContent = ''; e.style.color = '';
+  if (box.value.trim() && !confirm('Replace the caption you already wrote?')) return;
+  btn.disabled = true; const old = btn.textContent; btn.textContent = 'Writing…';
+  try {
+    const r = await mkPost('/content/caption', { title: document.getElementById('cc-title').value, channel: document.getElementById('cc-channel').value, productId: document.getElementById('cc-product').value || null });
+    box.value = r.caption;
+    if (r.source === 'template') { e.style.color = '#92400E'; e.textContent = 'Basic caption added. Edit it to make it yours.'; }
+  } catch (err) { e.textContent = err.message; }
+  btn.disabled = false; btn.textContent = old;
+}
+function ccCopy() {
+  const t = document.getElementById('cc-caption').value, e = document.getElementById('cc-error');
+  (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => { e.style.color = '#059669'; e.textContent = 'Caption copied.'; }, () => { e.style.color = ''; e.textContent = 'Couldn’t copy — select the text and copy it manually.'; });
+}
+async function ccSave() {
+  const e = document.getElementById('cc-error'); e.textContent = ''; e.style.color = '';
+  const body = { title: document.getElementById('cc-title').value, date: document.getElementById('cc-date').value, channel: document.getElementById('cc-channel').value, caption: document.getElementById('cc-caption').value };
+  try {
+    const saved = window._ccEditing ? await mkApi(`/content/${window._ccEditing}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }) : await mkPost('/content', body);
+    closeModal(); showSuccessBurst('Post saved');
+    _ccMonth = saved.date.slice(0, 7); ccLoad();
+  } catch (err) { e.textContent = err.message; }
+}
+async function ccSetStatus(id, status) {
+  try { await mkApi(`/content/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) }); closeModal(); ccLoad(); } catch (err) { document.getElementById('cc-error').textContent = err.message; }
+}
+async function ccDelete(id) {
+  if (!confirm('Delete this post from your calendar?')) return;
+  try { await mkApi(`/content/${id}`, { method: 'DELETE' }); closeModal(); ccLoad(); } catch (err) { document.getElementById('cc-error').textContent = err.message; }
 }
 
 // ================================================================
