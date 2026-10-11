@@ -281,6 +281,14 @@ input[type=text]:focus,select:focus{border-color:#4F46E5}
 .mk-tab:hover{background:#F3F4F6}
 .mk-tab.on{background:#EEF2FF;color:#3730A3;font-weight:600}
 .mk-warn{background:#FEF3C7;color:#92400E;border-radius:10px;padding:10px 14px;font-size:12.5px;margin-bottom:14px;line-height:1.5}
+.mk-auto{border:1px solid var(--color-border,#E5E7EB);border-radius:12px;padding:16px;margin-bottom:12px;background:#fff}
+.mk-auto-head{display:flex;align-items:flex-start;gap:12px}
+.mk-switch{position:relative;width:40px;height:23px;flex:none;border:none;border-radius:20px;background:#D1D5DB;cursor:pointer;transition:background .15s;padding:0}
+.mk-switch::after{content:'';position:absolute;top:3px;left:3px;width:17px;height:17px;border-radius:50%;background:#fff;transition:transform .15s}
+.mk-switch.on{background:#059669}.mk-switch.on::after{transform:translateX(17px)}
+.mk-switch:disabled{opacity:.5;cursor:wait}
+.mk-auto-stats{display:flex;flex-wrap:wrap;gap:18px;margin-top:14px;padding-top:12px;border-top:1px solid #F3F4F6;font-size:12px;color:var(--color-text-secondary)}
+.mk-auto-stats strong{display:block;font-size:15px;color:#111827}
 .mk-empty{padding:18px;text-align:center;color:var(--color-text-secondary);font-size:12px}
 .mk-seg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
 .mk-seg{border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:14px;background:#fff}
@@ -728,6 +736,7 @@ textarea.modal-input{resize:vertical;min-height:130px;line-height:1.5}
         <div class="mk-tabs" id="mk-tabs">
           <button class="mk-tab on" data-tab="overview" onclick="mkShowTab('overview')">Overview</button>
           <button class="mk-tab" data-tab="campaigns" onclick="mkShowTab('campaigns')">Campaigns</button>
+          <button class="mk-tab" data-tab="automations" onclick="mkShowTab('automations')">Automations</button>
           <button class="mk-tab" data-tab="segments" onclick="mkShowTab('segments')">Segments</button>
           <button class="mk-tab" data-tab="analytics" onclick="mkShowTab('analytics')">Analytics</button>
           <span style="flex:1"></span>
@@ -759,6 +768,12 @@ textarea.modal-input{resize:vertical;min-height:130px;line-height:1.5}
             <div class="card-head"><div class="card-title">All campaigns</div></div>
             <div id="mk-campaigns"><div class="mk-empty">Loading…</div></div>
           </div>
+        </div>
+
+        <div id="mk-view-automations" class="mk-view" style="display:none">
+          <div id="mk-auto-warning" style="display:none" class="mk-warn"><i class="ti ti-alert-triangle" aria-hidden="true"></i> Email sending isn't set up on the server yet, so automations can't be switched on. Add <strong>MAILGUN_API_KEY</strong> and <strong>MAILGUN_DOMAIN</strong> in your API's environment settings.</div>
+          <div style="font-size:12.5px;color:var(--color-text-secondary);line-height:1.6;margin-bottom:14px">Emails that send themselves. Switching one on only affects things that happen <strong>from that moment</strong> — it never emails your past customers in bulk. Everyone still gets an unsubscribe link, and nobody is emailed twice for the same thing.</div>
+          <div id="mk-automations"><div class="mk-empty">Loading…</div></div>
         </div>
 
         <div id="mk-view-segments" class="mk-view" style="display:none">
@@ -2555,6 +2570,7 @@ function mkShowTab(tab) {
   clearTimeout(_mkPoll);
   if (tab === 'overview') mkLoadOverview();
   if (tab === 'campaigns') mkLoadCampaigns();
+  if (tab === 'automations') mkLoadAutomations();
   if (tab === 'segments') mkLoadSegments();
   if (tab === 'analytics') mkLoadAnalytics();
 }
@@ -2774,6 +2790,102 @@ function mkSchedule() {
     await mkPost(`/campaigns/${saved.id}/schedule`, { scheduledAt: new Date(when).toISOString() });
     closeModal(); showSuccessBurst('Campaign scheduled'); mkShowTab('campaigns');
   });
+}
+
+// ---------- automations ----------
+let _mkAutos = [];
+async function mkLoadAutomations() {
+  const box = document.getElementById('mk-automations');
+  try {
+    const data = await mkApi('/automations');
+    _mkAutos = data.automations;
+    document.getElementById('mk-auto-warning').style.display = data.emailConfigured ? 'none' : 'block';
+    box.innerHTML = _mkAutos.map(a => `
+      <div class="mk-auto">
+        <div class="mk-auto-head">
+          <button class="mk-switch ${a.enabled ? 'on' : ''}" id="mk-sw-${a.id}" role="switch" aria-checked="${a.enabled}" aria-label="Turn ${mkEsc(a.name)} ${a.enabled ? 'off' : 'on'}" onclick="mkToggleAuto(${a.id})"></button>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:14px;font-weight:600;color:#111827">${mkEsc(a.name)} <span class="pill ${a.enabled ? 'p-green' : 'p-gray'}" style="margin-left:6px">${a.enabled ? 'On' : 'Off'}</span></div>
+            <div style="font-size:12.5px;color:var(--color-text-secondary);margin-top:4px;line-height:1.5">${mkEsc(a.description)}</div>
+            <div style="font-size:12px;color:#374151;margin-top:6px">Sends <strong>${a.delayDays} day${a.delayDays === 1 ? '' : 's'}</strong> after ${a.kind === 'win_back' ? 'their last order' : 'the order is placed'}${a.enabled && a.enabledAt ? ` · on since ${mkDate(a.enabledAt)}` : ''}</div>
+          </div>
+          <div style="display:flex;gap:6px;flex:none">
+            <button class="btn" style="font-size:12px" onclick="mkEditAuto(${a.id})">Edit</button>
+            <button class="btn" style="font-size:12px" onclick="mkAutoSends(${a.id})">Activity</button>
+          </div>
+        </div>
+        <div class="mk-auto-stats">
+          <div><strong>${a.sent}</strong>Emails sent</div>
+          <div><strong style="${a.failed ? 'color:#DC2626' : ''}">${a.failed}</strong>Failed</div>
+          <div><strong>${a.orders}</strong>Orders</div>
+          <div><strong>${naira(a.revenue)}</strong>Revenue</div>
+          <div><strong>${a.lastSentAt ? mkDate(a.lastSentAt) : '—'}</strong>Last sent</div>
+        </div>
+      </div>`).join('') || '<div class="mk-empty">No automations available.</div>';
+  } catch (err) { box.innerHTML = `<div class="mk-empty">${mkEsc(err.message)}</div>`; }
+}
+async function mkToggleAuto(id) {
+  const a = _mkAutos.find(x => x.id === id); if (!a) return;
+  const turningOn = !a.enabled;
+  if (turningOn && !confirm(`Turn on “${a.name}”?\n\nIt will only email customers for things that happen from now on — not your existing history.`)) return;
+  const sw = document.getElementById('mk-sw-' + id); if (sw) sw.disabled = true;
+  try {
+    await mkApi(`/automations/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ enabled: turningOn }) });
+    showSuccessBurst(turningOn ? 'Automation is on' : 'Automation turned off');
+  } catch (err) { alert(err.message); }
+  mkLoadAutomations();
+}
+function mkEditAuto(id) {
+  const a = _mkAutos.find(x => x.id === id); if (!a) return;
+  openModal(`
+    <div class="modal-title">Edit: ${mkEsc(a.name)}</div>
+    <div class="modal-sub">Changes apply to emails sent from now on.</div>
+    <div class="modal-field"><label class="modal-label">Days to wait ${a.kind === 'win_back' ? '(since their last order)' : '(after the order is placed)'}</label><input id="mk-a-days" type="number" class="modal-input" min="${a.minDelay}" max="365" value="${a.delayDays}"></div>
+    <div class="modal-field"><label class="modal-label">Subject</label><input id="mk-a-subject" class="modal-input" maxlength="150" value="${mkEsc(a.subject)}"></div>
+    <div class="modal-field"><label class="modal-label">Message</label><textarea id="mk-a-body" class="modal-input" maxlength="5000">${mkEsc(a.body)}</textarea>
+      <div style="font-size:11px;color:#6B7280;margin-top:5px">Personalise with <code>{{first_name}}</code>. A “Shop now” button and unsubscribe link are added automatically.</div></div>
+    <div class="modal-error" id="mk-a-error"></div>
+    <div class="modal-row">
+      <button class="modal-btn modal-btn-secondary" id="mk-a-test" onclick="mkAutoTest()">Send test to me</button>
+      <button class="modal-btn modal-btn-primary" id="mk-a-save" onclick="mkAutoSave(${a.id})">Save</button>
+    </div>
+    <div class="modal-actions" style="margin-top:12px"><button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button></div>`);
+}
+function mkAutoFields() {
+  return { delayDays: Number(document.getElementById('mk-a-days').value), subject: document.getElementById('mk-a-subject').value.trim(), body: document.getElementById('mk-a-body').value.trim() };
+}
+async function mkAutoSave(id) {
+  const err = document.getElementById('mk-a-error'); err.textContent = ''; err.style.color = '';
+  try {
+    await mkApi(`/automations/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(mkAutoFields()) });
+    closeModal(); showSuccessBurst('Automation saved'); mkLoadAutomations();
+  } catch (e) { err.textContent = e.message; }
+}
+async function mkAutoTest() {
+  const err = document.getElementById('mk-a-error'); err.textContent = ''; err.style.color = '';
+  try {
+    const f = mkAutoFields();
+    const r = await mkPost('/test', { subject: f.subject, body: f.body });
+    err.style.color = '#059669'; err.textContent = `Test sent to ${r.sentTo} — check your inbox (and spam).`;
+  } catch (e) { err.textContent = e.message; }
+}
+async function mkAutoSends(id) {
+  const a = _mkAutos.find(x => x.id === id); if (!a) return;
+  openModal(`<div class="modal-title">${mkEsc(a.name)} — recent activity</div><div class="modal-sub">Loading…</div>`);
+  try {
+    const rows = await mkApi(`/automations/${id}/sends`);
+    openModal(`
+      <div class="modal-title">${mkEsc(a.name)} — recent activity</div>
+      <div class="modal-sub">The last ${rows.length ? rows.length : ''} emails this automation handled.</div>
+      ${rows.length ? `<div style="max-height:320px;overflow:auto"><table><thead><tr><th>Customer</th><th>When</th><th>Status</th></tr></thead><tbody>${rows.map(r => `<tr>
+        <td>${mkEsc(r.name || '—')}<div style="font-size:11px;color:#6B7280">${mkEsc(r.email)}</div></td>
+        <td>${mkDate(r.at)}</td>
+        <td><span class="pill ${r.status === 'sent' ? 'p-green' : r.status === 'failed' ? 'p-red' : 'p-gray'}">${mkEsc(r.status)}</span>${r.error ? `<div style="font-size:11px;color:#DC2626;max-width:180px">${mkEsc(r.error)}</div>` : ''}</td></tr>`).join('')}</tbody></table></div>`
+        : '<div class="mk-empty">Nothing yet. Emails appear here once the first customer qualifies.</div>'}
+      <div class="modal-actions" style="margin-top:12px"><button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button></div>`);
+  } catch (err) {
+    openModal(`<div class="modal-title">Activity</div><div class="modal-error">${mkEsc(err.message)}</div><div class="modal-actions"><button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button></div>`);
+  }
 }
 
 // ================================================================
@@ -3317,7 +3429,7 @@ function openWhatsappChat() {
 function showStorePreview() {
   const businessId = getBusinessId();
   if (!businessId) { alert('Could not find your store ID — try logging out and back in.'); return; }
-  const link = `${STOREFRONT_BASE}/?business=${businessId}`;
+  const link = `${STOREFRONT_BASE}?business=${businessId}`;
 
   openModal(`
     <div class="modal-title"><i class="ti ti-eye" style="color:#6366F1" aria-hidden="true"></i> Storefront preview</div>
@@ -3630,7 +3742,7 @@ function getBusinessId() {
 function showStoreLink() {
   const businessId = getBusinessId();
   if (!businessId) { alert('Could not find your store ID — try logging out and back in.'); return; }
-  const link = `${STOREFRONT_BASE}/?business=${businessId}`;
+  const link = `${STOREFRONT_BASE}?business=${businessId}`;
 
   openModal(`
     <div class="modal-title"><i class="ti ti-link" style="color:#6366F1" aria-hidden="true"></i> Your store link</div>
