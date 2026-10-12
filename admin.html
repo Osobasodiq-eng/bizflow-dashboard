@@ -6,21 +6,24 @@
 <title>BizFlow — Admin</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.44.0/tabler-icons.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.1/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --g:#0F6E56; --g2:#1D9E75; --bg:#F4F8F6; --border:#E2E8E5;
-  --text:#16241F; --text-secondary:#75887F;
-  --amber:#D98E39; --blue:#3D6B8C; --rose:#C0526B; --grid:#EEF3F1;
-  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --g:#2FAF9E; --g2:#2FAF9E; --bg:#0A1F33; --border:#20415F; --card:#122E4A;
+  --text:#EDF2F5; --text-secondary:#93A9BD;
+  --amber:#D89A3D; --blue:#6FA8F0; --rose:#F0716F; --grid:#20415F;
+  --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  color-scheme:dark;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
-input{font-size:13px;padding:11px 13px;border:1px solid var(--border);border-radius:9px;background:#fff;color:var(--text);outline:none;width:100%}
-input:focus{border-color:var(--g2);box-shadow:0 0 0 3px rgba(29,158,117,0.12)}
+body{-webkit-font-smoothing:antialiased;font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
+input{font-size:13px;padding:11px 13px;border:1px solid var(--border);border-radius:9px;background:var(--bg);color:var(--text);outline:none;width:100%}
+input:focus{border-color:var(--g2);box-shadow:0 0 0 3px rgba(47,175,158,0.16)}
 
 /* Login screen */
 #login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center}
-.login-card{width:360px;max-width:90vw;background:#fff;border-radius:16px;padding:36px 32px;box-shadow:0 20px 50px rgba(11,84,66,0.12)}
+.login-card{width:360px;max-width:90vw;background:var(--card);border-radius:16px;padding:36px 32px;border:1px solid var(--border);box-shadow:0 20px 50px rgba(0,0,0,0.45)}
 .logo-row{display:flex;align-items:center;gap:9px;justify-content:center;margin-bottom:22px}
 
 /* Admin dashboard */
@@ -31,16 +34,16 @@ input:focus{border-color:var(--g2);box-shadow:0 0 0 3px rgba(29,158,117,0.12)}
 .logout-link:hover{color:var(--g)}
 
 .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
-.stat-card{background:#fff;border-radius:12px;padding:18px;border:1px solid var(--border);display:flex;flex-direction:column;gap:2px}
+.stat-card{background:var(--card);border-radius:12px;padding:18px;border:1px solid var(--border);display:flex;flex-direction:column;gap:2px}
 .stat-label{font-size:11.5px;color:var(--text-secondary);margin-bottom:2px}
 .stat-val{font-size:22px;font-weight:600}
 .stat-spark-wrap{position:relative;width:100%;height:32px;margin-top:6px}
 .stat-spark{position:absolute;top:0;left:0;width:100%;height:100%}
 
-.section-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-secondary);margin:26px 0 12px}
+.section-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-secondary);margin:26px 0 12px}
 .charts-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-bottom:14px}
 .charts-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:6px}
-.chart-card{background:#fff;border-radius:14px;border:1px solid var(--border);padding:18px 20px}
+.chart-card{background:var(--card);border-radius:14px;border:1px solid var(--border);padding:18px 20px}
 .chart-card-head{display:flex;flex-direction:column;gap:2px;margin-bottom:14px}
 .chart-title{font-size:14px;font-weight:600}
 .chart-sub{font-size:11px;color:var(--text-secondary)}
@@ -54,16 +57,16 @@ input:focus{border-color:var(--g2);box-shadow:0 0 0 3px rgba(29,158,117,0.12)}
   .charts-grid, .charts-grid-2{grid-template-columns:1fr}
 }
 
-.table-card{background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden}
+.table-card{background:var(--card);border-radius:14px;border:1px solid var(--border);overflow:hidden}
 .table-head{padding:16px 20px;border-bottom:1px solid var(--border);font-size:15px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
 table{width:100%;border-collapse:collapse}
-th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:0.4px;color:var(--text-secondary);padding:10px 20px;border-bottom:1px solid var(--border)}
-td{padding:12px 20px;font-size:13px;border-bottom:1px solid #F1F5F3}
+th{text-align:left;font-size:11.5px;color:var(--text-secondary);padding:10px 20px;border-bottom:1px solid var(--border)}
+td{padding:12px 20px;font-size:13px;border-bottom:1px solid var(--border)}
 tr:last-child td{border-bottom:none}
 .biz-name{font-weight:500}
 .biz-email{font-size:11.5px;color:var(--text-secondary)}
-.del-btn{background:#FDF0EF;color:#C0392B;border:1px solid #F5D6D3;border-radius:7px;padding:6px 10px;font-size:12px;cursor:pointer}
-.del-btn:hover{background:#FBE4E2}
+.del-btn{background:rgba(240,113,111,.15);color:#F0716F;border:1px solid rgba(240,113,111,.35);border-radius:7px;padding:6px 10px;font-size:12px;cursor:pointer}
+.del-btn:hover{background:rgba(240,113,111,.25)}
 .empty-state{padding:40px;text-align:center;color:var(--text-secondary);font-size:13px}
 
 @media (max-width: 700px){
@@ -77,10 +80,10 @@ tr:last-child td{border-bottom:none}
 
 /* Store detail modal */
 .biz-row{cursor:pointer}
-.biz-row:hover{background:#F7FBF9}
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,30,25,0.45);z-index:100;align-items:center;justify-content:center;padding:20px}
+.biz-row:hover{background:rgba(255,255,255,.03)}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(5,14,24,0.65);z-index:100;align-items:center;justify-content:center;padding:20px}
 .modal-overlay.open{display:flex}
-.modal-card{background:#fff;border-radius:16px;width:640px;max-width:100%;max-height:88vh;overflow-y:auto;padding:26px 28px}
+.modal-card{background:var(--card);border-radius:16px;width:640px;max-width:100%;max-height:88vh;overflow-y:auto;padding:26px 28px}
 .modal-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
 .modal-title{font-size:17px;font-weight:600}
 .modal-sub{font-size:12.5px;color:var(--text-secondary);margin-top:3px}
@@ -94,7 +97,7 @@ tr:last-child td{border-bottom:none}
 .modal-loading{text-align:center;color:var(--text-secondary);font-size:13px;padding:30px 0}
 
 .health-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:6px}
-.health-card{background:#fff;border-radius:12px;padding:16px;border:1px solid var(--border)}
+.health-card{background:var(--card);border-radius:12px;padding:16px;border:1px solid var(--border)}
 .health-label{font-size:11px;color:var(--text-secondary);margin-bottom:6px}
 .health-val{font-size:19px;font-weight:600}
 .health-sub{font-size:10.5px;color:var(--text-secondary);margin-top:3px}
@@ -102,8 +105,8 @@ tr:last-child td{border-bottom:none}
 @media (max-width: 620px){ .health-row{grid-template-columns:repeat(2,1fr)} }
 
 .status-badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;margin-top:3px}
-.status-active{background:#E6F5EF;color:#0F6E56}
-.status-dormant{background:#F1F0EC;color:#8A8272}
+.status-active{background:rgba(47,175,158,.15);color:#2FAF9E}
+.status-dormant{background:rgba(147,169,189,.15);color:#93A9BD}
 </style>
 </head>
 <body>
@@ -111,14 +114,14 @@ tr:last-child td{border-bottom:none}
 <div id="login-screen">
   <div class="login-card">
     <div class="logo-row">
-      <svg width="28" height="28" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#0F6E56"/><path d="M11 27 L11 13" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M20 27 L20 9" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity="0.85"/><path d="M29 27 L29 17" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M8 20 L32 12" stroke="#9FE1CB" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+      <svg width="28" height="28" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#122E4A"/><path d="M11 27 L11 13" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M20 27 L20 9" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity="0.85"/><path d="M29 27 L29 17" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M8 20 L32 12" stroke="#8FD5C9" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
       <span style="font-size:17px;font-weight:600">BizFlow Admin</span>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px">
       <input id="login-email" type="email" placeholder="Admin email">
       <input id="login-password" type="password" placeholder="Password">
-      <div id="login-error" style="color:#C0392B;font-size:12px;min-height:14px"></div>
-      <button onclick="doLogin()" style="width:100%;padding:11px;border:none;border-radius:9px;background:#0F6E56;color:#fff;font-size:14px;font-weight:600;cursor:pointer">Log in</button>
+      <div id="login-error" style="color:#F0716F;font-size:12px;min-height:14px"></div>
+      <button onclick="doLogin()" style="width:100%;padding:11px;border:none;border-radius:9px;background:#2FAF9E;color:#0A1F33;font-size:14px;font-weight:600;cursor:pointer">Log in</button>
       <div style="text-align:center;font-size:12.5px;color:var(--text-secondary);cursor:pointer" onclick="showForgotScreen()">Forgot password?</div>
     </div>
   </div>
@@ -127,14 +130,14 @@ tr:last-child td{border-bottom:none}
 <div id="forgot-screen" style="display:none;min-height:100vh;align-items:center;justify-content:center">
   <div class="login-card">
     <div class="logo-row">
-      <svg width="28" height="28" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#0F6E56"/><path d="M11 27 L11 13" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M20 27 L20 9" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity="0.85"/><path d="M29 27 L29 17" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M8 20 L32 12" stroke="#9FE1CB" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+      <svg width="28" height="28" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#122E4A"/><path d="M11 27 L11 13" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M20 27 L20 9" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity="0.85"/><path d="M29 27 L29 17" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M8 20 L32 12" stroke="#8FD5C9" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
       <span style="font-size:17px;font-weight:600">Reset password</span>
     </div>
     <div id="forgot-form" style="display:flex;flex-direction:column;gap:12px">
       <div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:2px">Enter your admin email and we'll send you a link to reset your password.</div>
       <input id="forgot-email" type="email" placeholder="Admin email">
-      <div id="forgot-error" style="color:#C0392B;font-size:12px;min-height:14px"></div>
-      <button onclick="submitForgotPassword()" style="width:100%;padding:11px;border:none;border-radius:9px;background:#0F6E56;color:#fff;font-size:14px;font-weight:600;cursor:pointer">Send reset link</button>
+      <div id="forgot-error" style="color:#F0716F;font-size:12px;min-height:14px"></div>
+      <button onclick="submitForgotPassword()" style="width:100%;padding:11px;border:none;border-radius:9px;background:#2FAF9E;color:#0A1F33;font-size:14px;font-weight:600;cursor:pointer">Send reset link</button>
       <div style="text-align:center;font-size:12.5px;color:var(--text-secondary);cursor:pointer" onclick="backToLogin()">Back to log in</div>
     </div>
     <div id="forgot-success" style="display:none;flex-direction:column;gap:14px;text-align:center">
@@ -147,14 +150,14 @@ tr:last-child td{border-bottom:none}
 <div id="reset-screen" style="display:none;min-height:100vh;align-items:center;justify-content:center">
   <div class="login-card">
     <div class="logo-row">
-      <svg width="28" height="28" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#0F6E56"/><path d="M11 27 L11 13" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M20 27 L20 9" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity="0.85"/><path d="M29 27 L29 17" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M8 20 L32 12" stroke="#9FE1CB" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+      <svg width="28" height="28" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#122E4A"/><path d="M11 27 L11 13" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M20 27 L20 9" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity="0.85"/><path d="M29 27 L29 17" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M8 20 L32 12" stroke="#8FD5C9" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
       <span style="font-size:17px;font-weight:600">Set a new password</span>
     </div>
     <div id="reset-form" style="display:flex;flex-direction:column;gap:12px">
       <input id="reset-password" type="password" placeholder="New password (min 8 characters)">
       <input id="reset-password-confirm" type="password" placeholder="Confirm new password">
-      <div id="reset-error" style="color:#C0392B;font-size:12px;min-height:14px"></div>
-      <button onclick="submitResetPassword()" style="width:100%;padding:11px;border:none;border-radius:9px;background:#0F6E56;color:#fff;font-size:14px;font-weight:600;cursor:pointer">Update password</button>
+      <div id="reset-error" style="color:#F0716F;font-size:12px;min-height:14px"></div>
+      <button onclick="submitResetPassword()" style="width:100%;padding:11px;border:none;border-radius:9px;background:#2FAF9E;color:#0A1F33;font-size:14px;font-weight:600;cursor:pointer">Update password</button>
     </div>
     <div id="reset-success" style="display:none;flex-direction:column;gap:14px;text-align:center">
       <div style="font-size:13px;color:var(--text)">Your password has been updated.</div>
@@ -165,7 +168,7 @@ tr:last-child td{border-bottom:none}
 
 <div id="admin-screen">
   <div class="topbar">
-    <h1><i class="ti ti-shield-lock" style="color:#0F6E56" aria-hidden="true"></i> BizFlow Admin</h1>
+    <h1><i class="ti ti-shield-lock" style="color:#2FAF9E" aria-hidden="true"></i> BizFlow Admin</h1>
     <div class="logout-link" onclick="logout()"><i class="ti ti-logout" aria-hidden="true"></i> Log out</div>
   </div>
 
@@ -628,11 +631,11 @@ function renderAllCharts(businesses, timeseries) {
       datasets: [
         {
           label: 'Cumulative revenue', data: cumulativeRevenue, yAxisID: 'y',
-          borderColor: '#0F6E56', backgroundColor: '#0F6E5622', fill: true, tension: 0.3, pointRadius: 2
+          borderColor: '#2FAF9E', backgroundColor: '#2FAF9E22', fill: true, tension: 0.3, pointRadius: 2
         },
         {
           label: 'Cumulative orders', data: cumulativeOrders, yAxisID: 'y1',
-          borderColor: '#3D6B8C', backgroundColor: 'transparent', borderDash: [4, 3], tension: 0.3, pointRadius: 2
+          borderColor: '#6FA8F0', backgroundColor: 'transparent', borderDash: [4, 3], tension: 0.3, pointRadius: 2
         }
       ]
     },
@@ -675,7 +678,7 @@ function renderAllCharts(businesses, timeseries) {
     type: 'bar',
     data: {
       labels: top.map(b => b.name),
-      datasets: [{ data: top.map(b => Number(b.totalRevenue) || 0), backgroundColor: '#0F6E56', borderRadius: 5, maxBarThickness: 20 }]
+      datasets: [{ data: top.map(b => Number(b.totalRevenue) || 0), backgroundColor: '#2FAF9E', borderRadius: 5, maxBarThickness: 20 }]
     },
     options: {
       indexAxis: 'y', responsive: true, maintainAspectRatio: false,
@@ -695,7 +698,7 @@ function renderAllCharts(businesses, timeseries) {
     type: 'doughnut',
     data: {
       labels: ['Top 5 businesses', 'All other businesses'],
-      datasets: [{ data: [top5Sum, restSum], backgroundColor: ['#0F6E56', '#E2E8E5'], borderWidth: 0 }]
+      datasets: [{ data: [top5Sum, restSum], backgroundColor: ['#2FAF9E', '#20415F'], borderWidth: 0 }]
     },
     options: {
       responsive: true, maintainAspectRatio: false, cutout: '68%',
@@ -705,8 +708,8 @@ function renderAllCharts(businesses, timeseries) {
   const total = top5Sum + restSum;
   const pct = n => total ? Math.round((n / total) * 100) : 0;
   document.getElementById('revenue-share-legend').innerHTML = `
-    <div class="legend-item"><span class="legend-dot" style="background:#0F6E56"></span>Top 5 — ${pct(top5Sum)}%</div>
-    <div class="legend-item"><span class="legend-dot" style="background:#E2E8E5"></span>Rest — ${pct(restSum)}%</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#2FAF9E"></span>Top 5 — ${pct(top5Sum)}%</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#20415F"></span>Rest — ${pct(restSum)}%</div>
   `;
 }
 
@@ -796,8 +799,8 @@ async function loadStoreTimeseries(id) {
     data: {
       labels,
       datasets: [
-        { label: 'Cumulative revenue', data: cumulativeRevenue, yAxisID: 'y', borderColor: '#0F6E56', backgroundColor: '#0F6E5622', fill: true, tension: 0.3, pointRadius: 2 },
-        { label: 'Cumulative orders', data: cumulativeOrders, yAxisID: 'y1', borderColor: '#3D6B8C', backgroundColor: 'transparent', borderDash: [4, 3], tension: 0.3, pointRadius: 2 }
+        { label: 'Cumulative revenue', data: cumulativeRevenue, yAxisID: 'y', borderColor: '#2FAF9E', backgroundColor: '#2FAF9E22', fill: true, tension: 0.3, pointRadius: 2 },
+        { label: 'Cumulative orders', data: cumulativeOrders, yAxisID: 'y1', borderColor: '#6FA8F0', backgroundColor: 'transparent', borderDash: [4, 3], tension: 0.3, pointRadius: 2 }
       ]
     },
     options: {
