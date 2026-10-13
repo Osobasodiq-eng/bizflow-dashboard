@@ -2586,11 +2586,12 @@ async function loadFulfilment() {
 
 function renderFulfilment() {
   const { stages, counts } = _fulBoard;
+  const newest = (x, y) => new Date(y.createdAt) - new Date(x.createdAt); // latest orders first
   document.getElementById('ful-board').innerHTML = FUL_COLUMNS.map(col => {
-    const orders = stages[col.key] || [];
+    const orders = (stages[col.key] || []).slice().sort(newest);
     let inner = orders.length ? orders.map(fulCardHtml).join('') : `<div class="ful-empty">Nothing here</div>`;
     if (col.key === 'Delivered' && (stages.Cancelled || []).length) {
-      inner += `<div class="ful-done-title">Cancelled</div>` + stages.Cancelled.map(fulCardHtml).join('');
+      inner += `<div class="ful-done-title">Cancelled</div>` + stages.Cancelled.slice().sort(newest).map(fulCardHtml).join('');
     }
     return `<div class="ful-col"><div class="ful-col-head"><span><i class="ti ${col.icon}" style="font-size:14px;vertical-align:-2px" aria-hidden="true"></i> ${col.label}</span><span class="ful-count">${counts[col.key]}</span></div>${inner}</div>`;
   }).join('');
