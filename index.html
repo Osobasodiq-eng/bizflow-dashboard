@@ -52,6 +52,34 @@
 .theme-btn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
 .theme-btn .ti-sun{display:none}:root[data-theme="dark"] .theme-btn .ti-sun{display:inline}:root[data-theme="dark"] .theme-btn .ti-moon{display:none}
 .theme-float{position:fixed;top:14px;right:14px;z-index:210}
+/* ---------- notifications ---------- */
+.topbar-right{align-items:center}
+.nt-wrap{position:relative}
+.nt-badge{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--red);color:#fff;font-size:10.5px;font-weight:700;line-height:14px;display:flex;align-items:center;justify-content:center;border:2px solid var(--navy);font-family:var(--font-sans)}
+.nt-pop{position:absolute;right:0;top:46px;width:390px;max-height:min(540px,calc(100dvh - 110px));display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 18px 48px var(--shadow-color);z-index:120;overflow:hidden;animation:kzFadeInUp .18s ease both}
+.nt-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line)}
+.nt-title{font-size:14px;font-weight:600;color:var(--text)}
+.nt-link{border:none;background:none;color:var(--teal);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-sans);padding:2px 0}
+.nt-link:disabled{color:var(--muted);cursor:default}
+.nt-list{overflow:auto;flex:1;min-height:0}
+.nt-item{display:flex;gap:12px;padding:13px 16px;border-bottom:1px solid var(--line);cursor:pointer;position:relative;transition:background .12s;width:100%;text-align:left;background:transparent;border-left:none;border-right:none;border-top:none;font-family:var(--font-sans);color:inherit}
+.nt-item:last-child{border-bottom:none}
+.nt-item:hover{background:var(--hover-2)}
+.nt-item:focus-visible{outline:2px solid var(--teal);outline-offset:-2px}
+.nt-ico{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex:none}
+.nt-ico.order{background:var(--teal-t);color:var(--teal)}.nt-ico.stock{background:var(--amber-t);color:var(--amber)}.nt-ico.message{background:var(--blue-t);color:var(--blue)}.nt-ico.campaign{background:var(--purple-t);color:var(--purple)}
+.nt-main{min-width:0;flex:1}
+.nt-ttl{font-size:13px;font-weight:500;color:var(--soft);line-height:1.4}
+.nt-item.unread .nt-ttl{font-weight:600;color:var(--text)}
+.nt-body{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.45;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.nt-time{font-size:11px;color:var(--muted);margin-top:4px;display:flex;align-items:center;gap:6px}
+.nt-dot{width:8px;height:8px;border-radius:50%;background:var(--teal);flex:none;margin-top:6px}
+.nt-empty{padding:44px 24px;text-align:center;color:var(--muted);font-size:12.5px;line-height:1.5}
+.nt-empty i{display:block;font-size:30px;color:var(--line-hi);margin-bottom:8px}
+.nt-empty b{display:block;color:var(--soft);font-size:13.5px;margin-bottom:2px}
+#nt-toasts{position:fixed;right:20px;bottom:20px;z-index:300;display:flex;flex-direction:column;gap:10px;pointer-events:none}
+.nt-toast{pointer-events:auto;display:flex;gap:12px;width:340px;max-width:calc(100vw - 32px);padding:12px 14px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 14px 40px var(--shadow-color);cursor:pointer;animation:kzFadeInUp .25s ease both;text-align:left;font-family:var(--font-sans);color:inherit}
+@media(max-width:700px){.nt-pop{position:fixed;left:12px;right:12px;top:72px;width:auto}#nt-toasts{right:12px;left:12px;bottom:12px}.nt-toast{width:auto}}
 .kz-theming,.kz-theming *{transition:background-color .25s ease,border-color .25s ease,color .2s ease,fill .2s,stroke .2s!important}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
@@ -602,6 +630,13 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
         <div class="tb-date" id="tb-date" style="padding-left:8px;border-left:0.5px solid var(--color-border-tertiary);margin-left:4px">—</div>
       </div>
       <div class="topbar-right">
+        <div class="nt-wrap">
+          <button class="theme-btn" type="button" id="nt-btn" onclick="ntToggle(event)" aria-label="Notifications" aria-haspopup="true" aria-expanded="false" title="Notifications"><i class="ti ti-bell" aria-hidden="true"></i><span class="nt-badge" id="nt-badge" style="display:none">0</span></button>
+          <div class="nt-pop" id="nt-pop" role="dialog" aria-label="Notifications" style="display:none">
+            <div class="nt-head"><div class="nt-title">Notifications</div><button class="nt-link" id="nt-readall" onclick="ntReadAll()">Mark all as read</button></div>
+            <div class="nt-list" id="nt-list"></div>
+          </div>
+        </div>
         <button class="theme-btn" type="button" onclick="kzToggleTheme()" data-theme-toggle aria-label="Switch to light mode" title="Switch theme"><i class="ti ti-sun" aria-hidden="true"></i><i class="ti ti-moon" aria-hidden="true"></i></button>
         <button class="btn" onclick="showBusinessSummary()"><i class="ti ti-sparkles" style="font-size:13px" aria-hidden="true"></i> <span class="btn-text">Business summary</span></button>
         <button class="btn btn-g" onclick="openNewOrderModal()"><i class="ti ti-plus" style="font-size:13px" aria-hidden="true"></i> <span class="btn-text">New Order</span></button>
@@ -1227,6 +1262,73 @@ async function updateInventoryBadge() {
   } catch (err) { /* leave badge as-is if this fails — non-critical */ }
 }
 
+// ---------- in-app notifications (the bell) ----------
+var NT = { items: [], unread: 0, seen: new Set(), first: true, timer: null };
+var NT_BASE_TITLE = document.title;
+var NT_ICON = { order: 'shopping-bag', stock: 'alert-triangle', message: 'message-circle-2', campaign: 'speakerphone' };
+function ntKey(n) { return n.id + '|' + n.at; }
+async function ntLoad() {
+  try {
+    const r = await apiFetch(`${API_BASE}/api/notifications`);
+    if (!r.ok) return;
+    const d = await r.json();
+    const fresh = d.items.filter(n => !n.read && !NT.seen.has(ntKey(n)));
+    d.items.forEach(n => NT.seen.add(ntKey(n)));
+    NT.items = d.items; NT.unread = d.unread;
+    if (!NT.first && document.getElementById('nt-pop').style.display === 'none') fresh.slice(0, 3).reverse().forEach(ntToast); // pop up what arrived since the last check
+    NT.first = false;
+    ntRender();
+  } catch (e) { /* offline or server asleep — try again at the next tick */ }
+}
+function ntRender() {
+  const b = document.getElementById('nt-badge');
+  b.textContent = NT.unread > 99 ? '99+' : NT.unread; b.style.display = NT.unread > 0 ? 'flex' : 'none';
+  document.getElementById('nt-btn').setAttribute('aria-label', NT.unread ? `Notifications, ${NT.unread} unread` : 'Notifications');
+  document.title = (NT.unread ? `(${NT.unread}) ` : '') + NT_BASE_TITLE;
+  document.getElementById('nt-readall').disabled = NT.unread === 0;
+  document.getElementById('nt-list').innerHTML = NT.items.length ? NT.items.map(n => `
+    <button class="nt-item ${n.read ? '' : 'unread'}" onclick="ntOpen(${n.id})">
+      <span class="nt-ico ${n.type}"><i class="ti ti-${NT_ICON[n.type] || 'bell'}" aria-hidden="true"></i></span>
+      <span class="nt-main"><div class="nt-ttl">${mkEsc(n.title)}</div>${n.body ? `<div class="nt-body">${mkEsc(n.body)}</div>` : ''}<div class="nt-time">${/^\d+[mhd]$/.test(ibAgo(n.at)) ? ibAgo(n.at) + ' ago' : ibAgo(n.at)}</div></span>
+      ${n.read ? '' : '<span class="nt-dot" aria-label="Unread"></span>'}
+    </button>`).join('')
+    : '<div class="nt-empty"><i class="ti ti-bell-off" aria-hidden="true"></i><b>You\'re all caught up</b>New orders, low stock, customer messages and finished campaigns will show up here.</div>';
+}
+function ntToggle(e) {
+  if (e) e.stopPropagation();
+  const pop = document.getElementById('nt-pop'), open = pop.style.display === 'none';
+  pop.style.display = open ? 'flex' : 'none';
+  document.getElementById('nt-btn').setAttribute('aria-expanded', open);
+  if (open) ntLoad();
+}
+function ntClose() { const p = document.getElementById('nt-pop'); if (p) { p.style.display = 'none'; document.getElementById('nt-btn').setAttribute('aria-expanded', 'false'); } }
+document.addEventListener('click', e => { if (!e.target.closest('.nt-wrap')) ntClose(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') ntClose(); });
+async function ntOpen(id) {
+  const n = NT.items.find(x => x.id === id); if (!n) return;
+  ntClose();
+  if (!n.read) { n.read = true; NT.unread = Math.max(0, NT.unread - 1); ntRender(); apiFetch(`${API_BASE}/api/notifications/${id}/read`, { method: 'POST' }).catch(() => {}); }
+  if (n.link) go(n.link, document.getElementById('s-nav-' + n.link));
+}
+async function ntReadAll() {
+  NT.items.forEach(n => n.read = true); NT.unread = 0; ntRender();
+  try { await apiFetch(`${API_BASE}/api/notifications/read-all`, { method: 'POST' }); } catch (e) {}
+}
+function ntToast(n) {
+  let box = document.getElementById('nt-toasts');
+  if (!box) { box = document.createElement('div'); box.id = 'nt-toasts'; document.body.appendChild(box); }
+  const t = document.createElement('button'); t.className = 'nt-toast'; t.type = 'button';
+  t.innerHTML = `<span class="nt-ico ${n.type}"><i class="ti ti-${NT_ICON[n.type] || 'bell'}" aria-hidden="true"></i></span><span class="nt-main"><div class="nt-ttl" style="font-weight:600;color:var(--text)">${mkEsc(n.title)}</div>${n.body ? `<div class="nt-body">${mkEsc(n.body)}</div>` : ''}</span>`;
+  const done = () => { t.remove(); };
+  t.onclick = () => { done(); ntOpen(n.id); };
+  box.appendChild(t); setTimeout(done, 7000);
+}
+function ntStart() {
+  ntLoad();
+  if (!window._ntTimer) window._ntTimer = setInterval(() => { if (!document.hidden) ntLoad(); }, 30000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) ntLoad(); });
+}
+
 function enterApp() {
   document.getElementById('auth-screen').style.display = 'none';
   const businessName = localStorage.getItem('bizflow_business') || 'My Business';
@@ -1238,6 +1340,7 @@ function enterApp() {
   updateOrdersBadge();
   updateInventoryBadge();
   updateFulfilmentBadge();
+  ntStart();
   ibBadge(); if (!window._ibBadgeTimer) window._ibBadgeTimer = setInterval(ibBadge, 60000);
 }
 
