@@ -4,17 +4,26 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kooza — Social Commerce OS</title>
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0A1F33" id="meta-theme-color">
+<script>
+(function(){try{var t=localStorage.getItem('kooza_theme');if(t!=='light'&&t!=='dark')t=(window.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark';document.documentElement.setAttribute('data-theme',t);var m=document.getElementById('meta-theme-color');if(m)m.setAttribute('content',t==='light'?'#F2F5F9':'#0A1F33');}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();
+</script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.44.0/tabler-icons.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{
+:root,[data-theme="dark"]{
   /* Kooza design tokens — dark navy surface, teal for "good/primary", amber for attention */
-  --navy:#0A1F33; --navy-2:#0F2A44; --card:#122E4A; --card-hi:#17395A; --line:#20415F;
-  --teal:#2FAF9E; --amber:#D89A3D; --text:#EDF2F5; --soft:#C5D3DF; --muted:#93A9BD;
-  --red:#F0716F; --blue:#6FA8F0; --purple:#A99BF5;
+  --navy:#0A1F33; --navy-2:#0F2A44; --card:#122E4A; --card-hi:#17395A; --line:#20415F; --line-hi:var(--line-hi);
+  --teal:#2FAF9E; --teal-2:#8FD5C9; --amber:#D89A3D; --text:#EDF2F5; --soft:#C5D3DF; --muted:#93A9BD;
+  --red:#F0716F; --blue:#6FA8F0; --purple:#A99BF5; --pink:#F08BC0; --on-teal:#0A1F33;
   --teal-t:rgba(47,175,158,.15); --amber-t:rgba(216,154,61,.15); --red-t:rgba(240,113,111,.15);
-  --blue-t:rgba(111,168,240,.15); --purple-t:rgba(169,155,245,.15); --gray-t:rgba(147,169,189,.15);
+  --blue-t:rgba(111,168,240,.15); --purple-t:rgba(169,155,245,.15); --gray-t:rgba(147,169,189,.15); --pink-t:rgba(240,139,192,.16);
+  --teal-b:rgba(47,175,158,.35); --amber-b:rgba(216,154,61,.35); --red-b:var(--red-b);
+  --hover:var(--hover); --hover-2:var(--hover-2); --ring:var(--ring); --ring-2:var(--ring-2);
+  --overlay:rgba(5,14,24,.65); --shadow-color:var(--shadow-color); --switch-off:#2A4C6C; --placeholder:var(--placeholder);
+  --chart-grid:rgba(32,65,95,.7); --chart-fill:rgba(47,175,158,.10); --icon-dim:rgba(255,255,255,.5);
   /* legacy names still referenced all over the app */
   --color-background-primary:var(--card);
   --color-background-secondary:var(--navy);
@@ -26,10 +35,28 @@
   --font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
   color-scheme:dark;
 }
+:root[data-theme="light"]{
+  --navy:#F2F5F9; --navy-2:#FFFFFF; --card:#FFFFFF; --card-hi:#F3F6FA; --line:#DFE6EE; --line-hi:#C6D2DE;
+  --teal:#0E7567; --teal-2:#5FBFB1; --amber:#9A5700; --text:#0E2438; --soft:#34506A; --muted:#546C82;
+  --red:#C0332E; --blue:#2A6AC8; --purple:#6A55D8; --pink:#B8357A; --on-teal:#FFFFFF;
+  --teal-t:rgba(14,117,103,.10); --amber-t:rgba(154,87,0,.11); --red-t:rgba(192,51,46,.09);
+  --blue-t:rgba(42,106,200,.10); --purple-t:rgba(106,85,216,.10); --gray-t:rgba(84,108,130,.12); --pink-t:rgba(184,53,122,.10);
+  --teal-b:rgba(14,117,103,.35); --amber-b:rgba(154,87,0,.35); --red-b:rgba(192,51,46,.35);
+  --hover:rgba(14,36,56,.04); --hover-2:rgba(14,36,56,.03); --ring:rgba(14,117,103,.18); --ring-2:rgba(14,117,103,.18);
+  --overlay:rgba(14,36,56,.45); --shadow-color:rgba(14,36,56,.16); --switch-off:#C6D2DE; --placeholder:rgba(84,108,130,.75);
+  --chart-grid:rgba(14,36,56,.08); --chart-fill:rgba(14,117,103,.10); --icon-dim:rgba(14,36,56,.45);
+  color-scheme:light;
+}
+.theme-btn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;padding:0;border-radius:9px;background:var(--card);border:1px solid var(--line);color:var(--soft);cursor:pointer;font-size:17px;transition:border-color .15s,color .15s,background .15s}
+.theme-btn:hover{border-color:var(--line-hi);color:var(--text);background:var(--card-hi)}
+.theme-btn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.theme-btn .ti-sun{display:none}:root[data-theme="dark"] .theme-btn .ti-sun{display:inline}:root[data-theme="dark"] .theme-btn .ti-moon{display:none}
+.theme-float{position:fixed;top:14px;right:14px;z-index:210}
+.kz-theming,.kz-theming *{transition:background-color .25s ease,border-color .25s ease,color .2s ease,fill .2s,stroke .2s!important}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{background:var(--navy);color:var(--text);font-family:var(--font-sans);-webkit-font-smoothing:antialiased}
-::placeholder{color:rgba(147,169,189,.65)}
+::placeholder{color:var(--placeholder)}
 ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--line);border-radius:10px;border:2px solid transparent;background-clip:content-box}
 .app{display:flex;height:100vh;height:100dvh;background:var(--navy);font-family:var(--font-sans);overflow:hidden}
 
@@ -41,7 +68,7 @@ body{background:var(--navy);color:var(--text);font-family:var(--font-sans);-webk
 .s-logo-text::after{content:'.';color:var(--amber)}
 .s-logo-sub{font-size:11px;color:var(--muted);margin-top:2px}
 .s-nav{padding:0 12px;flex:1;overflow-y:auto}
-.s-section{padding:6px 12px;font-size:10px;font-weight:600;color:rgba(147,169,189,.65);letter-spacing:1px;margin-top:14px}
+.s-section{padding:6px 12px;font-size:10px;font-weight:600;color:var(--placeholder);letter-spacing:1px;margin-top:14px}
 .s-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;color:var(--muted);font-size:14px;font-weight:500;margin-bottom:2px;position:relative;transition:background .15s ease,color .15s ease}
 .s-item i{font-size:16px;flex-shrink:0;opacity:.85}
 .s-item:hover{color:var(--text)}
@@ -66,18 +93,18 @@ body{background:var(--navy);color:var(--text);font-family:var(--font-sans);-webk
 
 /* ---------- buttons ---------- */
 .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--soft);font-size:12.5px;font-weight:600;cursor:pointer;font-family:var(--font-sans);transition:background .15s ease,border-color .15s ease,color .15s ease,transform .12s ease}
-.btn:hover{background:rgba(255,255,255,.04);border-color:#2E5878;color:var(--text)}
+.btn:hover{background:var(--hover);border-color:var(--line-hi);color:var(--text)}
 .btn:active{transform:scale(.97)}
 .btn:disabled{opacity:.5;cursor:default}
-.btn-g{background:var(--teal);border-color:var(--teal);color:var(--navy);font-weight:700}
-.btn-g:hover{background:var(--teal);border-color:var(--teal);color:var(--navy);opacity:.9}
+.btn-g{background:var(--teal);border-color:var(--teal);color:var(--on-teal);font-weight:700}
+.btn-g:hover{background:var(--teal);border-color:var(--teal);color:var(--on-teal);opacity:.9}
 
 /* ---------- panels, cards, stats ---------- */
 .panel{display:none}
 .panel.on{display:block;animation:kzFadeInUp .3s cubic-bezier(.2,.8,.25,1) both}
 .kpi-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:22px}
 .kpi{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;transition:border-color .15s ease}
-.kpi:hover{border-color:#2E5878}
+.kpi:hover{border-color:var(--line-hi)}
 .kpi-val{order:1;font-size:26px;font-weight:700;color:var(--text);line-height:1.15}
 .kpi-label{order:2;font-size:12px;color:var(--muted);margin:2px 0 0;display:flex;align-items:center;justify-content:space-between}
 .kpi-foot{order:3;font-size:11.5px;margin-top:8px}
@@ -122,7 +149,7 @@ tr:last-child td{border-bottom:none}
 .inv-name{font-size:13px;font-weight:600;color:var(--text)}
 .inv-meta{font-size:11.5px;color:var(--muted);margin-top:2px}
 .notif{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:8px;background:var(--navy);border:1px solid var(--line);margin-bottom:8px;font-size:12.5px;cursor:pointer;transition:border-color .15s ease}
-.notif:hover{border-color:#2E5878}
+.notif:hover{border-color:var(--line-hi)}
 .notif i{font-size:15px;margin-top:1px;flex-shrink:0}
 .tl{list-style:none}
 .tl li{display:flex;gap:10px;padding-bottom:14px;position:relative}
@@ -137,24 +164,24 @@ tr:last-child td{border-bottom:none}
 .donut-big{font-size:20px;font-weight:700;color:var(--text)}
 .donut-sm{font-size:10.5px;color:var(--muted)}
 .wa-msg{padding:9px 12px;border-radius:0 10px 10px 10px;background:var(--navy);border:1px solid var(--line);font-size:12px;color:var(--text);max-width:220px;margin-bottom:6px}
-.wa-msg.out{border-radius:10px 0 10px 10px;background:var(--teal);border-color:var(--teal);color:var(--navy);margin-left:auto}
+.wa-msg.out{border-radius:10px 0 10px 10px;background:var(--teal);border-color:var(--teal);color:var(--on-teal);margin-left:auto}
 .seg-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--navy);border:1px solid var(--line);border-radius:8px;margin-bottom:8px;cursor:pointer;transition:border-color .15s ease}
-.seg-row:hover{border-color:#2E5878}
+.seg-row:hover{border-color:var(--line-hi)}
 .seg-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .seg-title{font-size:12.5px;font-weight:600;color:var(--text)}
 .seg-sub{font-size:11.5px;color:var(--muted)}
 
 /* ---------- form controls ---------- */
 input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]):not([type=color]),select,textarea{font-family:var(--font-sans);font-size:13px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--navy);color:var(--text);outline:none;transition:border-color .15s,box-shadow .15s}
-input:not([type=checkbox]):not([type=radio]):not([type=file]):focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(47,175,158,.16)}
+input:not([type=checkbox]):not([type=radio]):not([type=file]):focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--ring)}
 input[type=checkbox],input[type=radio]{accent-color:var(--teal)}
 select option{background:var(--card);color:var(--text)}
 
 /* ---------- auth screen ---------- */
 .auth-input{font-size:13px;padding:11px 13px;border:1px solid var(--line);border-radius:9px;background:var(--navy);color:var(--text);outline:none;width:100%;transition:border-color .15s,box-shadow .15s}
-.auth-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(47,175,158,.16)}
+.auth-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--ring)}
 .auth-label{font-size:12px;font-weight:500;color:var(--muted);margin-bottom:6px;display:block}
-.auth-btn{width:100%;padding:12px;border:none;border-radius:9px;background:var(--teal);color:var(--navy);font-size:14px;font-weight:700;cursor:pointer;transition:opacity .15s,transform .12s}
+.auth-btn{width:100%;padding:12px;border:none;border-radius:9px;background:var(--teal);color:var(--on-teal);font-size:14px;font-weight:700;cursor:pointer;transition:opacity .15s,transform .12s}
 .auth-btn:hover{opacity:.9}.auth-btn:active{transform:scale(.98)}
 .pw-wrap{position:relative}
 .pw-toggle{position:absolute;right:11px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--muted);font-size:15px;background:none;border:none;padding:2px}
@@ -166,7 +193,7 @@ select option{background:var(--card);color:var(--text)}
 .modal-label{font-size:12px;font-weight:500;color:var(--muted);margin-bottom:6px;display:block}
 .modal-field{margin-bottom:14px}
 .modal-input,.modal-select{font-size:13px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--navy);color:var(--text);outline:none;width:100%;transition:border-color .15s,box-shadow .15s;font-family:var(--font-sans)}
-.modal-input:focus,.modal-select:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(47,175,158,.16)}
+.modal-input:focus,.modal-select:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--ring)}
 .modal-row{display:flex;gap:10px}
 .modal-row>div{flex:1}
 .modal-error{color:var(--red);font-size:12px;min-height:14px;margin-bottom:4px}
@@ -174,11 +201,11 @@ select option{background:var(--card);color:var(--text)}
 .modal-btn{flex:1;padding:11px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:opacity .15s,transform .12s;text-align:center;font-family:var(--font-sans)}
 .modal-btn:active{transform:scale(.97)}
 .modal-btn:disabled{opacity:.5;cursor:default}
-.modal-btn-primary{background:var(--teal);color:var(--navy)}
+.modal-btn-primary{background:var(--teal);color:var(--on-teal)}
 .modal-btn-primary:hover{opacity:.9}
 .modal-btn-secondary{background:transparent;color:var(--soft);border:1px solid var(--line)}
-.modal-btn-secondary:hover{background:rgba(255,255,255,.04);color:var(--text)}
-.modal-btn-danger{background:var(--red-t);color:var(--red);border:1px solid rgba(240,113,111,.35)}
+.modal-btn-secondary:hover{background:var(--hover);color:var(--text)}
+.modal-btn-danger{background:var(--red-t);color:var(--red);border:1px solid var(--red-b)}
 .modal-btn-danger:hover{background:rgba(240,113,111,.22)}
 .modal-info-box{background:var(--navy);border:1px solid var(--line);border-radius:9px;padding:12px 14px;font-size:12.5px;color:var(--soft);line-height:1.7;margin-bottom:16px}
 .modal-info-box strong{color:var(--text)}
@@ -190,11 +217,11 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
 
 /* ---------- responsive ---------- */
 .mobile-menu-btn{display:none;align-items:center;justify-content:center;width:34px;height:34px;border-radius:8px;border:1px solid var(--line);background:transparent;cursor:pointer;color:var(--text);font-size:16px}
-#mobile-overlay{display:none;position:fixed;inset:0;background:rgba(5,14,24,.6);z-index:90}
+#mobile-overlay{display:none;position:fixed;inset:0;background:var(--overlay);z-index:90}
 .btn-text{display:inline}
 @media (max-width:860px){
   .mobile-menu-btn{display:flex}
-  .sidebar{position:fixed;top:0;left:0;height:100vh;height:100dvh;z-index:110;width:250px;transform:translateX(-100%);transition:transform .22s ease;box-shadow:6px 0 30px rgba(0,0,0,.5);overflow-y:auto;display:flex;flex-direction:column}
+  .sidebar{position:fixed;top:0;left:0;height:100vh;height:100dvh;z-index:110;width:250px;transform:translateX(-100%);transition:transform .22s ease;box-shadow:6px 0 30px var(--shadow-color);overflow-y:auto;display:flex;flex-direction:column}
   .s-footer{flex-shrink:0}
   .sidebar.mobile-open{transform:translateX(0)}
   #mobile-overlay.active{display:block}
@@ -233,7 +260,7 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
 .kz-delay-1{animation-delay:.06s}.kz-delay-2{animation-delay:.12s}.kz-delay-3{animation-delay:.18s}
 .kz-delay-4{animation-delay:.24s}.kz-delay-5{animation-delay:.30s}.kz-delay-6{animation-delay:.36s}
 .kz-lift{transition:transform .18s ease,border-color .18s ease}
-.kz-lift:hover{transform:translateY(-2px);border-color:#2E5878}
+.kz-lift:hover{transform:translateY(-2px);border-color:var(--line-hi)}
 .kpi{animation:kzFadeInUp .45s cubic-bezier(.2,.8,.25,1) both}
 .kpi:nth-child(1){animation-delay:.04s}.kpi:nth-child(2){animation-delay:.09s}.kpi:nth-child(3){animation-delay:.14s}.kpi:nth-child(4){animation-delay:.19s}
 .kz-skeleton{background:linear-gradient(90deg,var(--card) 25%,var(--card-hi) 37%,var(--card) 63%);background-size:400px 100%;animation:kzShimmer 1.4s ease infinite;border-radius:8px}
@@ -250,7 +277,7 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
 .ful-col-head{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px}
 .ful-count{font-size:11px;font-weight:600;background:var(--gray-t);color:var(--muted);border-radius:20px;padding:1px 9px}
 .ful-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px;font-size:12.5px}
-.ful-card.sel{border-color:var(--teal);box-shadow:0 0 0 2px rgba(47,175,158,.18)}
+.ful-card.sel{border-color:var(--teal);box-shadow:0 0 0 2px var(--ring-2)}
 .ful-card-top{display:flex;align-items:center;gap:6px;margin-bottom:4px}
 .ful-id{font-weight:600;color:var(--text)}
 .ful-meta{color:var(--muted);font-size:11.5px;line-height:1.5}
@@ -265,20 +292,20 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
 .mk-tab{border:none;background:transparent;font-size:13.5px;font-weight:500;color:var(--muted);padding:8px 14px;border-radius:8px;cursor:pointer;font-family:var(--font-sans);transition:color .15s}
 .mk-tab:hover{color:var(--text)}
 .mk-tab.on{background:var(--teal-t);color:var(--teal);font-weight:600}
-.mk-warn{background:var(--amber-t);color:var(--amber);border:1px solid rgba(216,154,61,.3);border-radius:10px;padding:11px 14px;font-size:12.5px;margin-bottom:16px;line-height:1.5}
+.mk-warn{background:var(--amber-t);color:var(--amber);border:1px solid var(--amber-b);border-radius:10px;padding:11px 14px;font-size:12.5px;margin-bottom:16px;line-height:1.5}
 .mk-warn strong{color:var(--text)}
 .mk-auto{border:1px solid var(--line);border-radius:10px;padding:18px;margin-bottom:14px;background:var(--card)}
 .mk-auto-head{display:flex;align-items:flex-start;gap:12px}
-.mk-switch{position:relative;width:40px;height:23px;flex:none;border:none;border-radius:20px;background:#2A4C6C;cursor:pointer;transition:background .15s;padding:0}
-.mk-switch::after{content:'';position:absolute;top:3px;left:3px;width:17px;height:17px;border-radius:50%;background:var(--text);transition:transform .15s}
-.mk-switch.on{background:var(--teal)}.mk-switch.on::after{transform:translateX(17px);background:var(--navy)}
+.mk-switch{position:relative;width:40px;height:23px;flex:none;border:none;border-radius:20px;background:var(--switch-off);cursor:pointer;transition:background .15s;padding:0}
+.mk-switch::after{content:'';position:absolute;top:3px;left:3px;width:17px;height:17px;border-radius:50%;background:#fff;transition:transform .15s}
+.mk-switch.on{background:var(--teal)}.mk-switch.on::after{transform:translateX(17px);background:#fff}
 .mk-switch:disabled{opacity:.5;cursor:wait}
 .mk-auto-stats{display:flex;flex-wrap:wrap;gap:22px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
 .mk-auto-stats strong{display:block;font-size:16px;color:var(--text)}
 .mk-empty{padding:18px;text-align:center;color:var(--muted);font-size:12.5px}
 .mk-seg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
 .mk-seg{border:1px solid var(--line);border-radius:10px;padding:16px;background:var(--navy);transition:border-color .15s}
-.mk-seg:hover{border-color:#2E5878}
+.mk-seg:hover{border-color:var(--line-hi)}
 .mk-seg-name{font-weight:600;font-size:13.5px;color:var(--text)}
 .mk-seg-desc{font-size:11.5px;color:var(--muted);margin:3px 0 12px;min-height:28px}
 .mk-seg-num{font-size:26px;font-weight:700;color:var(--text)}
@@ -300,7 +327,7 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
 .ib-chip.on{background:var(--teal-t);border-color:transparent;color:var(--teal);font-weight:600}
 .ib-rows{max-height:calc(100vh - 300px);min-height:260px;overflow:auto}
 .ib-row{display:flex;gap:12px;padding:13px 18px;border-top:1px solid var(--line);cursor:pointer;position:relative}
-.ib-row:hover{background:rgba(255,255,255,.025)}.ib-row.sel{background:var(--teal-t)}
+.ib-row:hover{background:var(--hover-2)}.ib-row.sel{background:var(--teal-t)}
 .ib-av{width:38px;height:38px;border-radius:50%;background:var(--navy);border:1px solid var(--line);color:var(--teal);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex:none}
 .ib-name{font-size:13.5px;font-weight:600;color:var(--text);display:flex;justify-content:space-between;gap:8px}
 .ib-name small{font-weight:400;color:var(--muted);font-size:11px;white-space:nowrap}
@@ -314,8 +341,8 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
 .ib-msgs{padding:18px;display:flex;flex-direction:column;gap:8px;max-height:calc(100vh - 410px);min-height:220px;overflow:auto;background:var(--navy-2)}
 .ib-msg{max-width:78%;padding:9px 13px;border-radius:12px;font-size:13px;line-height:1.5;white-space:pre-wrap;word-break:break-word}
 .ib-msg.in{background:var(--card);border:1px solid var(--line);align-self:flex-start}
-.ib-msg.out{background:var(--teal);color:var(--navy);align-self:flex-end}
-.ib-msg.failed{background:var(--red-t);color:var(--red);border:1px solid rgba(240,113,111,.35)}
+.ib-msg.out{background:var(--teal);color:var(--on-teal);align-self:flex-end}
+.ib-msg.failed{background:var(--red-t);color:var(--red);border:1px solid var(--red-b)}
 .ib-msg small{display:block;font-size:10px;opacity:.7;margin-top:3px}
 .ib-reply{display:flex;gap:8px;padding:12px 18px;border-top:1px solid var(--line);align-items:flex-end}
 .ib-reply textarea{flex:1;resize:none;min-height:42px;max-height:140px}
@@ -331,17 +358,18 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
 .cc-num{font-size:11.5px;color:var(--muted);margin-bottom:5px;font-weight:600}
 .cc-post{font-size:11px;font-weight:500;border-radius:6px;padding:3px 7px;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:var(--teal-t);color:var(--teal)}
 .cc-post.posted{background:var(--gray-t);color:var(--muted);text-decoration:line-through}
-.cc-post.c-whatsapp{background:var(--teal-t);color:var(--teal)}.cc-post.c-facebook{background:var(--blue-t);color:var(--blue)}.cc-post.c-tiktok{background:var(--gray-t);color:var(--soft)}.cc-post.c-instagram{background:rgba(240,139,192,.16);color:#F08BC0}
+.cc-post.c-whatsapp{background:var(--teal-t);color:var(--teal)}.cc-post.c-facebook{background:var(--blue-t);color:var(--blue)}.cc-post.c-tiktok{background:var(--gray-t);color:var(--soft)}.cc-post.c-instagram{background:var(--pink-t);color:var(--pink)}
 @media(max-width:700px){.cc-day{min-height:60px;padding:3px}.cc-post{font-size:9px;padding:1px 3px}}
 </style>
 </head>
 <body>
 
-<div id="auth-screen" style="position:fixed;inset:0;background:#0A1F33;z-index:200;display:flex;align-items:stretch;justify-content:center;font-family:var(--font-sans);overflow-y:auto">
-  <div class="auth-panels" style="display:flex;width:100%;max-width:920px;margin:auto;box-shadow:0 20px 60px rgba(0,0,0,0.45);border:1px solid #20415F;border-radius:16px;overflow:hidden">
+<div id="auth-screen" style="position:fixed;inset:0;background:var(--navy);z-index:200;display:flex;align-items:stretch;justify-content:center;font-family:var(--font-sans);overflow-y:auto">
+  <button class="theme-btn theme-float" type="button" onclick="kzToggleTheme()" data-theme-toggle aria-label="Switch to light mode" title="Switch theme"><i class="ti ti-sun" aria-hidden="true"></i><i class="ti ti-moon" aria-hidden="true"></i></button>
+  <div class="auth-panels" style="display:flex;width:100%;max-width:920px;margin:auto;box-shadow:0 20px 60px rgba(0,0,0,0.45);border:1px solid var(--line);border-radius:16px;overflow:hidden">
 
     <!-- Left brand panel -->
-    <div class="auth-brand-panel kz-fade-in" style="flex:1;position:relative;padding:48px 40px;display:flex;flex-direction:column;justify-content:space-between;color:#EDF2F5;min-width:280px;overflow:hidden;background:#0F2A44;">
+    <div class="auth-brand-panel kz-fade-in" data-theme="dark" style="flex:1;position:relative;padding:48px 40px;display:flex;flex-direction:column;justify-content:space-between;color:var(--text);min-width:280px;overflow:hidden;background:var(--navy-2);">
       <img src="https://images.unsplash.com/photo-1485217988980-11786ced9454?auto=format&fit=crop&w=900&q=80" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.55;">
       <div style="position:absolute;inset:0;background:linear-gradient(165deg, rgba(10,31,51,0.82) 0%, rgba(15,42,68,0.90) 55%, rgba(10,31,51,0.97) 100%);"></div>
       <div style="display:flex;align-items:center;gap:10px;position:relative;z-index:1;">
@@ -352,7 +380,7 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
           <path d="M29 27 L29 17" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
           <path d="M8 20 L32 12" stroke="#34D399" stroke-width="2" stroke-linecap="round" fill="none"/>
         </svg>
-        <span style="font-size:19px;font-weight:600;letter-spacing:-0.3px">Kooza<span style="color:#D89A3D">.</span></span>
+        <span style="font-size:19px;font-weight:600;letter-spacing:-0.3px">Kooza<span style="color:var(--amber)">.</span></span>
       </div>
       <div style="position:relative;z-index:1;">
         <h1 style="font-size:26px;font-weight:600;line-height:1.3;margin-bottom:12px">Run your business<br>from one place.</h1>
@@ -362,11 +390,11 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
     </div>
 
     <!-- Right form panel -->
-    <div class="auth-form-panel kz-fade-in kz-delay-1" style="flex:1.15;background:#122E4A;padding:48px 44px;display:flex;flex-direction:column;justify-content:center;min-width:320px">
+    <div class="auth-form-panel kz-fade-in kz-delay-1" style="flex:1.15;background:var(--card);padding:48px 44px;display:flex;flex-direction:column;justify-content:center;min-width:320px">
 
       <div id="auth-login">
-        <h2 style="font-size:20px;font-weight:600;color:#EDF2F5;margin-bottom:4px">Welcome back</h2>
-        <p style="font-size:13px;color:#93A9BD;margin-bottom:26px">Log in to your business account</p>
+        <h2 style="font-size:20px;font-weight:600;color:var(--text);margin-bottom:4px">Welcome back</h2>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:26px">Log in to your business account</p>
         <div style="display:flex;flex-direction:column;gap:16px">
           <div>
             <label class="auth-label">Email</label>
@@ -374,23 +402,23 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center">
             <label class="auth-label" style="margin-bottom:0">Password</label>
-            <a href="#" onclick="showForgot();return false;" style="font-size:12px;color:#2FAF9E;text-decoration:none">Forgot password?</a>
+            <a href="#" onclick="showForgot();return false;" style="font-size:12px;color:var(--teal);text-decoration:none">Forgot password?</a>
           </div>
           <div class="pw-wrap" style="margin-top:-8px">
             <input id="login-password" type="password" class="auth-input" style="padding-right:38px" placeholder="Enter your password">
             <button type="button" class="pw-toggle" onclick="togglePw('login-password',this)"><i class="ti ti-eye" aria-hidden="true"></i></button>
           </div>
-          <div id="login-error" style="color:#F0716F;font-size:12px;min-height:14px"></div>
+          <div id="login-error" style="color:var(--red);font-size:12px;min-height:14px"></div>
           <button class="auth-btn" onclick="submitLogin()">Log in</button>
         </div>
-        <p style="text-align:center;font-size:13px;color:#93A9BD;margin-top:22px">
-          New to Kooza? <a href="#" onclick="showSignup();return false;" style="color:#2FAF9E;font-weight:600;text-decoration:none">Create a business account</a>
+        <p style="text-align:center;font-size:13px;color:var(--muted);margin-top:22px">
+          New to Kooza? <a href="#" onclick="showSignup();return false;" style="color:var(--teal);font-weight:600;text-decoration:none">Create a business account</a>
         </p>
       </div>
 
       <div id="auth-signup" style="display:none">
-        <h2 style="font-size:20px;font-weight:600;color:#EDF2F5;margin-bottom:4px">Create your account</h2>
-        <p style="font-size:13px;color:#93A9BD;margin-bottom:26px">Set up your business in under a minute</p>
+        <h2 style="font-size:20px;font-weight:600;color:var(--text);margin-bottom:4px">Create your account</h2>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:26px">Set up your business in under a minute</p>
         <div style="display:flex;flex-direction:column;gap:16px">
           <div>
             <label class="auth-label">Business name</label>
@@ -407,34 +435,34 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
               <button type="button" class="pw-toggle" onclick="togglePw('signup-password',this)"><i class="ti ti-eye" aria-hidden="true"></i></button>
             </div>
           </div>
-          <div id="signup-error" style="color:#F0716F;font-size:12px;min-height:14px"></div>
+          <div id="signup-error" style="color:var(--red);font-size:12px;min-height:14px"></div>
           <button class="auth-btn" onclick="submitSignup()">Create account</button>
         </div>
-        <p style="text-align:center;font-size:13px;color:#93A9BD;margin-top:22px">
-          Already have an account? <a href="#" onclick="showLogin();return false;" style="color:#2FAF9E;font-weight:600;text-decoration:none">Log in</a>
+        <p style="text-align:center;font-size:13px;color:var(--muted);margin-top:22px">
+          Already have an account? <a href="#" onclick="showLogin();return false;" style="color:var(--teal);font-weight:600;text-decoration:none">Log in</a>
         </p>
       </div>
 
       <div id="auth-forgot" style="display:none">
-        <h2 style="font-size:20px;font-weight:600;color:#EDF2F5;margin-bottom:4px">Reset your password</h2>
-        <p style="font-size:13px;color:#93A9BD;margin-bottom:26px">Enter your account email and we'll help you reset it</p>
+        <h2 style="font-size:20px;font-weight:600;color:var(--text);margin-bottom:4px">Reset your password</h2>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:26px">Enter your account email and we'll help you reset it</p>
         <div style="display:flex;flex-direction:column;gap:16px">
           <div>
             <label class="auth-label">Email</label>
             <input id="forgot-email" type="email" class="auth-input" placeholder="you@business.com">
           </div>
-          <div id="forgot-error" style="color:#F0716F;font-size:12px;min-height:14px"></div>
+          <div id="forgot-error" style="color:var(--red);font-size:12px;min-height:14px"></div>
           <button class="auth-btn" onclick="submitForgot()">Send reset instructions</button>
         </div>
-        <div id="forgot-result" style="display:none;margin-top:18px;padding:14px;background:#0A1F33;border-radius:9px;font-size:12px;color:#C5D3DF;line-height:1.6"></div>
-        <p style="text-align:center;font-size:13px;color:#93A9BD;margin-top:22px">
-          <a href="#" onclick="showLogin();return false;" style="color:#2FAF9E;font-weight:600;text-decoration:none">Back to log in</a>
+        <div id="forgot-result" style="display:none;margin-top:18px;padding:14px;background:var(--navy);border-radius:9px;font-size:12px;color:var(--soft);line-height:1.6"></div>
+        <p style="text-align:center;font-size:13px;color:var(--muted);margin-top:22px">
+          <a href="#" onclick="showLogin();return false;" style="color:var(--teal);font-weight:600;text-decoration:none">Back to log in</a>
         </p>
       </div>
 
       <div id="auth-reset" style="display:none">
-        <h2 style="font-size:20px;font-weight:600;color:#EDF2F5;margin-bottom:4px">Choose a new password</h2>
-        <p style="font-size:13px;color:#93A9BD;margin-bottom:26px">Open the link we emailed you, or paste your reset code here, and set a new password</p>
+        <h2 style="font-size:20px;font-weight:600;color:var(--text);margin-bottom:4px">Choose a new password</h2>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:26px">Open the link we emailed you, or paste your reset code here, and set a new password</p>
         <div style="display:flex;flex-direction:column;gap:16px">
           <div>
             <label class="auth-label">Reset code</label>
@@ -447,11 +475,11 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
               <button type="button" class="pw-toggle" onclick="togglePw('reset-password',this)"><i class="ti ti-eye" aria-hidden="true"></i></button>
             </div>
           </div>
-          <div id="reset-error" style="color:#F0716F;font-size:12px;min-height:14px"></div>
+          <div id="reset-error" style="color:var(--red);font-size:12px;min-height:14px"></div>
           <button class="auth-btn" onclick="submitReset()">Update password</button>
         </div>
-        <p style="text-align:center;font-size:13px;color:#93A9BD;margin-top:22px">
-          <a href="#" onclick="showLogin();return false;" style="color:#2FAF9E;font-weight:600;text-decoration:none">Back to log in</a>
+        <p style="text-align:center;font-size:13px;color:var(--muted);margin-top:22px">
+          <a href="#" onclick="showLogin();return false;" style="color:var(--teal);font-weight:600;text-decoration:none">Back to log in</a>
         </p>
       </div>
 
@@ -460,8 +488,8 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
 </div>
 
 <div class="app">
-  <div id="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(5,14,24,0.65);z-index:100;align-items:center;justify-content:center" onclick="if(event.target===this)closeModal()">
-    <div id="modal-box" style="background:#122E4A;border:1px solid #20415F;border-radius:12px;padding:26px;width:440px;max-width:90vw;max-height:85vh;overflow-y:auto;font-family:var(--font-sans);box-shadow:0 24px 60px rgba(0,0,0,0.5)"></div>
+  <div id="modal-overlay" style="display:none;position:fixed;inset:0;background:var(--overlay);z-index:100;align-items:center;justify-content:center" onclick="if(event.target===this)closeModal()">
+    <div id="modal-box" style="background:var(--card);border:1px solid var(--line);border-radius:12px;padding:26px;width:440px;max-width:90vw;max-height:85vh;overflow-y:auto;font-family:var(--font-sans);box-shadow:0 24px 60px rgba(0,0,0,0.5)"></div>
   </div>
   <div class="sidebar" id="sidebar">
     <div class="s-logo">
@@ -479,7 +507,7 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
       <div class="s-section">OVERVIEW</div>
       <div class="s-item on" id="s-nav-dashboard" onclick="go('dashboard',this)"><i class="ti ti-layout-dashboard" aria-hidden="true"></i> Dashboard</div>
       <div class="s-section">MANAGE</div>
-      <div class="s-item" id="s-nav-inventory" onclick="go('inventory',this)"><i class="ti ti-box" aria-hidden="true"></i> Inventory <span class="badge" id="s-badge-inventory" style="background:rgba(231,76,60,0.25);color:#F0716F;display:none">0</span></div>
+      <div class="s-item" id="s-nav-inventory" onclick="go('inventory',this)"><i class="ti ti-box" aria-hidden="true"></i> Inventory <span class="badge" id="s-badge-inventory" style="background:rgba(231,76,60,0.25);color:var(--red);display:none">0</span></div>
       <div class="s-item" id="s-nav-customers" onclick="go('customers',this)"><i class="ti ti-users" aria-hidden="true"></i> Customers</div>
       <div class="s-item" id="s-nav-orders" onclick="go('orders',this)"><i class="ti ti-shopping-bag" aria-hidden="true"></i> Orders <span class="badge" id="s-badge-orders" style="display:none">0</span></div>
       <div class="s-item" id="s-nav-fulfilment" onclick="go('fulfilment',this)"><i class="ti ti-truck-delivery" aria-hidden="true"></i> Fulfilment <span class="badge" id="s-badge-fulfilment" style="display:none">0</span></div>
@@ -491,7 +519,7 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
       <div class="s-item" onclick="showDeliveryZones()"><i class="ti ti-map-pin" aria-hidden="true"></i> Delivery zones</div>
       <div class="s-section">MARKETING</div>
       <div class="s-item" id="s-nav-marketing" onclick="go('marketing',this)"><i class="ti ti-speakerphone" aria-hidden="true"></i> Marketing</div>
-      <div class="s-item" id="s-nav-inbox" onclick="go('inbox',this)"><i class="ti ti-inbox" aria-hidden="true"></i> Inbox <span class="badge" id="s-badge-inbox" style="background:rgba(47,175,158,.18);color:#2FAF9E;display:none">0</span></div>
+      <div class="s-item" id="s-nav-inbox" onclick="go('inbox',this)"><i class="ti ti-inbox" aria-hidden="true"></i> Inbox <span class="badge" id="s-badge-inbox" style="background:rgba(47,175,158,.18);color:var(--teal);display:none">0</span></div>
       <div class="s-item" id="s-nav-content" onclick="go('content',this)"><i class="ti ti-calendar-event" aria-hidden="true"></i> Content calendar</div>
       <div class="s-section">GROWTH</div>
       <div class="s-item" style="opacity:0.45;cursor:default"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i> WhatsApp <span class="badge">Soon</span></div>
@@ -501,7 +529,7 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
       <div class="s-merchant">
         <div class="s-av" id="s-av">—</div>
         <div><div class="s-mname" id="s-mname">—</div><div class="s-mplan" id="s-memail">—</div></div>
-        <i class="ti ti-logout" style="font-size:14px;color:rgba(255,255,255,0.5);margin-left:auto;cursor:pointer" onclick="logout()" title="Log out" aria-hidden="true"></i>
+        <i class="ti ti-logout" style="font-size:14px;color:var(--icon-dim);margin-left:auto;cursor:pointer" onclick="logout()" title="Log out" aria-hidden="true"></i>
       </div>
     </div>
   </div>
@@ -514,6 +542,7 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
         <div class="tb-date" id="tb-date" style="padding-left:8px;border-left:0.5px solid var(--color-border-tertiary);margin-left:4px">—</div>
       </div>
       <div class="topbar-right">
+        <button class="theme-btn" type="button" onclick="kzToggleTheme()" data-theme-toggle aria-label="Switch to light mode" title="Switch theme"><i class="ti ti-sun" aria-hidden="true"></i><i class="ti ti-moon" aria-hidden="true"></i></button>
         <button class="btn" onclick="showBusinessSummary()"><i class="ti ti-sparkles" style="font-size:13px" aria-hidden="true"></i> <span class="btn-text">Business summary</span></button>
         <button class="btn btn-g" onclick="openNewOrderModal()"><i class="ti ti-plus" style="font-size:13px" aria-hidden="true"></i> <span class="btn-text">New Order</span></button>
       </div>
@@ -526,7 +555,7 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
         <div id="payment-setup-banner"></div>
         <div class="kpi-row">
           <div class="kpi">
-            <div class="kpi-label">Revenue today <i class="ti ti-trending-up" style="font-size:13px;color:#2FAF9E" aria-hidden="true"></i></div>
+            <div class="kpi-label">Revenue today <i class="ti ti-trending-up" style="font-size:13px;color:var(--teal)" aria-hidden="true"></i></div>
             <div class="kpi-val" id="kpi-revenue">—</div>
             <div class="kpi-foot up" id="kpi-revenue-foot">Loading…</div>
           </div>
@@ -536,12 +565,12 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
             <div class="kpi-foot up" id="kpi-orders-foot">Loading…</div>
           </div>
           <div class="kpi">
-            <div class="kpi-label">Unpaid <i class="ti ti-clock" style="font-size:13px;color:#D89A3D" aria-hidden="true"></i></div>
+            <div class="kpi-label">Unpaid <i class="ti ti-clock" style="font-size:13px;color:var(--amber)" aria-hidden="true"></i></div>
             <div class="kpi-val" id="kpi-unpaid">—</div>
             <div class="kpi-foot warn" id="kpi-unpaid-foot">Loading…</div>
           </div>
           <div class="kpi">
-            <div class="kpi-label">Low stock <i class="ti ti-alert-triangle" style="font-size:13px;color:#F0716F" aria-hidden="true"></i></div>
+            <div class="kpi-label">Low stock <i class="ti ti-alert-triangle" style="font-size:13px;color:var(--red)" aria-hidden="true"></i></div>
             <div class="kpi-val" id="kpi-lowstock">—</div>
             <div class="kpi-foot danger">Restock needed</div>
           </div>
@@ -629,7 +658,7 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
           <div class="card">
             <div class="card-head"><div class="card-title" id="cust-detail-name">Loading…</div><span class="pill p-amber" id="cust-detail-tag">—</span></div>
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-              <div style="width:40px;height:40px;border-radius:50%;background:rgba(47,175,158,.15);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:#EDF2F5" id="cust-detail-av">—</div>
+              <div style="width:40px;height:40px;border-radius:50%;background:var(--teal-t);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--text)" id="cust-detail-av">—</div>
               <div><div style="font-size:13px;font-weight:500;color:var(--color-text-primary)" id="cust-detail-phone">—</div><div style="font-size:11px;color:var(--color-text-secondary)" id="cust-detail-loc">—</div></div>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
@@ -658,8 +687,8 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
         <div class="kpi-row">
           <div class="kpi"><div class="kpi-label">Products</div><div class="kpi-val" id="inv-kpi-products">—</div><div class="kpi-foot" style="color:var(--color-text-secondary)" id="inv-kpi-cats">—</div></div>
           <div class="kpi"><div class="kpi-label">Stock value</div><div class="kpi-val" id="inv-kpi-value">—</div><div class="kpi-foot up">Cost basis</div></div>
-          <div class="kpi"><div class="kpi-label">Low stock</div><div class="kpi-val" style="color:#D89A3D" id="inv-kpi-low">—</div><div class="kpi-foot warn">Below threshold</div></div>
-          <div class="kpi"><div class="kpi-label">Out of stock</div><div class="kpi-val" style="color:#F0716F" id="inv-kpi-out">—</div><div class="kpi-foot danger" id="inv-kpi-out-names">—</div></div>
+          <div class="kpi"><div class="kpi-label">Low stock</div><div class="kpi-val" style="color:var(--amber)" id="inv-kpi-low">—</div><div class="kpi-foot warn">Below threshold</div></div>
+          <div class="kpi"><div class="kpi-label">Out of stock</div><div class="kpi-val" style="color:var(--red)" id="inv-kpi-out">—</div><div class="kpi-foot danger" id="inv-kpi-out-names">—</div></div>
         </div>
         <div class="row2b">
           <div class="card" style="grid-column:1/-1">
@@ -720,7 +749,7 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
             </div>
           </div>
           <div class="card" style="display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:8px">
-            <i class="ti ti-scale" style="font-size:32px;color:#2FAF9E" aria-hidden="true"></i>
+            <i class="ti ti-scale" style="font-size:32px;color:var(--teal)" aria-hidden="true"></i>
             <div style="font-size:12px;color:var(--color-text-secondary)">Net profit this month</div>
             <div style="font-size:24px;font-weight:600" id="exp-profit-big">—</div>
             <div style="font-size:11px;color:var(--color-text-secondary)" id="exp-profit-detail">Loading…</div>
@@ -750,8 +779,8 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
               <button class="btn" style="font-size:12px" onclick="loadFulfilment()"><i class="ti ti-refresh" style="font-size:12px" aria-hidden="true"></i> Refresh</button>
             </div>
           </div>
-          <div id="ful-toolbar" style="display:none;gap:8px;align-items:center;padding:8px 10px;background:rgba(47,175,158,.15);border-radius:8px;margin-bottom:12px;font-size:12px">
-            <span id="ful-selected-count" style="font-weight:600;color:#2FAF9E"></span>
+          <div id="ful-toolbar" style="display:none;gap:8px;align-items:center;padding:8px 10px;background:var(--teal-t);border-radius:8px;margin-bottom:12px;font-size:12px">
+            <span id="ful-selected-count" style="font-weight:600;color:var(--teal)"></span>
             <span style="flex:1"></span>
             <span id="ful-bulk-buttons" style="display:flex;gap:6px"></span>
             <button class="btn" style="font-size:12px" onclick="fulClearSelection()">Clear</button>
@@ -813,10 +842,10 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
             <div class="card-head"><div class="card-title">Recent campaigns</div><button class="btn" style="font-size:12px" onclick="mkShowTab('campaigns')">See all</button></div>
             <div id="mk-recent"><div class="mk-empty">Loading…</div></div>
           </div>
-          <div class="card" style="background:#0A1F33">
+          <div class="card" style="background:var(--navy)">
             <div class="card-head"><div class="card-title">Coming next</div></div>
             <div style="font-size:12.5px;color:var(--color-text-secondary);line-height:1.7">
-              <strong style="color:#EDF2F5">WhatsApp, Instagram and Facebook</strong> messages in your <strong style="color:#EDF2F5">Inbox</strong> need those accounts connected through Meta (approval takes days to weeks). Email campaigns, automations, the inbox (storefront chat and email), the content calendar and sales tracking all work today.
+              <strong style="color:var(--text)">WhatsApp, Instagram and Facebook</strong> messages in your <strong style="color:var(--text)">Inbox</strong> need those accounts connected through Meta (approval takes days to weeks). Email campaigns, automations, the inbox (storefront chat and email), the content calendar and sales tracking all work today.
             </div>
           </div>
         </div>
@@ -909,9 +938,60 @@ function closeMobileMenu() {
   document.getElementById('mobile-overlay').classList.remove('active');
 }
 
-const G = '#2FAF9E', G2 = '#6FA8F0', G3 = '#8FD5C9', AMB = '#D89A3D', RED = '#F0716F';
-const BORDER = 'rgba(32,65,95,0.7)';
-if (window.Chart) { Chart.defaults.color = '#93A9BD'; Chart.defaults.font.family = "'Inter',system-ui,sans-serif"; Chart.defaults.borderColor = 'rgba(32,65,95,0.7)'; }
+let G, G2, G3, AMB, RED, PUR, MUT, BORDER, CHFILL;
+function kzReadPalette() {
+  const cs = getComputedStyle(document.documentElement), v = n => cs.getPropertyValue(n).trim();
+  G = v('--teal'); G2 = v('--blue'); G3 = v('--teal-2'); AMB = v('--amber'); RED = v('--red'); PUR = v('--purple');
+  MUT = v('--muted'); BORDER = v('--chart-grid'); CHFILL = v('--chart-fill');
+}
+kzReadPalette();
+if (window.Chart) { Chart.defaults.color = MUT; Chart.defaults.font.family = "'Inter',system-ui,sans-serif"; Chart.defaults.borderColor = BORDER; }
+// ---------- theme switch ----------
+function kzGetTheme() { return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark'; }
+function kzRecolorCharts(prev) {
+  if (!window.Chart || !Chart.instances) return;
+  const map = {}; ['G','G2','G3','AMB','RED','PUR','MUT','BORDER','CHFILL'].forEach(k => { map[k] = prev[k]; });
+  const swap = c => {
+    if (typeof c !== 'string') return c;
+    if (c === prev.G) return G; if (c === prev.G2) return G2; if (c === prev.G3) return G3; if (c === prev.AMB) return AMB;
+    if (c === prev.RED) return RED; if (c === prev.PUR) return PUR; if (c === prev.MUT) return MUT;
+    if (c === prev.BORDER) return BORDER; if (c === prev.CHFILL) return CHFILL; return c;
+  };
+  const arr = v => Array.isArray(v) ? v.map(swap) : swap(v);
+  Chart.defaults.color = MUT; Chart.defaults.borderColor = BORDER;
+  Object.values(Chart.instances).forEach(ch => {
+    try {
+      ch.data.datasets.forEach(d => ['backgroundColor','borderColor','pointBackgroundColor','pointBorderColor','hoverBackgroundColor'].forEach(k => { if (d[k] !== undefined) d[k] = arr(d[k]); }));
+      Object.values(ch.options.scales || {}).forEach(sc => {
+        if (sc.grid && sc.grid.color) sc.grid.color = swap(sc.grid.color);
+        if (sc.ticks && sc.ticks.color) sc.ticks.color = swap(sc.ticks.color);
+      });
+      ch.update('none');
+    } catch (e) {}
+  });
+}
+function kzApplyTheme(t, persist) {
+  const prev = { G, G2, G3, AMB, RED, PUR, MUT, BORDER, CHFILL };
+  const root = document.documentElement;
+  if (persist) root.classList.add('kz-theming');
+  root.setAttribute('data-theme', t);
+  try { if (persist) localStorage.setItem('kooza_theme', t); } catch (e) {}
+  const m = document.getElementById('meta-theme-color'); if (m) m.setAttribute('content', t === 'light' ? '#F2F5F9' : '#0A1F33');
+  kzReadPalette(); kzRecolorCharts(prev);
+  document.querySelectorAll('[data-theme-toggle]').forEach(b => {
+    const label = t === 'light' ? 'Switch to dark mode' : 'Switch to light mode';
+    b.setAttribute('aria-label', label); b.setAttribute('title', label);
+  });
+  if (persist) setTimeout(() => root.classList.remove('kz-theming'), 320);
+}
+function kzToggleTheme() {
+  const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  kzApplyTheme(kzGetTheme() === 'light' ? 'dark' : 'light', true);
+  if (reduce) document.documentElement.classList.remove('kz-theming');
+}
+window.addEventListener('storage', e => { if (e.key === 'kooza_theme' && (e.newValue === 'light' || e.newValue === 'dark') && e.newValue !== kzGetTheme()) kzApplyTheme(e.newValue, false); });
+kzApplyTheme(kzGetTheme(), false);
+
 const baseOpts = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } };
 const API_BASE = 'https://bizflow-api-v0sd.onrender.com';
 
@@ -1127,10 +1207,10 @@ function naira(n) { return '₦' + Number(n).toLocaleString(); }
 function showSuccessBurst(message) {
   const el = document.createElement('div');
   el.className = 'kz-check-pop';
-  el.style.cssText = 'position:fixed;top:24px;right:24px;z-index:9999;background:#122E4A;border-radius:14px;box-shadow:0 12px 30px rgba(30,27,75,0.18);padding:14px 18px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:#EDF2F5;';
+  el.style.cssText = 'position:fixed;top:24px;right:24px;z-index:9999;background:var(--card);border-radius:14px;box-shadow:0 12px 30px rgba(30,27,75,0.18);padding:14px 18px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:var(--text);';
   el.innerHTML = `
-    <div style="width:26px;height:26px;border-radius:50%;background:rgba(47,175,158,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2FAF9E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+    <div style="width:26px;height:26px;border-radius:50%;background:var(--teal-t);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="stroke:var(--teal)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
     </div>
     <span>${message || 'Saved successfully'}</span>
   `;
@@ -1176,13 +1256,13 @@ function buildRevChart(trend) {
       datasets: [{
         data: trend.map(d => d.revenue),
         borderColor: G, borderWidth: 2, pointRadius: 3, pointBackgroundColor: G,
-        tension: 0.4, fill: true, backgroundColor: 'rgba(15,110,86,0.07)'
+        tension: 0.4, fill: true, backgroundColor: CHFILL
       }]
     },
     options: { ...baseOpts,
       scales: {
-        x: { grid: { color: BORDER }, ticks: { font: { size: 11 }, color: '#93A9BD' } },
-        y: { grid: { color: BORDER }, ticks: { font: { size: 11 }, color: '#93A9BD', callback: v => '₦' + (v/1000).toFixed(0) + 'k' }, beginAtZero: true }
+        x: { grid: { color: BORDER }, ticks: { font: { size: 11 }, color: MUT } },
+        y: { grid: { color: BORDER }, ticks: { font: { size: 11 }, color: MUT, callback: v => '₦' + (v/1000).toFixed(0) + 'k' }, beginAtZero: true }
       }
     }
   });
@@ -1200,7 +1280,7 @@ function buildDonutChart(pm) {
     options: { ...baseOpts, cutout: '68%' }
   });
   document.getElementById('donut-total').textContent = '₦' + (pm.total / 1000000).toFixed(2) + 'm';
-  const colors = [G, G2, G3];
+  const colors = ['var(--teal)', 'var(--blue)', 'var(--teal-2)'];
   document.getElementById('pay-legend').innerHTML = pm.breakdown.map((b, i) =>
     `<span class="leg-item"><span class="leg-dot" style="background:${colors[i]}"></span>${b.method} ${b.pct}%</span>`
   ).join('');
@@ -1211,12 +1291,12 @@ function buildStatusChart(rows) {
     type: 'bar',
     data: {
       labels: rows.map(r => r.status),
-      datasets: [{ data: rows.map(r => r.count), backgroundColor: [G2, '#A99BF5', G, G, G, RED], borderRadius: 4 }]
+      datasets: [{ data: rows.map(r => r.count), backgroundColor: [G2, PUR, G, G, G, RED], borderRadius: 4 }]
     },
     options: { ...baseOpts,
       scales: {
-        x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#93A9BD' } },
-        y: { grid: { color: BORDER }, ticks: { font: { size: 10 }, color: '#93A9BD', stepSize: 10 }, beginAtZero: true }
+        x: { grid: { display: false }, ticks: { font: { size: 10 }, color: MUT } },
+        y: { grid: { color: BORDER }, ticks: { font: { size: 10 }, color: MUT, stepSize: 10 }, beginAtZero: true }
       }
     }
   });
@@ -1231,8 +1311,8 @@ function buildTopProductsChart(rows) {
     },
     options: { ...baseOpts, indexAxis: 'y',
       scales: {
-        x: { grid: { color: BORDER }, ticks: { font: { size: 10 }, color: '#93A9BD' }, beginAtZero: true },
-        y: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#93A9BD' } }
+        x: { grid: { color: BORDER }, ticks: { font: { size: 10 }, color: MUT }, beginAtZero: true },
+        y: { grid: { display: false }, ticks: { font: { size: 10 }, color: MUT } }
       }
     }
   });
@@ -1323,7 +1403,7 @@ async function loadOrders() {
     renderOrders(orders);
   } catch (err) {
     console.error('Failed to load orders:', err);
-    document.getElementById('orders-tbody').innerHTML = `<tr><td colspan="7" style="padding:14px;text-align:center;color:#F0716F">Could not reach the API. Is it running?</td></tr>`;
+    document.getElementById('orders-tbody').innerHTML = `<tr><td colspan="7" style="padding:14px;text-align:center;color:var(--red)">Could not reach the API. Is it running?</td></tr>`;
   }
 }
 
@@ -1380,8 +1460,8 @@ async function loadCustomers() {
       },
       options: { ...baseOpts,
         scales: {
-          x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#93A9BD' } },
-          y: { grid: { color: BORDER }, ticks: { font: { size: 11 }, color: '#93A9BD', stepSize: 2 }, beginAtZero: true }
+          x: { grid: { display: false }, ticks: { font: { size: 11 }, color: MUT } },
+          y: { grid: { color: BORDER }, ticks: { font: { size: 11 }, color: MUT, stepSize: 2 }, beginAtZero: true }
         }
       }
     });
@@ -1421,18 +1501,18 @@ function renderInventoryList(products) {
   document.getElementById('inventory-list').innerHTML = products.map(p => {
     const margin = Math.round(((p.price - p.cost) / p.price) * 100);
     const pct = Math.min(100, Math.round((p.quantity / (p.threshold * 4)) * 100));
-    let color = '#2FAF9E', label = `${p.quantity} units`, sub = `Threshold: ${p.threshold}`, subColor = 'var(--color-text-secondary)';
-    if (p.quantity === 0) { color = '#F0716F'; subColor = '#F0716F'; sub = 'Out of stock'; }
-    else if (p.quantity <= p.threshold) { color = '#D89A3D'; subColor = '#D89A3D'; sub = 'Low stock'; }
+    let color = 'var(--teal)', label = `${p.quantity} units`, sub = `Threshold: ${p.threshold}`, subColor = 'var(--color-text-secondary)';
+    if (p.quantity === 0) { color = 'var(--red)'; subColor = 'var(--red)'; sub = 'Out of stock'; }
+    else if (p.quantity <= p.threshold) { color = 'var(--amber)'; subColor = 'var(--amber)'; sub = 'Low stock'; }
     return `
       <div class="inv-row">
         <div class="inv-top">
           <div><div class="inv-name">${p.name} <span class="pill p-gray" style="margin-left:6px">${p.id}</span></div>
           <div class="inv-meta">Cost ${naira(p.cost)} · Sells ${naira(p.price)} · Margin ${margin}%</div></div>
           <div style="text-align:right;display:flex;align-items:center;gap:10px">
-            <div><div style="font-size:13px;font-weight:500;color:${p.quantity <= p.threshold ? (p.quantity === 0 ? '#F0716F' : '#D89A3D') : '#2FAF9E'}">${label}</div><div style="font-size:10px;color:${subColor}">${sub}</div></div>
+            <div><div style="font-size:13px;font-weight:500;color:${p.quantity <= p.threshold ? (p.quantity === 0 ? 'var(--red)' : 'var(--amber)') : 'var(--teal)'}">${label}</div><div style="font-size:10px;color:${subColor}">${sub}</div></div>
             <button class="btn" style="font-size:11px;padding:5px 8px" onclick="showEditProduct('${p.id}')" title="Edit"><i class="ti ti-pencil" style="font-size:12px" aria-hidden="true"></i></button>
-            <button class="btn" style="font-size:11px;padding:5px 8px;color:#F0716F" onclick="deleteProduct('${p.id}')" title="Delete"><i class="ti ti-trash" style="font-size:12px" aria-hidden="true"></i></button>
+            <button class="btn" style="font-size:11px;padding:5px 8px;color:var(--red)" onclick="deleteProduct('${p.id}')" title="Delete"><i class="ti ti-trash" style="font-size:12px" aria-hidden="true"></i></button>
           </div>
         </div>
         <div class="bar-wrap" style="margin-top:8px"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
@@ -1495,7 +1575,7 @@ async function loadInventory() {
 // --- Add customer (Customers panel) ---
 function openAddCustomerModal() {
   openModal(`
-    <div class="modal-title"><i class="ti ti-user-plus" style="color:#2FAF9E" aria-hidden="true"></i> Add customer</div>
+    <div class="modal-title"><i class="ti ti-user-plus" style="color:var(--teal)" aria-hidden="true"></i> Add customer</div>
     <div class="modal-sub">Add a new customer to your business</div>
 
     <div class="modal-field">
@@ -1507,7 +1587,7 @@ function openAddCustomerModal() {
       <input id="ac-phone" type="text" class="modal-input" placeholder="e.g. +234 800 000 0000">
     </div>
     <div class="modal-field">
-      <label class="modal-label">Location <span style="font-weight:400;color:#93A9BD">(optional)</span></label>
+      <label class="modal-label">Location <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
       <input id="ac-location" type="text" class="modal-input" placeholder="e.g. Lekki, Lagos">
     </div>
     <div id="ac-error" class="modal-error"></div>
@@ -1657,14 +1737,14 @@ function openImportModal(type) {
   const cfg = IMPORT_CONFIG[type];
   window._importType = type;
   openModal(`
-    <div class="modal-title"><i class="ti ti-upload" style="color:#2FAF9E" aria-hidden="true"></i> ${cfg.title}</div>
+    <div class="modal-title"><i class="ti ti-upload" style="color:var(--teal)" aria-hidden="true"></i> ${cfg.title}</div>
     <div class="modal-sub">Upload a CSV with these columns: <strong>${cfg.columns.join(', ')}</strong></div>
     ${cfg.note ? `<div class="modal-info-box">${cfg.note}</div>` : ''}
     <div class="modal-field">
       <input type="file" id="import-file" accept=".csv" class="modal-input" style="padding:8px">
     </div>
     <div style="margin-bottom:14px">
-      <a href="#" onclick="downloadSampleCSV('${type}');return false;" style="font-size:12px;color:#2FAF9E;text-decoration:none">Download a sample CSV to see the format ↓</a>
+      <a href="#" onclick="downloadSampleCSV('${type}');return false;" style="font-size:12px;color:var(--teal);text-decoration:none">Download a sample CSV to see the format ↓</a>
     </div>
     <div id="import-result"></div>
     <div id="import-error" class="modal-error"></div>
@@ -1710,10 +1790,10 @@ function submitImport() {
 
         document.getElementById('import-result').innerHTML = `
           <div class="modal-info-box">
-            <strong style="color:#2FAF9E">${data.created} row(s) imported successfully.</strong>
-            ${data.errors.length ? `<div style="margin-top:8px;color:#F0716F">${data.errors.length} row(s) skipped:</div>
+            <strong style="color:var(--teal)">${data.created} row(s) imported successfully.</strong>
+            ${data.errors.length ? `<div style="margin-top:8px;color:var(--red)">${data.errors.length} row(s) skipped:</div>
               <div style="max-height:130px;overflow-y:auto;margin-top:6px">
-                ${data.errors.map(e => `<div style="font-size:11.5px;padding:4px 0;border-bottom:1px solid #20415F">Row ${e.row}: ${e.error}</div>`).join('')}
+                ${data.errors.map(e => `<div style="font-size:11.5px;padding:4px 0;border-bottom:1px solid var(--line)">Row ${e.row}: ${e.error}</div>`).join('')}
               </div>` : ''}
           </div>
         `;
@@ -1728,7 +1808,7 @@ function submitImport() {
 
 function openAddProductModal() {
   openModal(`
-    <div class="modal-title"><i class="ti ti-package" style="color:#2FAF9E" aria-hidden="true"></i> Add product</div>
+    <div class="modal-title"><i class="ti ti-package" style="color:var(--teal)" aria-hidden="true"></i> Add product</div>
     <div class="modal-sub">Add a new item to your inventory</div>
 
     <div class="modal-field">
@@ -1884,7 +1964,7 @@ function variantRowHTML(v) {
     <input type="text" placeholder="Label (e.g. Size 43)" class="modal-input variant-label" value="${label}" style="flex:2;">
     <input type="number" min="0" placeholder="Price (₦)" class="modal-input variant-price" value="${v.price ?? ''}" style="flex:1;">
     <input type="number" min="0" placeholder="Stock" class="modal-input variant-qty" value="${v.quantity ?? ''}" style="flex:1;">
-    <div onclick="saveVariantRow(this)" style="cursor:pointer;color:#2FAF9E;" title="Save"><i class="ti ti-check" style="font-size:18px" aria-hidden="true"></i></div>
+    <div onclick="saveVariantRow(this)" style="cursor:pointer;color:var(--teal);" title="Save"><i class="ti ti-check" style="font-size:18px" aria-hidden="true"></i></div>
     <div onclick="deleteVariantRow(this)" style="cursor:pointer;color:var(--color-text-secondary);" title="Remove"><i class="ti ti-trash" style="font-size:16px" aria-hidden="true"></i></div>
   </div>`;
 }
@@ -1953,7 +2033,7 @@ async function showEditProduct(productId) {
     apiFetch(`${API_BASE}/api/products/${productId}/variants`).then(r => r.json()),
   ]);
   openModal(`
-    <div class="modal-title"><i class="ti ti-edit" style="color:#2FAF9E" aria-hidden="true"></i> Edit product</div>
+    <div class="modal-title"><i class="ti ti-edit" style="color:var(--teal)" aria-hidden="true"></i> Edit product</div>
     <div class="modal-sub">${p.name}</div>
 
     <div class="modal-field">
@@ -2057,10 +2137,10 @@ async function deleteProduct(productId) {
 // --- Inventory History — audit trail of every stock change, for accountability ---
 async function showInventoryHistory() {
   openModal(`
-    <div class="modal-title"><i class="ti ti-history" style="color:#2FAF9E" aria-hidden="true"></i> Inventory history</div>
+    <div class="modal-title"><i class="ti ti-history" style="color:var(--teal)" aria-hidden="true"></i> Inventory history</div>
     <div class="modal-sub">Every stock change, most recent first</div>
     <div id="ih-list" style="max-height:400px;overflow-y:auto">
-      <div style="padding:14px;text-align:center;color:#93A9BD;font-size:12px">Loading…</div>
+      <div style="padding:14px;text-align:center;color:var(--muted);font-size:12px">Loading…</div>
     </div>
     <div class="modal-actions"><button class="modal-btn modal-btn-secondary" style="width:100%" onclick="closeModal()">Close</button></div>
   `);
@@ -2068,7 +2148,7 @@ async function showInventoryHistory() {
   try {
     const history = await apiFetch(`${API_BASE}/api/products/history`).then(r => r.json());
     if (!history.length) {
-      document.getElementById('ih-list').innerHTML = `<div style="padding:14px;text-align:center;color:#93A9BD;font-size:12px">No stock changes recorded yet.</div>`;
+      document.getElementById('ih-list').innerHTML = `<div style="padding:14px;text-align:center;color:var(--muted);font-size:12px">No stock changes recorded yet.</div>`;
       return;
     }
 
@@ -2081,23 +2161,23 @@ async function showInventoryHistory() {
       return `
         <div class="modal-list-row" style="align-items:flex-start">
           <div style="display:flex;gap:10px;align-items:flex-start">
-            <div style="width:26px;height:26px;border-radius:7px;background:${isIncrease ? 'rgba(47,175,158,.15)' : 'rgba(240,113,111,.15)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">
-              <i class="ti ${typeIcon[h.changeType] || 'ti-package'}" style="font-size:13px;color:${isIncrease ? '#2FAF9E' : '#F0716F'}" aria-hidden="true"></i>
+            <div style="width:26px;height:26px;border-radius:7px;background:${isIncrease ? 'var(--teal-t)' : 'var(--red-t)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">
+              <i class="ti ${typeIcon[h.changeType] || 'ti-package'}" style="font-size:13px;color:${isIncrease ? 'var(--teal)' : 'var(--red)'}" aria-hidden="true"></i>
             </div>
             <div>
               <div style="font-size:12.5px"><strong>${h.productName}</strong> — ${h.changeType}</div>
-              <div style="font-size:11px;color:#93A9BD">${new Date(h.date).toLocaleString()}${h.note ? ' · ' + h.note : ''}</div>
+              <div style="font-size:11px;color:var(--muted)">${new Date(h.date).toLocaleString()}${h.note ? ' · ' + h.note : ''}</div>
             </div>
           </div>
           <div style="text-align:right;flex-shrink:0">
-            <div style="font-size:13px;font-weight:600;color:${isIncrease ? '#2FAF9E' : '#F0716F'}">${isIncrease ? '+' : ''}${h.quantityChange}</div>
-            <div style="font-size:10.5px;color:#93A9BD">${h.quantityBefore} → ${h.quantityAfter}</div>
+            <div style="font-size:13px;font-weight:600;color:${isIncrease ? 'var(--teal)' : 'var(--red)'}">${isIncrease ? '+' : ''}${h.quantityChange}</div>
+            <div style="font-size:10.5px;color:var(--muted)">${h.quantityBefore} → ${h.quantityAfter}</div>
           </div>
         </div>
       `;
     }).join('');
   } catch (err) {
-    document.getElementById('ih-list').innerHTML = `<div style="padding:14px;text-align:center;color:#F0716F;font-size:12px">Could not load history.</div>`;
+    document.getElementById('ih-list').innerHTML = `<div style="padding:14px;text-align:center;color:var(--red);font-size:12px">Could not load history.</div>`;
   }
 }
 
@@ -2160,8 +2240,8 @@ async function loadPayments() {
       options: { ...baseOpts,
         plugins: { legend: { display: false } },
         scales: {
-          x: { stacked: true, grid: { display: false }, ticks: { font: { size: 11 }, color: '#93A9BD' } },
-          y: { stacked: true, grid: { color: BORDER }, ticks: { font: { size: 11 }, color: '#93A9BD', callback: v => '₦' + (v/1000).toFixed(0) + 'k' }, beginAtZero: true }
+          x: { stacked: true, grid: { display: false }, ticks: { font: { size: 11 }, color: MUT } },
+          y: { stacked: true, grid: { color: BORDER }, ticks: { font: { size: 11 }, color: MUT, callback: v => '₦' + (v/1000).toFixed(0) + 'k' }, beginAtZero: true }
         }
       }
     });
@@ -2184,7 +2264,7 @@ function renderExpensesTable(expenses) {
       <td><span class="pill p-gray">${e.category}</span></td>
       <td class="amt">${naira(e.amount)}</td>
       <td style="font-size:11px;color:var(--color-text-secondary)">${new Date(e.date).toLocaleDateString()}</td>
-      <td><button class="btn" style="font-size:11px;padding:5px 8px;color:#F0716F" onclick="deleteExpense(${e.id})" title="Delete"><i class="ti ti-trash" style="font-size:12px" aria-hidden="true"></i></button></td>
+      <td><button class="btn" style="font-size:11px;padding:5px 8px;color:var(--red)" onclick="deleteExpense(${e.id})" title="Delete"><i class="ti ti-trash" style="font-size:12px" aria-hidden="true"></i></button></td>
     </tr>
   `).join('') : `<tr><td colspan="5" style="padding:14px;text-align:center;color:var(--color-text-secondary)">No expenses match.</td></tr>`;
 }
@@ -2225,22 +2305,22 @@ async function loadExpenses() {
     document.getElementById('exp-kpi-revenue').textContent = naira(payments.monthTotal);
     document.getElementById('exp-kpi-profit').textContent = naira(profit);
     document.getElementById('exp-kpi-profit-foot').textContent = profit >= 0 ? 'Profitable this month' : 'Running at a loss this month';
-    document.getElementById('exp-kpi-profit').style.color = profit >= 0 ? '#2FAF9E' : '#F0716F';
+    document.getElementById('exp-kpi-profit').style.color = profit >= 0 ? 'var(--teal)' : 'var(--red)';
 
     document.getElementById('exp-profit-big').textContent = naira(profit);
-    document.getElementById('exp-profit-big').style.color = profit >= 0 ? '#2FAF9E' : '#F0716F';
+    document.getElementById('exp-profit-big').style.color = profit >= 0 ? 'var(--teal)' : 'var(--red)';
     document.getElementById('exp-profit-detail').textContent = `${naira(payments.monthTotal)} revenue − ${naira(summary.totalThisMonth)} expenses`;
 
     new Chart(document.getElementById('expChart'), {
       type: 'bar',
       data: {
         labels: summary.byCategory.map(c => c.category),
-        datasets: [{ data: summary.byCategory.map(c => c.amount), backgroundColor: [AMB, '#A99BF5', RED, G, G2, G3, '#93A9BD'], borderRadius: 4 }]
+        datasets: [{ data: summary.byCategory.map(c => c.amount), backgroundColor: [AMB, PUR, RED, G, G2, G3, MUT], borderRadius: 4 }]
       },
       options: { ...baseOpts,
         scales: {
-          x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#93A9BD' } },
-          y: { grid: { color: BORDER }, ticks: { font: { size: 10 }, color: '#93A9BD', callback: v => '₦' + (v/1000).toFixed(0) + 'k' }, beginAtZero: true }
+          x: { grid: { display: false }, ticks: { font: { size: 10 }, color: MUT } },
+          y: { grid: { color: BORDER }, ticks: { font: { size: 10 }, color: MUT, callback: v => '₦' + (v/1000).toFixed(0) + 'k' }, beginAtZero: true }
         }
       }
     });
@@ -2255,7 +2335,7 @@ async function loadExpenses() {
 
 function openAddExpenseModal() {
   openModal(`
-    <div class="modal-title"><i class="ti ti-receipt-2" style="color:#2FAF9E" aria-hidden="true"></i> Add expense</div>
+    <div class="modal-title"><i class="ti ti-receipt-2" style="color:var(--teal)" aria-hidden="true"></i> Add expense</div>
     <div class="modal-sub">Log money spent running your business</div>
 
     <div class="modal-field">
@@ -2275,7 +2355,7 @@ function openAddExpenseModal() {
       </div>
     </div>
     <div class="modal-field">
-      <label class="modal-label">Date <span style="font-weight:400;color:#93A9BD">(optional, defaults to today)</span></label>
+      <label class="modal-label">Date <span style="font-weight:400;color:var(--muted)">(optional, defaults to today)</span></label>
       <input id="ae-date" type="date" class="modal-input">
     </div>
     <div id="ae-error" class="modal-error"></div>
@@ -2332,14 +2412,14 @@ async function openMarkPaidModal() {
   const orders = allOrders.filter(o => o.paymentStatus === 'Awaiting' || o.paymentStatus === 'Partial');
   if (!orders.length) {
     openModal(`
-      <div class="modal-title"><i class="ti ti-check" style="color:#2FAF9E" aria-hidden="true"></i> Mark as paid</div>
-      <p style="font-size:13px;color:#93A9BD;margin-bottom:16px">No unpaid orders right now — nothing to mark.</p>
+      <div class="modal-title"><i class="ti ti-check" style="color:var(--teal)" aria-hidden="true"></i> Mark as paid</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px">No unpaid orders right now — nothing to mark.</p>
       <button class="modal-btn modal-btn-secondary" style="width:100%" onclick="closeModal()">Close</button>
     `);
     return;
   }
   openModal(`
-    <div class="modal-title"><i class="ti ti-check" style="color:#2FAF9E" aria-hidden="true"></i> Mark as paid</div>
+    <div class="modal-title"><i class="ti ti-check" style="color:var(--teal)" aria-hidden="true"></i> Mark as paid</div>
     <div class="modal-sub">Record a full or partial payment for an order</div>
 
     <div class="modal-field">
@@ -2351,7 +2431,7 @@ async function openMarkPaidModal() {
     <div class="modal-field">
       <label class="modal-label">Amount received now (₦)</label>
       <input id="mp-amount" type="number" class="modal-input" placeholder="Loading balance…">
-      <div id="mp-balance-hint" style="font-size:11px;color:#93A9BD;margin-top:4px"></div>
+      <div id="mp-balance-hint" style="font-size:11px;color:var(--muted);margin-top:4px"></div>
     </div>
     <div class="modal-field">
       <label class="modal-label">Payment method</label>
@@ -2442,7 +2522,7 @@ async function loadFulfilment() {
     const badge = document.getElementById('s-badge-fulfilment');
     badge.textContent = active; badge.style.display = active > 0 ? 'inline-block' : 'none';
   } catch (err) {
-    document.getElementById('ful-board').innerHTML = `<div style="padding:14px;color:#F0716F;font-size:12px">Could not load fulfilment board: ${fulEsc(err.message)}</div>`;
+    document.getElementById('ful-board').innerHTML = `<div style="padding:14px;color:var(--red);font-size:12px">Could not load fulfilment board: ${fulEsc(err.message)}</div>`;
   }
 }
 
@@ -2467,7 +2547,7 @@ function fulCardHtml(o) {
   const canCancel = o.nextOptions.includes('Cancelled');
   const emailNote = o.customerEmail
     ? `<span title="${fulEsc(o.customerEmail)}"><i class="ti ti-mail" style="font-size:11px" aria-hidden="true"></i> will be emailed</span>`
-    : `<span style="color:#D89A3D"><i class="ti ti-mail-off" style="font-size:11px" aria-hidden="true"></i> no email on file</span>`;
+    : `<span style="color:var(--amber)"><i class="ti ti-mail-off" style="font-size:11px" aria-hidden="true"></i> no email on file</span>`;
   const tracking = o.trackingNumber || o.courier
     ? `<div class="ful-meta"><i class="ti ti-truck" style="font-size:11px" aria-hidden="true"></i> ${fulEsc(o.courier || '')} ${fulEsc(o.trackingNumber || '')}</div>` : '';
   const payPill = o.paymentStatus === 'Paid' ? '<span class="pill p-green">Paid</span>' : `<span class="pill p-amber">${fulEsc(o.paymentStatus)}</span>`;
@@ -2478,14 +2558,14 @@ function fulCardHtml(o) {
       ${o.isPickup ? '<span class="pill p-blue">Pickup</span>' : ''}
       <span style="margin-left:auto" class="ful-meta">${fulAge(o.createdAt)}</span>
     </div>
-    <div style="font-weight:500;color:#EDF2F5">${fulEsc(o.customerName)}</div>
+    <div style="font-weight:500;color:var(--text)">${fulEsc(o.customerName)}</div>
     <div class="ful-meta">${items}</div>
     <div class="ful-meta">₦${Number(o.amount).toLocaleString()} · ${fulEsc(o.delivery || 'No delivery info')}</div>
     ${tracking}
     ${open ? `<div class="ful-meta" style="margin-top:4px">${emailNote}</div>` : ''}
     <div class="ful-actions">
       ${open && primary ? `<button class="btn btn-g" onclick="fulOpenMove('${o.id}','${primary}')">${fulMoveLabel(o, primary)}</button>` : ''}
-      ${canCancel ? `<button class="btn" style="color:#F0716F" onclick="fulOpenMove('${o.id}','Cancelled')">Cancel</button>` : ''}
+      ${canCancel ? `<button class="btn" style="color:var(--red)" onclick="fulOpenMove('${o.id}','Cancelled')">Cancel</button>` : ''}
       <button class="btn" onclick="fulShowHistory('${o.id}')">History</button>
     </div>
   </div>`;
@@ -2595,11 +2675,11 @@ async function fulShowHistory(id) {
     const hist = await res.json();
     if (!res.ok) throw new Error(hist.error || 'Request failed');
     const o = fulFindOrder(id);
-    const rows = [`<div class="modal-list-row"><span><strong>Order placed</strong></span><span style="color:#93A9BD;font-size:12px">${o ? new Date(o.createdAt).toLocaleString('en-GB') : ''}</span></div>`]
+    const rows = [`<div class="modal-list-row"><span><strong>Order placed</strong></span><span style="color:var(--muted);font-size:12px">${o ? new Date(o.createdAt).toLocaleString('en-GB') : ''}</span></div>`]
       .concat(hist.map(h => `<div class="modal-list-row" style="align-items:flex-start"><span><strong>${fulEsc(fulStageName(h.to, o && o.isPickup))}</strong>
-        ${h.note ? `<div style="font-size:12px;color:#93A9BD">“${fulEsc(h.note)}”</div>` : ''}
-        <div style="font-size:11px;color:${h.customerNotified ? '#2FAF9E' : '#93A9BD'}">${h.customerNotified ? '✓ customer emailed' : 'customer not emailed'}</div></span>
-        <span style="color:#93A9BD;font-size:12px;white-space:nowrap">${new Date(h.at).toLocaleString('en-GB')}</span></div>`));
+        ${h.note ? `<div style="font-size:12px;color:var(--muted)">“${fulEsc(h.note)}”</div>` : ''}
+        <div style="font-size:11px;color:${h.customerNotified ? 'var(--teal)' : 'var(--muted)'}">${h.customerNotified ? '✓ customer emailed' : 'customer not emailed'}</div></span>
+        <span style="color:var(--muted);font-size:12px;white-space:nowrap">${new Date(h.at).toLocaleString('en-GB')}</span></div>`));
     openModal(`<div class="modal-title">${id} — timeline</div><div class="modal-sub">Every status change, and whether the customer was emailed.</div>${rows.join('')}
       <div class="modal-actions"><button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button></div>`);
   } catch (err) {
@@ -2647,16 +2727,16 @@ function mkCampaignsTable(list, { actions }) {
   if (!list.length) return `<div class="mk-empty">No campaigns yet. Click “New campaign” to send your first email.</div>`;
   return `<table><thead><tr><th>Campaign</th><th>Audience</th><th>Status</th><th>Sent</th><th>Orders</th><th>Revenue</th><th>When</th>${actions ? '<th></th>' : ''}</tr></thead><tbody>` +
     list.map(c => `<tr>
-      <td><div style="font-weight:600;color:#EDF2F5">${mkEsc(c.name)}</div><div style="font-size:11px;color:var(--color-text-secondary)">${mkEsc(c.subject)}</div></td>
+      <td><div style="font-weight:600;color:var(--text)">${mkEsc(c.name)}</div><div style="font-size:11px;color:var(--color-text-secondary)">${mkEsc(c.subject)}</div></td>
       <td>${mkEsc(c.segmentLabel)}</td>
       <td>${mkStatusPill(c)}</td>
-      <td>${c.status === 'draft' || c.status === 'scheduled' ? '—' : `${c.sentCount}/${c.recipientCount}${c.failedCount ? ` <span style="color:#F0716F">(${c.failedCount} failed)</span>` : ''}`}</td>
+      <td>${c.status === 'draft' || c.status === 'scheduled' ? '—' : `${c.sentCount}/${c.recipientCount}${c.failedCount ? ` <span style="color:var(--red)">(${c.failedCount} failed)</span>` : ''}`}</td>
       <td>${c.orders || '—'}</td>
       <td>${c.revenue ? naira(c.revenue) : '—'}</td>
       <td style="font-size:11px;color:var(--color-text-secondary)">${c.status === 'scheduled' ? mkDate(c.scheduledAt) : mkDate(c.sentAt || c.createdAt)}</td>
       ${actions ? `<td style="white-space:nowrap;text-align:right">
         ${c.status === 'draft' || c.status === 'scheduled' ? `<button class="btn" style="font-size:11px" onclick="mkOpenEditor(${c.id})">Edit</button>` : `<button class="btn" style="font-size:11px" onclick="mkViewCampaign(${c.id})">Details</button>`}
-        ${c.status !== 'sending' ? `<button class="btn" style="font-size:11px;color:#F0716F" onclick="mkDeleteCampaign(${c.id})" title="Delete">✕</button>` : ''}
+        ${c.status !== 'sending' ? `<button class="btn" style="font-size:11px;color:var(--red)" onclick="mkDeleteCampaign(${c.id})" title="Delete">✕</button>` : ''}
       </td>` : ''}
     </tr>`).join('') + '</tbody></table>';
 }
@@ -2673,7 +2753,7 @@ async function mkLoadOverview() {
     document.getElementById('mk-kpi-rev').textContent = naira(o.revenueAttributed30d);
     document.getElementById('mk-recent').innerHTML = mkCampaignsTable(o.recentCampaigns, { actions: false });
   } catch (err) {
-    document.getElementById('mk-recent').innerHTML = `<div class="mk-empty" style="color:#F0716F">Could not load marketing overview: ${mkEsc(err.message)}</div>`;
+    document.getElementById('mk-recent').innerHTML = `<div class="mk-empty" style="color:var(--red)">Could not load marketing overview: ${mkEsc(err.message)}</div>`;
   }
 }
 
@@ -2685,7 +2765,7 @@ async function mkLoadCampaigns() {
     // while anything is mid-send, keep the numbers fresh
     if (list.some(c => c.status === 'sending') && window._mkTab === 'campaigns') _mkPoll = setTimeout(mkLoadCampaigns, 4000);
   } catch (err) {
-    box.innerHTML = `<div class="mk-empty" style="color:#F0716F">Could not load campaigns: ${mkEsc(err.message)}</div>`;
+    box.innerHTML = `<div class="mk-empty" style="color:var(--red)">Could not load campaigns: ${mkEsc(err.message)}</div>`;
   }
 }
 
@@ -2703,7 +2783,7 @@ async function mkLoadSegments() {
         <button class="btn btn-g" style="font-size:11px" ${s.reachable ? '' : 'disabled title="No one here has an email address"'} onclick="mkOpenEditor(null,'${s.key}')">Email them</button>
       </div></div>`).join('');
   } catch (err) {
-    box.innerHTML = `<div class="mk-empty" style="color:#F0716F">Could not load segments: ${mkEsc(err.message)}</div>`;
+    box.innerHTML = `<div class="mk-empty" style="color:var(--red)">Could not load segments: ${mkEsc(err.message)}</div>`;
   }
 }
 
@@ -2713,8 +2793,8 @@ async function mkViewSegment(key) {
   try {
     const data = await mkApi(`/segments/${key}/customers`);
     const rows = data.customers.map(c => `<div class="modal-list-row" style="align-items:flex-start">
-      <span><strong>${mkEsc(c.name)}</strong><div style="font-size:11px;color:#93A9BD">${c.email ? mkEsc(c.email) : '<span style="color:#D89A3D">no email</span>'}${c.optedOut ? ' · <span style="color:#F0716F">unsubscribed</span>' : ''}</div></span>
-      <span style="text-align:right;font-size:12px;color:#93A9BD">${mkEsc(c.tag)}<div>${naira(c.spend)}</div></span></div>`).join('');
+      <span><strong>${mkEsc(c.name)}</strong><div style="font-size:11px;color:var(--muted)">${c.email ? mkEsc(c.email) : '<span style="color:var(--amber)">no email</span>'}${c.optedOut ? ' · <span style="color:var(--red)">unsubscribed</span>' : ''}</div></span>
+      <span style="text-align:right;font-size:12px;color:var(--muted)">${mkEsc(c.tag)}<div>${naira(c.spend)}</div></span></div>`).join('');
     openModal(`<div class="modal-title">${mkEsc(seg.label)}</div>
       <div class="modal-sub">${data.total} customer${data.total === 1 ? '' : 's'}${data.total > 200 ? ' (showing the first 200)' : ''} · ${seg.reachable} can be emailed</div>
       ${rows || '<div class="mk-empty">No one is in this segment right now.</div>'}
@@ -2736,7 +2816,7 @@ async function mkLoadAnalytics() {
         a.campaigns.map(c => `<tr><td style="font-weight:600">${mkEsc(c.name)}</td><td>${c.sentCount}</td><td>${c.orders}</td><td>${naira(c.revenue)}</td><td>${c.sentCount ? naira(Math.round(c.revenue / c.sentCount)) : '—'}</td></tr>`).join('') + '</tbody></table>'
       : `<div class="mk-empty">Send a campaign and its results will show up here.</div>`;
   } catch (err) {
-    document.getElementById('mk-perf').innerHTML = `<div class="mk-empty" style="color:#F0716F">Could not load analytics: ${mkEsc(err.message)}</div>`;
+    document.getElementById('mk-perf').innerHTML = `<div class="mk-empty" style="color:var(--red)">Could not load analytics: ${mkEsc(err.message)}</div>`;
   }
 }
 
@@ -2745,8 +2825,8 @@ async function mkViewCampaign(id) {
   try {
     const c = await mkApi(`/campaigns/${id}`);
     const fails = c.failures.length ? `<div class="modal-divider"></div><div class="modal-label">Why some didn't send</div>` +
-      c.failures.map(f => `<div style="font-size:11.5px;color:#F0716F;margin-bottom:6px"><strong>${mkEsc(f.email)}</strong> — ${mkEsc(f.error || 'failed')}</div>`).join('') +
-      `<div style="font-size:11px;color:#93A9BD">On Mailgun's free sandbox, only email addresses you've authorised as recipients can receive mail.</div>` : '';
+      c.failures.map(f => `<div style="font-size:11.5px;color:var(--red);margin-bottom:6px"><strong>${mkEsc(f.email)}</strong> — ${mkEsc(f.error || 'failed')}</div>`).join('') +
+      `<div style="font-size:11px;color:var(--muted)">On Mailgun's free sandbox, only email addresses you've authorised as recipients can receive mail.</div>` : '';
     openModal(`<div class="modal-title">${mkEsc(c.name)} ${mkStatusPill(c)}</div>
       <div class="modal-sub">To: ${mkEsc(c.segmentLabel)} · ${mkDate(c.sentAt || c.createdAt)}</div>
       <div class="modal-info-box"><strong>Subject:</strong> ${mkEsc(c.subject)}<br><div style="white-space:pre-wrap;margin-top:6px">${mkEsc(c.body)}</div></div>
@@ -2781,10 +2861,10 @@ async function mkOpenEditor(id, presetSegment) {
       <div class="modal-field"><label class="modal-label">Campaign name (only you see this)</label><input id="mk-name" class="modal-input" maxlength="100" placeholder="e.g. Weekend sale" value="${mkEsc(c.name)}"></div>
       <div class="modal-field"><label class="modal-label">Who should get it?</label>
         <select id="mk-segment" class="modal-select" onchange="mkUpdateReach()">${segments.map(s => `<option value="${s.key}" ${s.key === c.segment ? 'selected' : ''}>${mkEsc(s.label)} — ${s.reachable} with email</option>`).join('')}</select>
-        <div id="mk-reach" style="font-size:11px;color:#93A9BD;margin-top:5px"></div></div>
+        <div id="mk-reach" style="font-size:11px;color:var(--muted);margin-top:5px"></div></div>
       <div class="modal-field"><label class="modal-label">Subject</label><input id="mk-subject" class="modal-input" maxlength="150" placeholder="e.g. {{first_name}}, new arrivals just landed" value="${mkEsc(c.subject)}"></div>
       <div class="modal-field"><label class="modal-label">Message</label><textarea id="mk-body" class="modal-input" maxlength="5000" placeholder="Hi {{first_name}},&#10;&#10;We just restocked your favourites…">${mkEsc(c.body)}</textarea>
-        <div style="font-size:11px;color:#93A9BD;margin-top:5px">Personalise with <code>{{first_name}}</code>. A “Shop now” button to your store is added automatically.</div></div>
+        <div style="font-size:11px;color:var(--muted);margin-top:5px">Personalise with <code>{{first_name}}</code>. A “Shop now” button to your store is added automatically.</div></div>
       <div class="modal-error" id="mk-error"></div>
       <div class="modal-row">
         <button class="modal-btn modal-btn-secondary" id="mk-test-btn" onclick="mkSendTest()">Send test to me</button>
@@ -2793,11 +2873,11 @@ async function mkOpenEditor(id, presetSegment) {
       <div class="modal-divider"></div>
       <button class="modal-btn modal-btn-primary" style="width:100%" id="mk-send-btn" onclick="mkSendNow()">Send now</button>
       <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
-        <span style="font-size:12px;color:#93A9BD;white-space:nowrap">or schedule</span>
+        <span style="font-size:12px;color:var(--muted);white-space:nowrap">or schedule</span>
         <input type="datetime-local" id="mk-when" class="modal-input" min="${minTime}" value="${c.scheduledAt ? new Date(new Date(c.scheduledAt).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''}">
         <button class="modal-btn modal-btn-secondary" style="flex:none;padding:10px 14px" id="mk-sched-btn" onclick="mkSchedule()">Schedule</button>
       </div>
-      <div style="font-size:10.5px;color:#93A9BD;margin-top:6px">Scheduled campaigns go out within a minute of the chosen time while your server is awake.</div>
+      <div style="font-size:10.5px;color:var(--muted);margin-top:6px">Scheduled campaigns go out within a minute of the chosen time while your server is awake.</div>
       <div class="modal-actions" style="margin-top:12px"><button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button></div>`);
     mkUpdateReach();
   } catch (err) {
@@ -2830,7 +2910,7 @@ function mkSendTest() {
   mkRun(async () => {
     const f = mkFields();
     const r = await mkPost('/test', { subject: f.subject, body: f.body });
-    mkBusy(false); document.getElementById('mk-error').style.color = '#2FAF9E'; document.getElementById('mk-error').textContent = `Test sent to ${r.sentTo} — check your inbox (and spam).`;
+    mkBusy(false); document.getElementById('mk-error').style.color = 'var(--teal)'; document.getElementById('mk-error').textContent = `Test sent to ${r.sentTo} — check your inbox (and spam).`;
   });
 }
 function mkSendNow() {
@@ -2867,9 +2947,9 @@ async function mkLoadAutomations() {
         <div class="mk-auto-head">
           <button class="mk-switch ${a.enabled ? 'on' : ''}" id="mk-sw-${a.id}" role="switch" aria-checked="${a.enabled}" aria-label="Turn ${mkEsc(a.name)} ${a.enabled ? 'off' : 'on'}" onclick="mkToggleAuto(${a.id})"></button>
           <div style="flex:1;min-width:0">
-            <div style="font-size:14px;font-weight:600;color:#EDF2F5">${mkEsc(a.name)} <span class="pill ${a.enabled ? 'p-green' : 'p-gray'}" style="margin-left:6px">${a.enabled ? 'On' : 'Off'}</span></div>
+            <div style="font-size:14px;font-weight:600;color:var(--text)">${mkEsc(a.name)} <span class="pill ${a.enabled ? 'p-green' : 'p-gray'}" style="margin-left:6px">${a.enabled ? 'On' : 'Off'}</span></div>
             <div style="font-size:12.5px;color:var(--color-text-secondary);margin-top:4px;line-height:1.5">${mkEsc(a.description)}</div>
-            <div style="font-size:12px;color:#C5D3DF;margin-top:6px">Sends <strong>${a.delayDays} day${a.delayDays === 1 ? '' : 's'}</strong> after ${a.kind === 'win_back' ? 'their last order' : 'the order is placed'}${a.enabled && a.enabledAt ? ` · on since ${mkDate(a.enabledAt)}` : ''}</div>
+            <div style="font-size:12px;color:var(--soft);margin-top:6px">Sends <strong>${a.delayDays} day${a.delayDays === 1 ? '' : 's'}</strong> after ${a.kind === 'win_back' ? 'their last order' : 'the order is placed'}${a.enabled && a.enabledAt ? ` · on since ${mkDate(a.enabledAt)}` : ''}</div>
           </div>
           <div style="display:flex;gap:6px;flex:none">
             <button class="btn" style="font-size:12px" onclick="mkEditAuto(${a.id})">Edit</button>
@@ -2878,7 +2958,7 @@ async function mkLoadAutomations() {
         </div>
         <div class="mk-auto-stats">
           <div><strong>${a.sent}</strong>Emails sent</div>
-          <div><strong style="${a.failed ? 'color:#F0716F' : ''}">${a.failed}</strong>Failed</div>
+          <div><strong style="${a.failed ? 'color:var(--red)' : ''}">${a.failed}</strong>Failed</div>
           <div><strong>${a.orders}</strong>Orders</div>
           <div><strong>${naira(a.revenue)}</strong>Revenue</div>
           <div><strong>${a.lastSentAt ? mkDate(a.lastSentAt) : '—'}</strong>Last sent</div>
@@ -2905,7 +2985,7 @@ function mkEditAuto(id) {
     <div class="modal-field"><label class="modal-label">Days to wait ${a.kind === 'win_back' ? '(since their last order)' : '(after the order is placed)'}</label><input id="mk-a-days" type="number" class="modal-input" min="${a.minDelay}" max="365" value="${a.delayDays}"></div>
     <div class="modal-field"><label class="modal-label">Subject</label><input id="mk-a-subject" class="modal-input" maxlength="150" value="${mkEsc(a.subject)}"></div>
     <div class="modal-field"><label class="modal-label">Message</label><textarea id="mk-a-body" class="modal-input" maxlength="5000">${mkEsc(a.body)}</textarea>
-      <div style="font-size:11px;color:#93A9BD;margin-top:5px">Personalise with <code>{{first_name}}</code>. A “Shop now” button and unsubscribe link are added automatically.</div></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:5px">Personalise with <code>{{first_name}}</code>. A “Shop now” button and unsubscribe link are added automatically.</div></div>
     <div class="modal-error" id="mk-a-error"></div>
     <div class="modal-row">
       <button class="modal-btn modal-btn-secondary" id="mk-a-test" onclick="mkAutoTest()">Send test to me</button>
@@ -2928,7 +3008,7 @@ async function mkAutoTest() {
   try {
     const f = mkAutoFields();
     const r = await mkPost('/test', { subject: f.subject, body: f.body });
-    err.style.color = '#2FAF9E'; err.textContent = `Test sent to ${r.sentTo} — check your inbox (and spam).`;
+    err.style.color = 'var(--teal)'; err.textContent = `Test sent to ${r.sentTo} — check your inbox (and spam).`;
   } catch (e) { err.textContent = e.message; }
 }
 async function mkAutoSends(id) {
@@ -2940,9 +3020,9 @@ async function mkAutoSends(id) {
       <div class="modal-title">${mkEsc(a.name)} — recent activity</div>
       <div class="modal-sub">The last ${rows.length ? rows.length : ''} emails this automation handled.</div>
       ${rows.length ? `<div style="max-height:320px;overflow:auto"><table><thead><tr><th>Customer</th><th>When</th><th>Status</th></tr></thead><tbody>${rows.map(r => `<tr>
-        <td>${mkEsc(r.name || '—')}<div style="font-size:11px;color:#93A9BD">${mkEsc(r.email)}</div></td>
+        <td>${mkEsc(r.name || '—')}<div style="font-size:11px;color:var(--muted)">${mkEsc(r.email)}</div></td>
         <td>${mkDate(r.at)}</td>
-        <td><span class="pill ${r.status === 'sent' ? 'p-green' : r.status === 'failed' ? 'p-red' : 'p-gray'}">${mkEsc(r.status)}</span>${r.error ? `<div style="font-size:11px;color:#F0716F;max-width:180px">${mkEsc(r.error)}</div>` : ''}</td></tr>`).join('')}</tbody></table></div>`
+        <td><span class="pill ${r.status === 'sent' ? 'p-green' : r.status === 'failed' ? 'p-red' : 'p-gray'}">${mkEsc(r.status)}</span>${r.error ? `<div style="font-size:11px;color:var(--red);max-width:180px">${mkEsc(r.error)}</div>` : ''}</td></tr>`).join('')}</tbody></table></div>`
         : '<div class="mk-empty">Nothing yet. Emails appear here once the first customer qualifies.</div>'}
       <div class="modal-actions" style="margin-top:12px"><button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button></div>`);
   } catch (err) {
@@ -3026,7 +3106,7 @@ async function ibLoadThread(id, keepDraft) {
         <div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600">${mkEsc(c.name)}</div><div style="font-size:11.5px;color:var(--color-text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${mkEsc(c.channelLabel)}${c.handle ? ' · ' + mkEsc(c.handle) : ''}${c.subject ? ' · ' + mkEsc(c.subject) : ''}</div></div>
         <button class="btn" style="font-size:12px" onclick="ibSetStatus(${c.id}, '${c.status === 'open' ? 'closed' : 'open'}')">${c.status === 'open' ? 'Mark done' : 'Reopen'}</button></div>
       <div class="ib-msgs" id="ib-msgs">${c.messages.map(m => `<div class="ib-msg ${m.direction} ${m.status === 'failed' ? 'failed' : ''}">${mkEsc(m.body)}<small>${m.status === 'failed' ? 'Not sent — ' + mkEsc(m.error || 'error') + ' · ' : ''}${mkDate(m.at)}</small></div>`).join('')}</div>
-      ${c.canReply ? `<div class="ib-reply"><textarea id="ib-text" rows="1" maxlength="5000" placeholder="Write a reply…" onkeydown="if((event.ctrlKey||event.metaKey)&&event.key==='Enter')ibSend(${c.id})"></textarea><button class="btn btn-g" id="ib-send" onclick="ibSend(${c.id})">Send</button></div><div id="ib-err" style="font-size:12px;color:#F0716F;padding:0 16px 10px"></div>`
+      ${c.canReply ? `<div class="ib-reply"><textarea id="ib-text" rows="1" maxlength="5000" placeholder="Write a reply…" onkeydown="if((event.ctrlKey||event.metaKey)&&event.key==='Enter')ibSend(${c.id})"></textarea><button class="btn btn-g" id="ib-send" onclick="ibSend(${c.id})">Send</button></div><div id="ib-err" style="font-size:12px;color:var(--red);padding:0 16px 10px"></div>`
         : `<div class="mk-empty" style="padding:16px">Replies for ${mkEsc(c.channelLabel)} aren't connected yet.</div>`}`;
     const m = document.getElementById('ib-msgs'); if (m) m.scrollTop = m.scrollHeight;
     const t = document.getElementById('ib-text'); if (t && draft) t.value = draft;
@@ -3049,7 +3129,7 @@ async function ibSetStatus(id, status) {
 }
 function ibChannels() {
   const s = _ib.summary || { email: {}, channels: [] };
-  const row = (name, status, ok, detail) => `<div style="display:flex;gap:12px;padding:12px 0;border-top:1px solid #20415F"><div style="flex:1"><div style="font-size:13.5px;font-weight:600">${name}</div><div style="font-size:12px;color:#93A9BD;line-height:1.5;margin-top:2px">${detail}</div></div><span class="pill ${ok ? 'p-green' : 'p-gray'}" style="align-self:flex-start">${status}</span></div>`;
+  const row = (name, status, ok, detail) => `<div style="display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--line)"><div style="flex:1"><div style="font-size:13.5px;font-weight:600">${name}</div><div style="font-size:12px;color:var(--muted);line-height:1.5;margin-top:2px">${detail}</div></div><span class="pill ${ok ? 'p-green' : 'p-gray'}" style="align-self:flex-start">${status}</span></div>`;
   openModal(`
     <div class="modal-title">Inbox channels</div>
     <div class="modal-sub">Where customer messages come from.</div>
@@ -3112,7 +3192,7 @@ function ccOpen(id, date) {
     </div>
     ${id ? `<div class="modal-row" style="margin-top:8px">
       <button class="modal-btn modal-btn-secondary" onclick="ccSetStatus(${id}, '${p.status === 'posted' ? 'planned' : 'posted'}')">${p.status === 'posted' ? 'Mark as not posted' : 'Mark as posted ✓'}</button>
-      <button class="modal-btn modal-btn-secondary" style="color:#F0716F" onclick="ccDelete(${id})">Delete</button></div>` : ''}
+      <button class="modal-btn modal-btn-secondary" style="color:var(--red)" onclick="ccDelete(${id})">Delete</button></div>` : ''}
     <div class="modal-actions" style="margin-top:12px"><button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button></div>`);
   ccFillProducts();
 }
@@ -3135,13 +3215,13 @@ async function ccWrite() {
   try {
     const r = await mkPost('/content/caption', { title: document.getElementById('cc-title').value, channel: document.getElementById('cc-channel').value, productId: document.getElementById('cc-product').value || null });
     box.value = r.caption;
-    if (r.source === 'template') { e.style.color = '#D89A3D'; e.textContent = 'Basic caption added. Edit it to make it yours.'; }
+    if (r.source === 'template') { e.style.color = 'var(--amber)'; e.textContent = 'Basic caption added. Edit it to make it yours.'; }
   } catch (err) { e.textContent = err.message; }
   btn.disabled = false; btn.textContent = old;
 }
 function ccCopy() {
   const t = document.getElementById('cc-caption').value, e = document.getElementById('cc-error');
-  (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => { e.style.color = '#2FAF9E'; e.textContent = 'Caption copied.'; }, () => { e.style.color = ''; e.textContent = 'Couldn’t copy — select the text and copy it manually.'; });
+  (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => { e.style.color = 'var(--teal)'; e.textContent = 'Caption copied.'; }, () => { e.style.color = ''; e.textContent = 'Couldn’t copy — select the text and copy it manually.'; });
 }
 async function ccSave() {
   const e = document.getElementById('cc-error'); e.textContent = ''; e.style.color = '';
@@ -3189,7 +3269,7 @@ async function loadWhatsapp() {
       if (t.detected) {
         // Seed/demo thread with pre-computed "AI detected" info
         document.getElementById('wa-inbox').innerHTML = messagesHtml + `
-          <div style="background:rgba(47,175,158,.15);border-radius:8px;padding:10px 12px;font-size:12px;color:#EDF2F5;margin-bottom:12px;border-left:3px solid #2FAF9E;border-top-left-radius:0;border-bottom-left-radius:0">
+          <div style="background:var(--teal-t);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--text);margin-bottom:12px;border-left:3px solid var(--teal);border-top-left-radius:0;border-bottom-left-radius:0">
             <i class="ti ti-sparkles" style="font-size:13px;margin-right:5px" aria-hidden="true"></i><strong style="font-weight:500">AI detected:</strong> ${t.detected.productName} × ${t.detected.qty}, ${t.detected.location}. ${t.detected.isNewCustomer ? 'New customer.' : ''} Total ${naira(t.detected.total)}.
           </div>
           <div style="display:flex;gap:8px">
@@ -3201,7 +3281,7 @@ async function loadWhatsapp() {
         // Real message from the live webhook — no AI extraction wired up yet,
         // so fall back to the regular New Order form, pre-filled with the phone
         document.getElementById('wa-inbox').innerHTML = messagesHtml + `
-          <div style="background:rgba(240,113,111,.15);border-radius:8px;padding:10px 12px;font-size:12px;color:#F0716F;margin-bottom:12px">
+          <div style="background:var(--red-t);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--red);margin-bottom:12px">
             No order info auto-detected from this message yet. Create the order manually using their number.
           </div>
           <div style="display:flex;gap:8px">
@@ -3213,8 +3293,8 @@ async function loadWhatsapp() {
     }
 
     const icons = { vip: 'ti-crown', dormant: 'ti-clock', new: 'ti-user-plus', frequent: 'ti-star' };
-    const bg = { vip: 'rgba(216,154,61,.15)', dormant: 'rgba(240,113,111,.15)', new: 'rgba(47,175,158,.15)', frequent: 'rgba(169,155,245,.15)' };
-    const color = { vip: '#D89A3D', dormant: '#F0716F', new: '#2FAF9E', frequent: '#A99BF5' };
+    const bg = { vip: 'var(--amber-t)', dormant: 'var(--red-t)', new: 'var(--teal-t)', frequent: 'var(--purple-t)' };
+    const color = { vip: 'var(--amber)', dormant: 'var(--red)', new: 'var(--teal)', frequent: 'var(--purple)' };
     document.getElementById('wa-broadcasts').innerHTML = broadcasts.map(b => `
       <div class="seg-row" onclick="showSegmentMembers('${b.key}', '${b.title}')">
         <div class="seg-icon" style="background:${bg[b.key]}"><i class="ti ${icons[b.key]}" style="font-size:15px;color:${color[b.key]}" aria-hidden="true"></i></div>
@@ -3271,7 +3351,7 @@ async function openNewOrderModal() {
   const inStock = products.filter(p => p.quantity > 0);
 
   openModal(`
-    <div class="modal-title"><i class="ti ti-shopping-bag-plus" style="color:#2FAF9E" aria-hidden="true"></i> New order</div>
+    <div class="modal-title"><i class="ti ti-shopping-bag-plus" style="color:var(--teal)" aria-hidden="true"></i> New order</div>
     <div class="modal-sub">Create an order for an existing or new customer</div>
 
     <div class="modal-field">
@@ -3281,7 +3361,7 @@ async function openNewOrderModal() {
         ${customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
       </select>
     </div>
-    <div id="no-new-customer-fields" style="display:flex;flex-direction:column;gap:10px;background:#0A1F33;padding:12px;border-radius:9px;margin-bottom:14px">
+    <div id="no-new-customer-fields" style="display:flex;flex-direction:column;gap:10px;background:var(--navy);padding:12px;border-radius:9px;margin-bottom:14px">
       <input id="no-new-name" type="text" class="modal-input" placeholder="Customer name">
       <input id="no-new-phone" type="text" class="modal-input" placeholder="Phone (e.g. +234 800 000 0000)">
       <input id="no-new-location" type="text" class="modal-input" placeholder="Delivery location">
@@ -3299,7 +3379,7 @@ async function openNewOrderModal() {
       </div>
     </div>
     <div class="modal-field">
-      <label class="modal-label">Delivery location <span style="font-weight:400;color:#93A9BD">(existing customers)</span></label>
+      <label class="modal-label">Delivery location <span style="font-weight:400;color:var(--muted)">(existing customers)</span></label>
       <input id="no-delivery" type="text" class="modal-input" placeholder="Optional">
     </div>
     <div id="no-error" class="modal-error"></div>
@@ -3352,9 +3432,9 @@ async function submitNewOrder() {
 function orderProgressBarHTML(status) {
   const steps = ['New', 'Processing', 'Shipped', 'Delivered'];
   if (status === 'Cancelled') {
-    return `<div style="display:flex;align-items:center;gap:10px;background:rgba(240,113,111,.15);border-radius:10px;padding:12px 14px;margin-bottom:18px;">
-      <i class="ti ti-x" style="color:#F0716F;font-size:18px" aria-hidden="true"></i>
-      <span style="font-size:13px;font-weight:600;color:#F0716F">This order was cancelled</span>
+    return `<div style="display:flex;align-items:center;gap:10px;background:var(--red-t);border-radius:10px;padding:12px 14px;margin-bottom:18px;">
+      <i class="ti ti-x" style="color:var(--red);font-size:18px" aria-hidden="true"></i>
+      <span style="font-size:13px;font-weight:600;color:var(--red)">This order was cancelled</span>
     </div>`;
   }
   const currentIndex = Math.max(0, steps.indexOf(status));
@@ -3364,13 +3444,13 @@ function orderProgressBarHTML(status) {
     const node = `
       <div style="display:flex;flex-direction:column;align-items:center;">
         <div style="width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;
-          background:${done ? '#2FAF9E' : '#122E4A'};color:${done ? '#0A1F33' : '#93A9BD'};border:2px solid ${done ? '#2FAF9E' : '#20415F'};">
+          background:${done ? 'var(--teal)' : 'var(--card)'};color:${done ? 'var(--navy)' : 'var(--muted)'};border:2px solid ${done ? 'var(--teal)' : 'var(--line)'};">
           ${done ? '<i class="ti ti-check" style="font-size:13px" aria-hidden="true"></i>' : (i + 1)}
         </div>
-        <div style="font-size:10px;margin-top:6px;color:${i === currentIndex ? '#EDF2F5' : '#93A9BD'};font-weight:${i === currentIndex ? '700' : '500'};white-space:nowrap;">${s}</div>
+        <div style="font-size:10px;margin-top:6px;color:${i === currentIndex ? 'var(--text)' : 'var(--muted)'};font-weight:${i === currentIndex ? '700' : '500'};white-space:nowrap;">${s}</div>
       </div>`;
     if (i === steps.length - 1) return node;
-    const lineColor = i < currentIndex ? '#2FAF9E' : '#20415F';
+    const lineColor = i < currentIndex ? 'var(--teal)' : 'var(--line)';
     const line = `<div style="flex:1;height:2px;background:${lineColor};margin:0 4px;position:relative;top:-12px;"></div>`;
     return node + line;
   }).join('');
@@ -3389,16 +3469,16 @@ async function showOrderDetail(orderId) {
 
       ${orderProgressBarHTML(o.status)}
 
-      <div class="modal-list-row"><span style="color:#93A9BD">Customer</span><strong>${o.customerName}</strong></div>
-      <div class="modal-list-row"><span style="color:#93A9BD">Items</span><span style="text-align:right">${o.items.map(i => `${i.name}${i.variantLabel ? ` (${i.variantLabel})` : ''} × ${i.qty}`).join(', ')}</span></div>
-      <div class="modal-list-row"><span style="color:#93A9BD">Amount</span><strong>${naira(o.amount)}</strong></div>
+      <div class="modal-list-row"><span style="color:var(--muted)">Customer</span><strong>${o.customerName}</strong></div>
+      <div class="modal-list-row"><span style="color:var(--muted)">Items</span><span style="text-align:right">${o.items.map(i => `${i.name}${i.variantLabel ? ` (${i.variantLabel})` : ''} × ${i.qty}`).join(', ')}</span></div>
+      <div class="modal-list-row"><span style="color:var(--muted)">Amount</span><strong>${naira(o.amount)}</strong></div>
       ${o.paymentStatus === 'Partial' || (o.amountPaid > 0 && o.amountPaid < o.amount) ? `
-      <div class="modal-list-row"><span style="color:#93A9BD">Paid so far</span><span style="color:#2FAF9E">${naira(o.amountPaid)}</span></div>
-      <div class="modal-list-row"><span style="color:#93A9BD">Balance remaining</span><strong style="color:#D89A3D">${naira(o.balanceRemaining)}</strong></div>
+      <div class="modal-list-row"><span style="color:var(--muted)">Paid so far</span><span style="color:var(--teal)">${naira(o.amountPaid)}</span></div>
+      <div class="modal-list-row"><span style="color:var(--muted)">Balance remaining</span><strong style="color:var(--amber)">${naira(o.balanceRemaining)}</strong></div>
       ` : ''}
-      <div class="modal-list-row"><span style="color:#93A9BD">Payment</span><span class="pill ${paymentPill[o.paymentStatus] || 'p-gray'}">${o.paymentStatus}</span></div>
-      <div class="modal-list-row"><span style="color:#93A9BD">Status</span><span class="pill ${statusPill[o.status] || 'p-gray'}">${o.status}</span></div>
-      <div class="modal-list-row"><span style="color:#93A9BD">Delivery</span><span>${o.delivery || '—'}</span></div>
+      <div class="modal-list-row"><span style="color:var(--muted)">Payment</span><span class="pill ${paymentPill[o.paymentStatus] || 'p-gray'}">${o.paymentStatus}</span></div>
+      <div class="modal-list-row"><span style="color:var(--muted)">Status</span><span class="pill ${statusPill[o.status] || 'p-gray'}">${o.status}</span></div>
+      <div class="modal-list-row"><span style="color:var(--muted)">Delivery</span><span>${o.delivery || '—'}</span></div>
 
       <div class="modal-actions" style="flex-wrap:wrap">
         <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button>
@@ -3419,7 +3499,7 @@ async function showEditOrder(orderId) {
   const statuses = ['New', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
   const paymentStatuses = ['Awaiting', 'Partial', 'Paid', 'Cancelled'];
   openModal(`
-    <div class="modal-title"><i class="ti ti-edit" style="color:#2FAF9E" aria-hidden="true"></i> Edit ${o.id}</div>
+    <div class="modal-title"><i class="ti ti-edit" style="color:var(--teal)" aria-hidden="true"></i> Edit ${o.id}</div>
     <div class="modal-sub">${o.customerName} · ${naira(o.amountPaid)} paid of ${naira(o.amount)}</div>
 
     ${orderProgressBarHTML(o.status)}
@@ -3436,7 +3516,7 @@ async function showEditOrder(orderId) {
         ${paymentStatuses.map(s => `<option ${s === o.paymentStatus ? 'selected' : ''}>${s}</option>`).join('')}
       </select>
     </div>
-    <div id="eo-payment-fields" style="display:none;background:#0A1F33;border-radius:9px;padding:12px;margin-bottom:14px">
+    <div id="eo-payment-fields" style="display:none;background:var(--navy);border-radius:9px;padding:12px;margin-bottom:14px">
       <div class="modal-info-box" style="margin-bottom:10px">Setting this to Paid/Partial records a real payment, so it shows up correctly in your Payments log and revenue totals.</div>
       <div class="modal-row">
         <div>
@@ -3479,7 +3559,7 @@ async function quickMarkPaid(orderId) {
   try {
     const o = await apiFetch(`${API_BASE}/api/orders/${orderId}`).then(r => r.json());
     openModal(`
-      <div class="modal-title"><i class="ti ti-check" style="color:#2FAF9E" aria-hidden="true"></i> Mark ${o.id} as paid</div>
+      <div class="modal-title"><i class="ti ti-check" style="color:var(--teal)" aria-hidden="true"></i> Mark ${o.id} as paid</div>
       <div class="modal-sub">${o.customerName} · ${naira(o.amountPaid)} paid of ${naira(o.amount)} so far</div>
 
       <div class="modal-field">
@@ -3600,7 +3680,7 @@ async function openReceipt(orderId) {
       const lineAmount = i.price != null ? i.price * i.qty : (totalQty > 0 ? (o.amount / totalQty) * i.qty : 0);
       return `
       <tr>
-        <td style="padding:8px 0">${i.name}${i.variantLabel ? `<br><span style="color:#93A9BD;font-size:11px">${i.variantLabel}</span>` : ''}</td>
+        <td style="padding:8px 0">${i.name}${i.variantLabel ? `<br><span style="color:var(--muted);font-size:11px">${i.variantLabel}</span>` : ''}</td>
         <td style="padding:8px 0;text-align:center">${i.qty}</td>
         <td style="padding:8px 0;text-align:right">${naira(lineAmount)}</td>
       </tr>`;
@@ -3667,8 +3747,8 @@ function showRestockRecommendation() {
   const needsRestock = products.filter(p => p.quantity <= p.threshold);
   if (!needsRestock.length) {
     openModal(`
-      <div class="modal-title"><i class="ti ti-box" style="color:#2FAF9E" aria-hidden="true"></i> Restock recommendation</div>
-      <p style="font-size:13px;color:#93A9BD;margin-bottom:16px">Everything is above its threshold — nothing needs restocking right now.</p>
+      <div class="modal-title"><i class="ti ti-box" style="color:var(--teal)" aria-hidden="true"></i> Restock recommendation</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Everything is above its threshold — nothing needs restocking right now.</p>
       <button class="modal-btn modal-btn-secondary" style="width:100%" onclick="closeModal()">Close</button>
     `);
     return;
@@ -3677,12 +3757,12 @@ function showRestockRecommendation() {
     const target = p.threshold * 3;
     const suggested = Math.max(target - p.quantity, p.threshold);
     return `<div class="modal-list-row">
-      <span>${p.name} <span style="color:#93A9BD;font-size:11px">(${p.quantity} left)</span></span>
-      <strong style="color:#2FAF9E">+${suggested} units</strong>
+      <span>${p.name} <span style="color:var(--muted);font-size:11px">(${p.quantity} left)</span></span>
+      <strong style="color:var(--teal)">+${suggested} units</strong>
     </div>`;
   }).join('');
   openModal(`
-    <div class="modal-title"><i class="ti ti-box" style="color:#2FAF9E" aria-hidden="true"></i> Restock recommendation</div>
+    <div class="modal-title"><i class="ti ti-box" style="color:var(--teal)" aria-hidden="true"></i> Restock recommendation</div>
     <div class="modal-sub">Based on current stock vs. each product's threshold (target: 3× threshold)</div>
     ${rows}
     <div class="modal-actions"><button class="modal-btn modal-btn-secondary" style="width:100%" onclick="closeModal()">Close</button></div>
@@ -3704,7 +3784,7 @@ function showStorePreview() {
   const link = `${STOREFRONT_BASE}?business=${businessId}`;
 
   openModal(`
-    <div class="modal-title"><i class="ti ti-eye" style="color:#2FAF9E" aria-hidden="true"></i> Storefront preview</div>
+    <div class="modal-title"><i class="ti ti-eye" style="color:var(--teal)" aria-hidden="true"></i> Storefront preview</div>
     <div class="modal-sub">This is roughly how your store looks to a customer on their phone.</div>
     <div style="border:1px solid var(--color-border-tertiary);border-radius:14px;overflow:hidden;margin-top:12px;">
       <iframe src="${link}" style="width:100%;height:600px;border:none;display:block;"></iframe>
@@ -3720,7 +3800,7 @@ function showStorePreview() {
 let paymentBanksCache = null;
 
 async function showPaymentSettings() {
-  openModal(`<div class="modal-title"><i class="ti ti-building-bank" style="color:#2FAF9E" aria-hidden="true"></i> Payment settings</div>
+  openModal(`<div class="modal-title"><i class="ti ti-building-bank" style="color:var(--teal)" aria-hidden="true"></i> Payment settings</div>
     <div class="modal-sub">Loading…</div>`);
 
   let account, banks;
@@ -3740,7 +3820,7 @@ async function showPaymentSettings() {
 
   if (account.paystack_subaccount_code) {
     openModal(`
-      <div class="modal-title"><i class="ti ti-building-bank" style="color:#2FAF9E" aria-hidden="true"></i> Payment settings</div>
+      <div class="modal-title"><i class="ti ti-building-bank" style="color:var(--teal)" aria-hidden="true"></i> Payment settings</div>
       <div class="modal-sub">Storefront sales are paid directly to this account — Kooza's 1.5% fee is deducted automatically, no manual work needed.</div>
       <div style="background:var(--navy);border-radius:12px;padding:16px;margin-top:14px;">
         <div style="font-size:13px;font-weight:700;margin-bottom:4px;">${account.paystack_account_name}</div>
@@ -3760,7 +3840,7 @@ async function showPaymentSettings() {
 function showPaymentSettingsForm() {
   const banks = paymentBanksCache || [];
   openModal(`
-    <div class="modal-title"><i class="ti ti-building-bank" style="color:#2FAF9E" aria-hidden="true"></i> Link your bank account</div>
+    <div class="modal-title"><i class="ti ti-building-bank" style="color:var(--teal)" aria-hidden="true"></i> Link your bank account</div>
     <div class="modal-sub">Storefront sales are paid straight to this account, usually within 24 hours. Kooza takes a 1.5% fee automatically — you never send anything manually.</div>
 
     <div class="modal-field">
@@ -3814,7 +3894,7 @@ async function verifyPaymentAccount() {
     if (!res.ok) throw new Error(data.error || 'Could not verify account');
 
     document.getElementById('ps-verified-name').value = data.accountName;
-    resultEl.innerHTML = `<div style="font-size:13px;font-weight:700;color:#2FAF9E;">✓ ${data.accountName}</div>`;
+    resultEl.innerHTML = `<div style="font-size:13px;font-weight:700;color:var(--teal);">✓ ${data.accountName}</div>`;
     document.getElementById('ps-connect-btn').disabled = false;
   } catch (err) {
     resultEl.innerHTML = '';
@@ -3857,13 +3937,13 @@ function zoneRowHTML(zone) {
   return `<div class="zone-row" data-zone-id="${zone.id}" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
     <input type="text" class="modal-input zone-location" value="${(zone.location_name || '').replace(/"/g, '&quot;')}" placeholder="Location" style="flex:2;">
     <input type="number" min="0" step="1" class="modal-input zone-fee" value="${zone.fee}" placeholder="Fee (₦)" style="flex:1;">
-    <div onclick="saveDeliveryZone(${zone.id})" style="cursor:pointer;color:#2FAF9E;" title="Save"><i class="ti ti-check" style="font-size:18px" aria-hidden="true"></i></div>
+    <div onclick="saveDeliveryZone(${zone.id})" style="cursor:pointer;color:var(--teal);" title="Save"><i class="ti ti-check" style="font-size:18px" aria-hidden="true"></i></div>
     <div onclick="deleteDeliveryZone(${zone.id})" style="cursor:pointer;color:var(--color-text-secondary);" title="Remove"><i class="ti ti-trash" style="font-size:16px" aria-hidden="true"></i></div>
   </div>`;
 }
 
 async function showDeliveryZones() {
-  openModal(`<div class="modal-title"><i class="ti ti-map-pin" style="color:#2FAF9E" aria-hidden="true"></i> Delivery zones</div>
+  openModal(`<div class="modal-title"><i class="ti ti-map-pin" style="color:var(--teal)" aria-hidden="true"></i> Delivery zones</div>
     <div class="modal-sub">Loading…</div>`);
 
   let zones;
@@ -3876,7 +3956,7 @@ async function showDeliveryZones() {
   }
 
   openModal(`
-    <div class="modal-title"><i class="ti ti-map-pin" style="color:#2FAF9E" aria-hidden="true"></i> Delivery zones</div>
+    <div class="modal-title"><i class="ti ti-map-pin" style="color:var(--teal)" aria-hidden="true"></i> Delivery zones</div>
     <div class="modal-sub">Set a different delivery fee per location. Customers pick their location at checkout — pickup is always free.</div>
     <button class="btn" style="font-size:12px;margin-top:10px;" onclick="openImportModal('deliveryZones')"><i class="ti ti-upload" style="font-size:12px" aria-hidden="true"></i> Import CSV</button>
 
@@ -3960,14 +4040,14 @@ async function checkPaymentSetupBanner() {
     const account = await apiFetch(`${API_BASE}/api/paystack/subaccount`).then(r => r.json());
     if (account.paystack_subaccount_code) { banner.innerHTML = ''; return; }
     banner.innerHTML = `
-      <div style="display:flex;align-items:center;gap:12px;background:rgba(216,154,61,.12);border:1px solid rgba(216,154,61,.35);border-radius:10px;padding:14px 16px;margin-bottom:18px;">
-        <i class="ti ti-building-bank" style="font-size:20px;color:#D89A3D;flex-shrink:0" aria-hidden="true"></i>
+      <div style="display:flex;align-items:center;gap:12px;background:var(--amber-t);border:1px solid var(--amber-b);border-radius:10px;padding:14px 16px;margin-bottom:18px;">
+        <i class="ti ti-building-bank" style="font-size:20px;color:var(--amber);flex-shrink:0" aria-hidden="true"></i>
         <div style="flex:1">
-          <div style="font-size:13px;font-weight:700;color:#EDF2F5">Add your bank details to start accepting payments</div>
-          <div style="font-size:12px;color:#C5D3DF">Customers can't pay you online on your storefront until this is set up — it takes a minute.</div>
+          <div style="font-size:13px;font-weight:700;color:var(--text)">Add your bank details to start accepting payments</div>
+          <div style="font-size:12px;color:var(--soft)">Customers can't pay you online on your storefront until this is set up — it takes a minute.</div>
         </div>
         <button class="btn btn-g" style="font-size:12px;flex-shrink:0" onclick="showPaymentSettings()">Set up now</button>
-        <i class="ti ti-x" style="font-size:15px;color:#93A9BD;cursor:pointer;flex-shrink:0" onclick="dismissPaymentBanner()" title="Dismiss" aria-hidden="true"></i>
+        <i class="ti ti-x" style="font-size:15px;color:var(--muted);cursor:pointer;flex-shrink:0" onclick="dismissPaymentBanner()" title="Dismiss" aria-hidden="true"></i>
       </div>
     `;
   } catch (err) {
@@ -3982,7 +4062,7 @@ function dismissPaymentBanner() {
 // --- Storefront hub (groups Store settings, Preview, and Store link) ---
 function showStorefrontHub() {
   openModal(`
-    <div class="modal-title"><i class="ti ti-building-store" style="color:#2FAF9E" aria-hidden="true"></i> Storefront</div>
+    <div class="modal-title"><i class="ti ti-building-store" style="color:var(--teal)" aria-hidden="true"></i> Storefront</div>
     <div class="modal-sub">Manage how your storefront looks and get its shareable link.</div>
     <div style="display:flex;flex-direction:column;gap:9px;margin-top:16px;">
       <button class="btn" style="justify-content:flex-start;width:100%" onclick="closeModal(); showStoreSettings();"><i class="ti ti-palette" style="font-size:14px" aria-hidden="true"></i> Store settings</button>
@@ -4017,7 +4097,7 @@ function showStoreLink() {
   const link = `${STOREFRONT_BASE}?business=${businessId}`;
 
   openModal(`
-    <div class="modal-title"><i class="ti ti-link" style="color:#2FAF9E" aria-hidden="true"></i> Your store link</div>
+    <div class="modal-title"><i class="ti ti-link" style="color:var(--teal)" aria-hidden="true"></i> Your store link</div>
     <div class="modal-sub">Share this with customers on WhatsApp, Instagram, or anywhere else — anyone who opens it can browse your products and order.</div>
 
     <div style="display:flex;gap:8px;margin-top:14px;">
@@ -4026,7 +4106,7 @@ function showStoreLink() {
         onclick="this.select()">
       <button class="modal-btn modal-btn-primary" style="white-space:nowrap" onclick="copyStoreLink()">Copy</button>
     </div>
-    <div id="store-link-copied" style="font-size:12px;color:#2FAF9E;margin-top:8px;display:none;">Copied to clipboard ✓</div>
+    <div id="store-link-copied" style="font-size:12px;color:var(--teal);margin-top:8px;display:none;">Copied to clipboard ✓</div>
 
     <div class="modal-actions"><button class="modal-btn modal-btn-secondary" style="width:100%" onclick="closeModal()">Close</button></div>
   `);
@@ -4061,7 +4141,7 @@ const STORE_THEMES = {
 };
 
 async function showStoreSettings() {
-  openModal(`<div class="modal-title"><i class="ti ti-palette" style="color:#2FAF9E" aria-hidden="true"></i> Store settings</div>
+  openModal(`<div class="modal-title"><i class="ti ti-palette" style="color:var(--teal)" aria-hidden="true"></i> Store settings</div>
     <div class="modal-sub">Loading…</div>`);
 
   let business;
@@ -4082,7 +4162,7 @@ async function showStoreSettings() {
   `).join('');
 
   openModal(`
-    <div class="modal-title"><i class="ti ti-palette" style="color:#2FAF9E" aria-hidden="true"></i> Store settings</div>
+    <div class="modal-title"><i class="ti ti-palette" style="color:var(--teal)" aria-hidden="true"></i> Store settings</div>
     <div class="modal-sub">This is what customers see on your storefront.</div>
 
     <div class="modal-field">
@@ -4157,28 +4237,28 @@ function showBusinessSummary() {
   const top = window._lastTopProducts || [];
   if (!s) { alert('Dashboard data is still loading — try again in a second.'); return; }
   openModal(`
-    <div class="modal-title"><i class="ti ti-report-analytics" style="color:#2FAF9E" aria-hidden="true"></i> Business summary</div>
+    <div class="modal-title"><i class="ti ti-report-analytics" style="color:var(--teal)" aria-hidden="true"></i> Business summary</div>
     <div class="modal-sub">A quick read on how things stand right now</div>
 
     <div class="modal-list-row">
-      <span style="display:flex;align-items:center;gap:8px;color:#C5D3DF"><i class="ti ti-trending-up" style="color:#2FAF9E" aria-hidden="true"></i> Revenue today</span>
-      <strong>${naira(s.revenueToday)}${s.revenueChangePct !== null ? ` <span style="font-weight:400;font-size:11px;color:${s.revenueChangePct > 0 ? '#2FAF9E' : '#F0716F'}">(${s.revenueChangePct > 0 ? '+' : ''}${s.revenueChangePct}%)</span>` : ''}</strong>
+      <span style="display:flex;align-items:center;gap:8px;color:var(--soft)"><i class="ti ti-trending-up" style="color:var(--teal)" aria-hidden="true"></i> Revenue today</span>
+      <strong>${naira(s.revenueToday)}${s.revenueChangePct !== null ? ` <span style="font-weight:400;font-size:11px;color:${s.revenueChangePct > 0 ? 'var(--teal)' : 'var(--red)'}">(${s.revenueChangePct > 0 ? '+' : ''}${s.revenueChangePct}%)</span>` : ''}</strong>
     </div>
     <div class="modal-list-row">
-      <span style="display:flex;align-items:center;gap:8px;color:#C5D3DF"><i class="ti ti-shopping-bag" style="color:#C5D3DF" aria-hidden="true"></i> Orders today</span>
+      <span style="display:flex;align-items:center;gap:8px;color:var(--soft)"><i class="ti ti-shopping-bag" style="color:var(--soft)" aria-hidden="true"></i> Orders today</span>
       <strong>${s.ordersToday}</strong>
     </div>
     <div class="modal-list-row">
-      <span style="display:flex;align-items:center;gap:8px;color:#C5D3DF"><i class="ti ti-clock" style="color:#D89A3D" aria-hidden="true"></i> Unpaid</span>
-      <strong>${naira(s.unpaidAmount)} <span style="font-weight:400;font-size:11px;color:#93A9BD">(${s.unpaidCount} order${s.unpaidCount !== 1 ? 's' : ''})</span></strong>
+      <span style="display:flex;align-items:center;gap:8px;color:var(--soft)"><i class="ti ti-clock" style="color:var(--amber)" aria-hidden="true"></i> Unpaid</span>
+      <strong>${naira(s.unpaidAmount)} <span style="font-weight:400;font-size:11px;color:var(--muted)">(${s.unpaidCount} order${s.unpaidCount !== 1 ? 's' : ''})</span></strong>
     </div>
     <div class="modal-list-row">
-      <span style="display:flex;align-items:center;gap:8px;color:#C5D3DF"><i class="ti ti-alert-triangle" style="color:#F0716F" aria-hidden="true"></i> Needs restocking</span>
+      <span style="display:flex;align-items:center;gap:8px;color:var(--soft)"><i class="ti ti-alert-triangle" style="color:var(--red)" aria-hidden="true"></i> Needs restocking</span>
       <strong>${s.lowStockCount} item${s.lowStockCount !== 1 ? 's' : ''}</strong>
     </div>
     ${top.length ? `<div class="modal-list-row">
-      <span style="display:flex;align-items:center;gap:8px;color:#C5D3DF"><i class="ti ti-trophy" style="color:#D89A3D" aria-hidden="true"></i> Best seller</span>
-      <strong>${top[0].name} <span style="font-weight:400;font-size:11px;color:#93A9BD">(${top[0].units} sold)</span></strong>
+      <span style="display:flex;align-items:center;gap:8px;color:var(--soft)"><i class="ti ti-trophy" style="color:var(--amber)" aria-hidden="true"></i> Best seller</span>
+      <strong>${top[0].name} <span style="font-weight:400;font-size:11px;color:var(--muted)">(${top[0].units} sold)</span></strong>
     </div>` : ''}
 
     <div class="modal-actions"><button class="modal-btn modal-btn-secondary" style="width:100%" onclick="closeModal()">Close</button></div>
@@ -4201,7 +4281,7 @@ function showSegmentMembers(key, title) {
     const phone = c.phone.replace(/[^0-9]/g, '');
     return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--color-border-tertiary);font-size:13px">
       <span>${c.name}</span>
-      <a href="https://wa.me/${phone}" target="_blank" style="color:#2FAF9E;font-size:12px;text-decoration:none">Message ↗</a>
+      <a href="https://wa.me/${phone}" target="_blank" style="color:var(--teal);font-size:12px;text-decoration:none">Message ↗</a>
     </div>`;
   }).join('') || `<p style="font-size:13px;color:var(--color-text-secondary)">No customers in this segment yet.</p>`;
 
