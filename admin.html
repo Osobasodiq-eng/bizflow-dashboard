@@ -85,6 +85,10 @@ td{padding:12px 20px;font-size:13px;border-bottom:1px solid var(--border)}
 tr:last-child td{border-bottom:none}
 .biz-name{font-weight:500}
 .biz-email{font-size:11.5px;color:var(--text-secondary)}
+.btn-plan{background:var(--g-t);color:var(--g);border:1px solid var(--border);border-radius:7px;padding:6px 10px;font-size:12px;cursor:pointer}
+.btn-plan:hover{border-color:var(--g)}
+.plan-badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;background:var(--gray-t);color:var(--text-secondary)}
+.plan-badge.paid{background:var(--g-t);color:var(--g)}.plan-badge.trial{background:rgba(111,168,240,.15);color:var(--blue)}
 .del-btn{background:var(--rose-t);color:var(--rose);border:1px solid var(--rose-b);border-radius:7px;padding:6px 10px;font-size:12px;cursor:pointer}
 .del-btn:hover{background:var(--rose-t)}
 .empty-state{padding:40px;text-align:center;color:var(--text-secondary);font-size:13px}
@@ -212,6 +216,15 @@ tr:last-child td{border-bottom:none}
     </div>
   </div>
 
+  <div class="section-label">Subscriptions</div>
+  <div class="health-row" id="bill-row">
+    <div class="health-card"><div class="health-label">Monthly recurring revenue</div><div class="health-val" id="bill-mrr">—</div><div class="health-sub">Auto-renewing paid plans</div></div>
+    <div class="health-card"><div class="health-label">Growth</div><div class="health-val" id="bill-growth">—</div></div>
+    <div class="health-card"><div class="health-label">Pro</div><div class="health-val" id="bill-pro">—</div></div>
+    <div class="health-card"><div class="health-label">On free trial</div><div class="health-val" id="bill-trial">—</div></div>
+    <div class="health-card"><div class="health-label">Starter (free)</div><div class="health-val" id="bill-free">—</div></div>
+  </div>
+
   <div class="section-label">Health</div>
   <div class="health-row" id="health-row">
     <div class="health-card"><div class="health-label">Avg order value</div><div class="health-val" id="health-aov">—</div></div>
@@ -264,8 +277,8 @@ tr:last-child td{border-bottom:none}
       <input type="text" id="biz-search" placeholder="Search by business name or owner email..." oninput="filterBusinesses()">
     </div>
     <table>
-      <thead><tr><th>Business</th><th>Signed up</th><th>Products</th><th>Customers</th><th>Orders</th><th>Revenue</th><th></th></tr></thead>
-      <tbody id="biz-tbody"><tr><td colspan="7" class="empty-state">Loading…</td></tr></tbody>
+      <thead><tr><th>Business</th><th>Plan</th><th>Signed up</th><th>Products</th><th>Customers</th><th>Orders</th><th>Revenue</th><th></th></tr></thead>
+      <tbody id="biz-tbody"><tr><td colspan="8" class="empty-state">Loading…</td></tr></tbody>
     </table>
   </div>
 </div>
@@ -448,23 +461,47 @@ async function loadStats() {
   document.getElementById('health-repeat').textContent = pct(s.repeatCustomerRate);
 }
 
+function planBadge(b) {
+  const trial = b.planState === 'trial', paid = b.plan !== 'free' && !trial;
+  const until = b.periodEnd && (trial || paid) ? ` · until ${new Date(b.periodEnd).toLocaleDateString()}` : '';
+  return `<span class="plan-badge ${trial ? 'trial' : paid ? 'paid' : ''}">${trial ? 'Trial' : b.planName || 'Starter'}</span><div class="biz-email">${until.replace(' · ', '')}</div>`;
+}
+async function setPlan(id, name) {
+  const plan = (prompt(`Set plan for "${name}"\n\nType free, growth or pro:`) || '').trim().toLowerCase();
+  if (!plan) return;
+  if (!['free', 'growth', 'pro'].includes(plan)) return alert('Please type exactly: free, growth or pro');
+  let days = 30;
+  if (plan !== 'free') { days = Number(prompt('For how many days? (e.g. 30 for a month, 365 for a year)', '30')); if (!days || days < 1) return; }
+  const r = await apiFetch(`${API_BASE}/api/admin/businesses/${id}/plan`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan, days }) });
+  if (!r.ok) return alert((await r.json()).error || 'Could not set plan');
+  loadBusinesses(); loadBilling();
+}
+async function loadBilling() {
+  try {
+    const b = await apiFetch(`${API_BASE}/api/admin/billing`).then(r => r.json());
+    document.getElementById('bill-mrr').textContent = naira(b.mrr);
+    document.getElementById('bill-growth').textContent = b.counts.growth; document.getElementById('bill-pro').textContent = b.counts.pro;
+    document.getElementById('bill-trial').textContent = b.counts.trial; document.getElementById('bill-free').textContent = b.counts.free;
+  } catch (e) { /* billing endpoint not deployed yet */ }
+}
 function renderBusinessesTable(businesses) {
   document.getElementById('biz-count').textContent = `(${businesses.length})`;
 
   if (!businesses.length) {
-    document.getElementById('biz-tbody').innerHTML = `<tr><td colspan="7" class="empty-state">No businesses match.</td></tr>`;
+    document.getElementById('biz-tbody').innerHTML = `<tr><td colspan="8" class="empty-state">No businesses match.</td></tr>`;
     return;
   }
 
   document.getElementById('biz-tbody').innerHTML = businesses.map(b => `
     <tr class="biz-row" onclick="openStoreDetail(${b.id})">
       <td><div class="biz-name">${b.name}</div><div class="biz-email">${b.ownerEmail}</div>${b.isActive !== undefined ? `<span class="status-badge ${b.isActive ? 'status-active' : 'status-dormant'}">${b.isActive ? 'Active' : 'Dormant'}</span>` : ''}</td>
+      <td>${planBadge(b)}</td>
       <td>${new Date(b.createdAt).toLocaleDateString()}</td>
       <td>${b.productCount}</td>
       <td>${b.customerCount}</td>
       <td>${b.orderCount}</td>
       <td>${naira(b.totalRevenue)}</td>
-      <td><button class="del-btn" onclick="event.stopPropagation(); deleteBusiness(${b.id}, '${b.name.replace(/'/g, "\\'")}')">Delete</button></td>
+      <td style="white-space:nowrap"><button class="btn-plan" onclick="event.stopPropagation(); setPlan(${b.id}, '${b.name.replace(/'/g, "\\'")}')">Set plan</button> <button class="del-btn" onclick="event.stopPropagation(); deleteBusiness(${b.id}, '${b.name.replace(/'/g, "\\'")}')">Delete</button></td>
     </tr>
   `).join('');
 }
@@ -479,6 +516,7 @@ function filterBusinesses() {
 }
 
 async function loadBusinesses() {
+  loadBilling();
   const businesses = await apiFetch(`${API_BASE}/api/admin/businesses`).then(r => r.json());
   window._lastBusinesses = businesses;
   renderBusinessesTable(businesses);

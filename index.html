@@ -52,6 +52,49 @@
 .theme-btn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
 .theme-btn .ti-sun{display:none}:root[data-theme="dark"] .theme-btn .ti-sun{display:inline}:root[data-theme="dark"] .theme-btn .ti-moon{display:none}
 .theme-float{position:fixed;top:14px;right:14px;z-index:210}
+/* ---------- billing ---------- */
+#bl-bar{display:none;align-items:center;gap:12px;margin:0 32px 14px;padding:10px 14px;border-radius:10px;background:var(--teal-t);border:1px solid var(--teal-b);font-size:12.5px;color:var(--soft);line-height:1.45}
+#bl-bar.warn{background:var(--amber-t);border-color:var(--amber-b)}
+#bl-bar b{color:var(--text)}
+#bl-bar .bl-x{margin-left:6px;border:none;background:none;color:var(--muted);cursor:pointer;font-size:16px;padding:2px}
+.bl-two{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:16px;margin-bottom:26px}
+.bl-box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px}
+.bl-label{font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.bl-name{font-size:22px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:10px}
+.bl-note{font-size:12.5px;color:var(--muted);line-height:1.6;margin-top:8px}
+.bl-note b{color:var(--soft);font-weight:600}
+.bl-meter{margin-bottom:16px}.bl-meter:last-child{margin-bottom:0}
+.bl-meter-top{display:flex;justify-content:space-between;font-size:12.5px;color:var(--soft);margin-bottom:6px}
+.bl-meter-top span:last-child{color:var(--muted);font-variant-numeric:tabular-nums}
+.bl-bar2{height:7px;border-radius:7px;background:var(--gray-t);overflow:hidden}
+.bl-bar2>i{display:block;height:100%;background:var(--teal);border-radius:7px}
+.bl-bar2>i.hot{background:var(--amber)}.bl-bar2>i.full{background:var(--red)}
+.bl-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.bl-seg{display:inline-flex;background:var(--navy);border:1px solid var(--line);border-radius:9px;padding:3px}
+.bl-seg button{border:none;background:transparent;color:var(--muted);font:600 12.5px var(--font-sans);padding:6px 14px;border-radius:7px;cursor:pointer}
+.bl-seg button.on{background:var(--card);color:var(--text);box-shadow:0 0 0 1px var(--line)}
+.bl-seg em{font-style:normal;color:var(--teal);font-size:11px;margin-left:5px}
+.bl-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:28px}
+.bl-plan{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:22px;display:flex;flex-direction:column;position:relative}
+.bl-plan.cur{border-color:var(--teal);box-shadow:0 0 0 1px var(--teal)}
+.bl-tag{position:absolute;top:-10px;right:18px;background:var(--teal);color:var(--on-teal);font-size:10.5px;font-weight:700;padding:2px 10px;border-radius:20px}
+.bl-pn{font-size:16px;font-weight:600;color:var(--text)}
+.bl-tl{font-size:12.5px;color:var(--muted);margin-top:2px;min-height:34px}
+.bl-price{font-size:30px;font-weight:700;color:var(--text);margin-top:14px;font-variant-numeric:tabular-nums}
+.bl-price small{font-size:13px;font-weight:500;color:var(--muted)}
+.bl-save{font-size:11.5px;color:var(--teal);height:16px;margin-top:2px}
+.bl-hl{list-style:none;margin:16px 0 20px;display:flex;flex-direction:column;gap:9px;flex:1}
+.bl-hl li{display:flex;gap:9px;font-size:12.5px;color:var(--soft);line-height:1.45}
+.bl-hl i{color:var(--teal);font-size:15px;flex:none;margin-top:1px}
+.bl-plan .btn{justify-content:center;width:100%;padding:10px 14px;font-size:13px}
+.lock-wrap{margin:36px auto;max-width:460px;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:34px 30px}
+.lock-ico{width:52px;height:52px;border-radius:14px;background:var(--teal-t);color:var(--teal);display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 16px}
+.lock-wrap h3{font-size:17px;font-weight:600;color:var(--text);margin-bottom:6px}
+.lock-wrap p{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:18px}
+.lock-wrap .lock-hot{color:var(--amber);font-weight:600}
+.panel.locked>*:not(.lock-wrap){display:none!important}
+.lock-inline{border:1px dashed var(--line-hi);border-radius:12px;padding:26px;text-align:center}
+@media(max-width:900px){.bl-two,.bl-grid{grid-template-columns:1fr}#bl-bar{margin:0 16px 12px}}
 /* ---------- notifications ---------- */
 .topbar-right{align-items:center}
 .nt-wrap{position:relative}
@@ -67,7 +110,7 @@
 .nt-item:hover{background:var(--hover-2)}
 .nt-item:focus-visible{outline:2px solid var(--teal);outline-offset:-2px}
 .nt-ico{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex:none}
-.nt-ico.order{background:var(--teal-t);color:var(--teal)}.nt-ico.stock{background:var(--amber-t);color:var(--amber)}.nt-ico.message{background:var(--blue-t);color:var(--blue)}.nt-ico.campaign{background:var(--purple-t);color:var(--purple)}
+.nt-ico.order{background:var(--teal-t);color:var(--teal)}.nt-ico.stock{background:var(--amber-t);color:var(--amber)}.nt-ico.message{background:var(--blue-t);color:var(--blue)}.nt-ico.campaign{background:var(--purple-t);color:var(--purple)}.nt-ico.billing{background:var(--amber-t);color:var(--amber)}
 .nt-main{min-width:0;flex:1}
 .nt-ttl{font-size:13px;font-weight:500;color:var(--soft);line-height:1.4}
 .nt-item.unread .nt-ttl{font-weight:600;color:var(--text)}
@@ -609,6 +652,8 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
       <div class="s-item" id="s-nav-marketing" onclick="go('marketing',this)"><i class="ti ti-speakerphone" aria-hidden="true"></i> Marketing</div>
       <div class="s-item" id="s-nav-inbox" onclick="go('inbox',this)"><i class="ti ti-inbox" aria-hidden="true"></i> Inbox <span class="badge" id="s-badge-inbox" style="background:rgba(47,175,158,.18);color:var(--teal);display:none">0</span></div>
       <div class="s-item" id="s-nav-content" onclick="go('content',this)"><i class="ti ti-calendar-event" aria-hidden="true"></i> Content calendar</div>
+      <div class="s-section">ACCOUNT</div>
+      <div class="s-item" id="s-nav-billing" onclick="go('billing',this)"><i class="ti ti-diamond" aria-hidden="true"></i> Plan &amp; billing <span class="badge" id="s-plan-pill" style="display:none"></span></div>
       <div class="s-section">GROWTH</div>
       <div class="s-item" style="opacity:0.45;cursor:default"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i> WhatsApp <span class="badge">Soon</span></div>
       <div class="s-item" style="opacity:0.45;cursor:default"><i class="ti ti-chart-line" aria-hidden="true"></i> Analytics <span class="badge">Soon</span></div>
@@ -644,6 +689,7 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
     </div>
 
     <div id="mobile-overlay" onclick="closeMobileMenu()"></div>
+    <div id="bl-bar" role="status"></div>
     <div class="scroll">
 
       <div id="p-dashboard" class="panel on">
@@ -975,6 +1021,10 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
         </div>
       </div>
 
+      <div id="p-billing" class="panel">
+        <div id="bl-body"><div class="mk-empty">Loading…</div></div>
+      </div>
+
       <div id="p-whatsapp" class="panel">
         <div class="row2b">
           <div class="card">
@@ -1005,16 +1055,18 @@ function go(name, el) {
   const p = document.getElementById('p-' + name);
   if (p) p.classList.add('on');
   if (el) el.classList.add('on');
-  const titles = {dashboard:'Dashboard',orders:'Orders',customers:'Customers',inventory:'Inventory',payments:'Payments',expenses:'Expenses',fulfilment:'Fulfilment',marketing:'Marketing',content:'Content calendar',inbox:'Inbox',whatsapp:'WhatsApp'};
+  const locked = blApplyGate(name);
+  const titles = {dashboard:'Dashboard',orders:'Orders',customers:'Customers',inventory:'Inventory',payments:'Payments',expenses:'Expenses',fulfilment:'Fulfilment',marketing:'Marketing',content:'Content calendar',inbox:'Inbox',whatsapp:'WhatsApp',billing:'Plan & billing'};
   document.getElementById('pg-title').textContent = titles[name] || name;
   if (name === 'orders' && !window._ordersDone) { loadOrders(); window._ordersDone = true; }
   if (name === 'customers' && !window._custDone) { loadCustomers(); window._custDone = true; }
   if (name === 'inventory' && !window._invDone) { loadInventory(); window._invDone = true; }
   if (name === 'payments' && !window._payDone) { loadPayments(); window._payDone = true; }
   if (name === 'expenses' && !window._expDone) { loadExpenses(); window._expDone = true; }
-  if (name === 'marketing') { mkShowTab(window._mkTab || 'overview'); }
-  if (name === 'content') { ccLoad(); }
-  if (name === 'inbox') { ibOpenPanel(); }
+  if (name === 'billing') { blLoad(); }
+  if (name === 'marketing' && !locked) { mkShowTab(window._mkTab || 'overview'); }
+  if (name === 'content' && !locked) { ccLoad(); }
+  if (name === 'inbox' && !locked) { ibOpenPanel(); }
   if (name === 'fulfilment') { loadFulfilment(); } // always refresh: the board changes outside this page too
   if (name === 'whatsapp' && !window._waDone) { loadWhatsapp(); window._waDone = true; }
   closeMobileMenu(); // picking a page on a phone should close the drawer, not leave it open
@@ -1102,6 +1154,7 @@ function apiFetch(url, options = {}) {
   return fetch(url, { ...options, headers }).then(res => {
     // Expired/invalid login: clear it and go back to the login screen
     // instead of leaving every panel silently empty.
+    if (res.status === 402) res.clone().json().then(b => { if (b && b.code) kzUpgrade(b); }).catch(() => {});
     if (res.status === 401 && token) {
       ['bizflow_token', 'bizflow_business', 'bizflow_business_id', 'bizflow_email'].forEach(k => localStorage.removeItem(k));
       alert('Your session has expired. Please log in again.');
@@ -1262,10 +1315,129 @@ async function updateInventoryBadge() {
   } catch (err) { /* leave badge as-is if this fails — non-critical */ }
 }
 
+// ---------- plan & billing ----------
+var BL = null, BL_INTERVAL = 'monthly';
+const BL_FEATURE = { marketing: ['Email campaigns & segments', 'Send campaigns to your customers, group them into segments and see the revenue each one brings in.'], inbox: ['The inbox', 'Read and reply to storefront chats and customer emails in one place.'], content: ['The content calendar', 'Plan your posts by day and write captions with AI.'], automations: ['Automations', 'Win-back and post-purchase emails that send themselves.'] };
+function blFeature(f) { return !BL || !!BL.current.features[f]; } // optimistic until the plan has loaded
+function blPlanFor(f) { return (BL && BL.plans.find(p => p.features[f])) || { key: 'growth', name: 'Growth' }; }
+function blDate(iso) { return iso ? new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'; }
+function blLockInline(f) {
+  const pl = blPlanFor(f), info = BL_FEATURE[f];
+  return `<div class="lock-inline"><div class="lock-ico"><i class="ti ti-lock" aria-hidden="true"></i></div><h3 style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px">${info[0]} is on the ${mkEsc(pl.name)} plan</h3><p style="font-size:13px;color:var(--muted);margin-bottom:16px">${info[1]}</p><button class="btn btn-g" onclick="go('billing',document.getElementById('s-nav-billing'))">See plans</button></div>`;
+}
+function blApplyGate(name) {
+  const f = { marketing: 'marketing', inbox: 'inbox', content: 'content' }[name];
+  const panel = document.getElementById('p-' + name); if (!f || !panel) return false;
+  const lock = !!BL && !BL.current.features[f];
+  let w = panel.querySelector(':scope > .lock-wrap');
+  panel.classList.toggle('locked', lock);
+  if (!lock) { if (w) w.remove(); return false; }
+  if (!w) { w = document.createElement('div'); w.className = 'lock-wrap'; panel.prepend(w); }
+  const pl = blPlanFor(f), info = BL_FEATURE[f];
+  w.innerHTML = `<div class="lock-ico"><i class="ti ti-lock" aria-hidden="true"></i></div><h3>${info[0]} ${f === 'marketing' ? 'are' : 'is'} on the ${mkEsc(pl.name)} plan</h3><p>${info[1]}<span id="lock-waiting"></span></p><button class="btn btn-g" onclick="go('billing',document.getElementById('s-nav-billing'))">See plans</button>`;
+  if (f === 'inbox') apiFetch(`${API_BASE}/api/inbox/summary`).then(r => r.json()).then(d => { const el = document.getElementById('lock-waiting'); if (el && d.open > 0) el.innerHTML = `<br><br><span class="lock-hot">${d.open} customer conversation${d.open === 1 ? ' is' : 's are'} waiting for you.</span> They're safe — upgrade to read and reply.`; }).catch(() => {});
+  return true;
+}
+function kzUpgrade(b) {
+  const limit = b.code === 'limit_reached';
+  openModal(`<div class="modal-title">${limit ? 'Plan limit reached' : 'Upgrade to unlock'}</div><div class="modal-sub" style="line-height:1.6">${mkEsc(b.error || '')}</div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:18px"><button class="modal-btn modal-btn-secondary" onclick="closeModal()">Not now</button><button class="modal-btn modal-btn-primary" onclick="closeModal();go('billing',document.getElementById('s-nav-billing'))">See plans</button></div>`);
+}
+async function blLoad() {
+  try {
+    const r = await apiFetch(`${API_BASE}/api/billing`); if (!r.ok) return;
+    BL = await r.json(); blShell();
+    if (document.getElementById('p-billing').classList.contains('on')) blRender();
+    ['marketing', 'inbox', 'content'].forEach(n => { if (document.getElementById('p-' + n).classList.contains('on') || document.getElementById('p-' + n).classList.contains('locked')) blApplyGate(n); });
+  } catch (e) { /* server asleep — the page just keeps working */ }
+}
+function blShell() { // the top banner + the little pill beside "Plan & billing"
+  const c = BL.current, bar = document.getElementById('bl-bar'), pill = document.getElementById('s-plan-pill');
+  let msg = '', warn = false, btn = 'See plans', dismiss = false;
+  if (c.state === 'trial') { msg = `<b>Pro trial: ${c.trialDaysLeft} day${c.trialDaysLeft === 1 ? '' : 's'} left.</b> Choose a plan to keep Marketing, the Inbox and Automations after it ends.`; dismiss = c.trialDaysLeft > 3; }
+  else if (c.state === 'trial_ended') { msg = '<b>Your Pro trial has ended.</b> You\'re on Starter now — your data is safe. Choose a plan to unlock Marketing and the Inbox again.'; dismiss = true; }
+  else if (c.state === 'past_due') { msg = `<b>We couldn't renew your ${mkEsc(c.planName)} plan.</b> Update your payment to keep your features.`; warn = true; btn = 'Fix payment'; }
+  else if (c.state === 'expired') { msg = '<b>Your plan has ended.</b> You\'re back on Starter. Choose a plan to unlock paid features again.'; dismiss = true; }
+  let hidden = false; try { hidden = dismiss && sessionStorage.getItem('kooza_bl_bar') === c.state; } catch (e) {}
+  bar.style.display = msg && !hidden ? 'flex' : 'none'; bar.className = warn ? 'warn' : '';
+  bar.innerHTML = `<i class="ti ti-${warn ? 'alert-triangle' : 'diamond'}" style="font-size:17px;color:var(--${warn ? 'amber' : 'teal'})" aria-hidden="true"></i><span style="flex:1">${msg}</span><button class="btn" style="font-size:12px" onclick="go('billing',document.getElementById('s-nav-billing'))">${btn}</button>${dismiss ? `<button class="bl-x" aria-label="Dismiss" onclick="blDismiss()"><i class="ti ti-x" aria-hidden="true"></i></button>` : ''}`;
+  pill.style.display = 'inline-block';
+  pill.textContent = c.state === 'trial' ? `Trial · ${c.trialDaysLeft}d` : c.planName;
+  pill.style.background = c.plan === 'free' ? '' : 'var(--teal-t)'; pill.style.color = c.plan === 'free' ? '' : 'var(--teal)';
+}
+function blDismiss() { try { sessionStorage.setItem('kooza_bl_bar', BL.current.state); } catch (e) {} document.getElementById('bl-bar').style.display = 'none'; }
+function blMeter(label, used, limit) {
+  const pct = limit ? Math.min(100, Math.round(used / limit * 100)) : 0;
+  return `<div class="bl-meter"><div class="bl-meter-top"><span>${label}</span><span>${used.toLocaleString()} ${limit === null ? '· unlimited' : limit === 0 ? '· not included' : 'of ' + limit.toLocaleString()}</span></div>${limit === null ? '' : `<div class="bl-bar2"><i class="${pct >= 100 ? 'full' : pct >= 80 ? 'hot' : ''}" style="width:${limit ? pct : 0}%"></i></div>`}</div>`;
+}
+function blRender() {
+  if (!BL) return;
+  const c = BL.current, u = BL.usage, yearly = BL_INTERVAL === 'yearly';
+  const paidNow = c.state === 'active' || c.state === 'canceling' || c.state === 'past_due';
+  let line = '', actions = '';
+  if (c.state === 'trial') line = `You're trying <b>Pro</b> free until <b>${blDate(c.trialEndsAt)}</b>. After that you'll move to Starter unless you subscribe — nothing is deleted either way.`;
+  else if (c.state === 'active') { line = `Renews on <b>${blDate(c.periodEnd)}</b>${c.card ? ` · charged to ${mkEsc(c.card.brand || 'card')} ending <b>${mkEsc(c.card.last4)}</b>` : ''}.`; if (c.autoRenew) actions = `<button class="btn" style="font-size:12px" onclick="blCancel()">Cancel plan</button>`; }
+  else if (c.state === 'canceling') { line = `Your plan ends on <b>${blDate(c.periodEnd)}</b>. You won't be charged again.`; if (c.card) actions = `<button class="btn btn-g" style="font-size:12px" onclick="blResume()">Keep my plan</button>`; }
+  else if (c.state === 'past_due') { line = `We couldn't charge your card. Paid features stay on until <b>${blDate(new Date(new Date(c.periodEnd).getTime() + 3 * 864e5))}</b>. Subscribe again below with a working card.`; }
+  else line = c.state === 'trial_ended' || c.state === 'expired' ? 'Your paid features are paused. Pick a plan to switch them back on.' : 'You\'re on the free plan. Upgrade any time.';
+  const pillCls = { trial: 'p-blue', active: 'p-green', canceling: 'p-amber', past_due: 'p-red' }[c.state] || 'p-gray';
+  const pillTxt = { trial: 'Trial', active: 'Active', canceling: 'Ending', past_due: 'Payment failed', trial_ended: 'Trial ended', expired: 'Ended' }[c.state] || 'Free';
+  const lim = c.limits;
+  const cards = BL.plans.map(p => {
+    const price = p.price[BL_INTERVAL], isCur = paidNow && c.paidPlan === p.key && c.interval === BL_INTERVAL || (p.key === 'free' && c.plan === 'free' && c.state !== 'trial');
+    const save = p.price.monthly * 12 - p.price.yearly;
+    let btn;
+    if (p.key === 'free') btn = `<button class="btn" disabled>${c.plan === 'free' && c.state !== 'trial' ? 'Current plan' : 'Free forever'}</button>`;
+    else if (isCur && c.state !== 'past_due') btn = `<button class="btn" disabled>Current plan</button>`;
+    else { const up = paidNow && BL.plans.findIndex(x => x.key === p.key) < BL.plans.findIndex(x => x.key === c.paidPlan) ? 'Switch to' : paidNow ? 'Upgrade to' : 'Subscribe to'; btn = `<button class="btn btn-g" id="bl-btn-${p.key}" onclick="blCheckout('${p.key}')">${c.state === 'past_due' && c.paidPlan === p.key ? 'Pay now' : `${up} ${mkEsc(p.name)}`}</button>`; }
+    return `<div class="bl-plan ${isCur ? 'cur' : ''}">${p.key === 'growth' ? '<span class="bl-tag">Most popular</span>' : ''}
+      <div class="bl-pn">${mkEsc(p.name)}</div><div class="bl-tl">${mkEsc(p.tagline)}</div>
+      <div class="bl-price">${price ? naira(price) : '₦0'}<small> / ${yearly ? 'year' : 'month'}</small></div>
+      <div class="bl-save">${yearly && save > 0 ? `Save ${naira(save)} — 2 months free` : ''}</div>
+      <ul class="bl-hl">${p.highlights.map(h => `<li><i class="ti ti-check" aria-hidden="true"></i><span>${mkEsc(h)}</span></li>`).join('')}</ul>${btn}</div>`;
+  }).join('');
+  const hist = BL.payments.length ? `<div class="dt"><div class="dt-head" style="grid-template-columns:130px 1fr 120px 100px"><div>Date</div><div>Plan</div><div class="dt-r">Amount</div><div>Method</div></div>${BL.payments.map(p => `<div class="dt-row" style="grid-template-columns:130px 1fr 120px 100px;padding-top:13px;padding-bottom:13px"><div class="dt-sub" style="margin:0">${blDate(p.at)}</div><div class="dt-name" style="font-weight:500">${mkEsc(p.plan.charAt(0).toUpperCase() + p.plan.slice(1))} · ${p.interval}</div><div class="dt-r dt-num" style="font-size:13.5px">${p.amount ? naira(p.amount) : '—'}</div><div class="dt-sub" style="margin:0">${p.method === 'manual' ? 'Added by Kooza' : 'Card'}</div></div>`).join('')}</div>` : '<div class="mk-empty bl-box">No payments yet.</div>';
+  document.getElementById('bl-body').innerHTML = `
+    <div class="bl-two">
+      <div class="bl-box"><div class="bl-label">Current plan</div><div class="bl-name">${mkEsc(c.state === 'trial' ? 'Pro (trial)' : c.planName)} <span class="pill ${pillCls}">${pillTxt}</span></div><div class="bl-note">${line}</div>${actions ? `<div style="margin-top:14px">${actions}</div>` : ''}</div>
+      <div class="bl-box"><div class="bl-label">Usage this month</div>${blMeter('Products', u.products, lim.products)}${blMeter('Marketing emails', u.emails, lim.emails)}</div>
+    </div>
+    <div class="bl-head"><div><div class="sec-title">Choose a plan</div><div class="sec-desc">Upgrade, switch or cancel whenever you like. Your products, orders and customers are never deleted.</div></div>
+      <div class="bl-seg" role="group" aria-label="Billing period"><button class="${yearly ? '' : 'on'}" onclick="blInterval('monthly')">Monthly</button><button class="${yearly ? 'on' : ''}" onclick="blInterval('yearly')">Yearly<em>2 months free</em></button></div></div>
+    <div class="bl-grid">${cards}</div>
+    <div class="sec-title" style="margin-bottom:12px">Payment history</div>${hist}
+    <div class="bl-note" style="margin-top:14px"><i class="ti ti-lock" style="vertical-align:-2px" aria-hidden="true"></i> Payments are handled securely by Paystack — Kooza never sees or stores your card number. Paid plans renew automatically on your saved card until you cancel.</div>`;
+}
+function blInterval(i) { BL_INTERVAL = i; blRender(); }
+async function blCheckout(plan) {
+  const b = document.getElementById('bl-btn-' + plan); if (b) { b.disabled = true; b.textContent = 'Opening Paystack…'; }
+  try {
+    const r = await apiFetch(`${API_BASE}/api/billing/checkout`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan, interval: BL_INTERVAL }) });
+    const d = await r.json(); if (!r.ok) throw new Error(d.error || 'Could not start payment');
+    window.location.href = d.url;
+  } catch (e) { alert(e.message); blRender(); }
+}
+async function blCancel() {
+  if (!confirm('Cancel your plan? You keep everything until ' + blDate(BL.current.periodEnd) + ', then move to Starter. You can change your mind before then.')) return;
+  try { const r = await apiFetch(`${API_BASE}/api/billing/cancel`, { method: 'POST' }); BL = await r.json(); blShell(); blRender(); } catch (e) { alert('Could not cancel — please try again.'); }
+}
+async function blResume() {
+  try { const r = await apiFetch(`${API_BASE}/api/billing/resume`, { method: 'POST' }); BL = await r.json(); blShell(); blRender(); showSuccessBurst('Plan kept'); } catch (e) { alert('Could not update — please try again.'); }
+}
+async function blReturn(ref) { // Paystack sent the merchant back here after paying
+  go('billing', document.getElementById('s-nav-billing'));
+  document.getElementById('bl-body').innerHTML = '<div class="mk-empty bl-box">Confirming your payment…</div>';
+  try {
+    const r = await apiFetch(`${API_BASE}/api/billing/verify`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reference: ref }) });
+    const d = await r.json(); if (!r.ok) throw new Error(d.error || 'Could not confirm the payment');
+    BL = d.summary; blShell(); blRender(); showSuccessBurst(`You're on the ${BL.current.planName} plan`);
+  } catch (e) { await blLoad(); document.getElementById('bl-body').insertAdjacentHTML('afterbegin', `<div class="mk-warn"><i class="ti ti-alert-triangle" aria-hidden="true"></i>${mkEsc(e.message)} If you were charged, it will show here within a minute or two.</div>`); }
+}
+
 // ---------- in-app notifications (the bell) ----------
 var NT = { items: [], unread: 0, seen: new Set(), first: true, timer: null };
 var NT_BASE_TITLE = document.title;
-var NT_ICON = { order: 'shopping-bag', stock: 'alert-triangle', message: 'message-circle-2', campaign: 'speakerphone' };
+var NT_ICON = { order: 'shopping-bag', stock: 'alert-triangle', message: 'message-circle-2', campaign: 'speakerphone', billing: 'credit-card' };
 function ntKey(n) { return n.id + '|' + n.at; }
 async function ntLoad() {
   try {
@@ -1340,7 +1512,7 @@ function enterApp() {
   updateOrdersBadge();
   updateInventoryBadge();
   updateFulfilmentBadge();
-  ntStart();
+  ntStart(); blLoad();
   ibBadge(); if (!window._ibBadgeTimer) window._ibBadgeTimer = setInterval(ibBadge, 60000);
 }
 
@@ -1355,7 +1527,10 @@ if (_resetParam) {
   showReset(_resetParam);
   history.replaceState({}, '', window.location.pathname); // keep the token out of the address bar/history
 } else if (localStorage.getItem('bizflow_token')) {
+  const _q = new URLSearchParams(window.location.search), _payRef = _q.get('billing') ? (_q.get('reference') || _q.get('trxref')) : null;
+  if (_payRef) history.replaceState({}, '', window.location.pathname);
   enterApp();
+  if (_payRef) blReturn(_payRef);
 } else {
   document.getElementById('auth-screen').style.display = 'flex';
 }
@@ -3104,6 +3279,8 @@ function mkSchedule() {
 let _mkAutos = [];
 async function mkLoadAutomations() {
   const box = document.getElementById('mk-automations');
+  if (!blFeature('automations')) { box.className = ''; box.innerHTML = blLockInline('automations'); return; }
+  box.className = 'dt';
   try {
     const data = await mkApi('/automations');
     _mkAutos = data.automations;
