@@ -288,28 +288,11 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
 @media(max-width:900px){.ful-board{grid-template-columns:repeat(4,240px)}}
 
 /* ---------- marketing ---------- */
-.mk-tabs{display:flex;gap:4px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
-.mk-tab{border:none;background:transparent;font-size:13.5px;font-weight:500;color:var(--muted);padding:8px 14px;border-radius:8px;cursor:pointer;font-family:var(--font-sans);transition:color .15s}
-.mk-tab:hover{color:var(--text)}
-.mk-tab.on{background:var(--teal-t);color:var(--teal);font-weight:600}
-.mk-warn{background:var(--amber-t);color:var(--amber);border:1px solid var(--amber-b);border-radius:10px;padding:11px 14px;font-size:12.5px;margin-bottom:16px;line-height:1.5}
-.mk-warn strong{color:var(--text)}
-.mk-auto{border:1px solid var(--line);border-radius:10px;padding:18px;margin-bottom:14px;background:var(--card)}
-.mk-auto-head{display:flex;align-items:flex-start;gap:12px}
 .mk-switch{position:relative;width:40px;height:23px;flex:none;border:none;border-radius:20px;background:var(--switch-off);cursor:pointer;transition:background .15s;padding:0}
 .mk-switch::after{content:'';position:absolute;top:3px;left:3px;width:17px;height:17px;border-radius:50%;background:#fff;transition:transform .15s}
 .mk-switch.on{background:var(--teal)}.mk-switch.on::after{transform:translateX(17px);background:#fff}
 .mk-switch:disabled{opacity:.5;cursor:wait}
-.mk-auto-stats{display:flex;flex-wrap:wrap;gap:22px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
-.mk-auto-stats strong{display:block;font-size:16px;color:var(--text)}
 .mk-empty{padding:18px;text-align:center;color:var(--muted);font-size:12.5px}
-.mk-seg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
-.mk-seg{border:1px solid var(--line);border-radius:10px;padding:16px;background:var(--navy);transition:border-color .15s}
-.mk-seg:hover{border-color:var(--line-hi)}
-.mk-seg-name{font-weight:600;font-size:13.5px;color:var(--text)}
-.mk-seg-desc{font-size:11.5px;color:var(--muted);margin:3px 0 12px;min-height:28px}
-.mk-seg-num{font-size:26px;font-weight:700;color:var(--text)}
-.mk-seg-sub{font-size:11.5px;color:var(--muted)}
 .mk-bar{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
 .mk-bar:first-child{border-top:none}
 .mk-bar-label{width:84px;font-size:13px;font-weight:500}
@@ -318,36 +301,6 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
 .mk-bar-val{width:150px;text-align:right;font-size:12.5px;color:var(--muted)}
 
 /* ---------- inbox ---------- */
-.ib-wrap{display:grid;grid-template-columns:minmax(300px,420px) 1fr;gap:18px;align-items:start}
-.ib-list,.ib-thread{background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
-.ib-list-head{display:flex;justify-content:space-between;align-items:center;padding:16px 18px 8px;gap:8px}
-.ib-filters{display:flex;gap:6px;flex-wrap:wrap;padding:0 18px 12px}
-.ib-chip{border:1px solid var(--line);background:transparent;color:var(--muted);font-size:12px;font-weight:500;padding:5px 12px;border-radius:20px;cursor:pointer;font-family:var(--font-sans)}
-.ib-chip:hover{color:var(--text)}
-.ib-chip.on{background:var(--teal-t);border-color:transparent;color:var(--teal);font-weight:600}
-.ib-rows{max-height:calc(100vh - 300px);min-height:260px;overflow:auto}
-.ib-row{display:flex;gap:12px;padding:13px 18px;border-top:1px solid var(--line);cursor:pointer;position:relative}
-.ib-row:hover{background:var(--hover-2)}.ib-row.sel{background:var(--teal-t)}
-.ib-av{width:38px;height:38px;border-radius:50%;background:var(--navy);border:1px solid var(--line);color:var(--teal);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex:none}
-.ib-name{font-size:13.5px;font-weight:600;color:var(--text);display:flex;justify-content:space-between;gap:8px}
-.ib-name small{font-weight:400;color:var(--muted);font-size:11px;white-space:nowrap}
-.ib-prev{font-size:12.5px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px}
-.ib-row.unread .ib-prev{color:var(--text);font-weight:600}
-.ib-dot{width:8px;height:8px;border-radius:50%;background:var(--teal);position:absolute;left:6px;top:26px}
-.ib-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
-.ib-tag{font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:20px;background:var(--gray-t);color:var(--muted)}
-.ib-tag.t-new{background:var(--teal-t);color:var(--teal)}.ib-tag.t-vip{background:var(--amber-t);color:var(--amber)}.ib-tag.t-ch{background:var(--blue-t);color:var(--blue)}
-.ib-th-head{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line)}
-.ib-msgs{padding:18px;display:flex;flex-direction:column;gap:8px;max-height:calc(100vh - 410px);min-height:220px;overflow:auto;background:var(--navy-2)}
-.ib-msg{max-width:78%;padding:9px 13px;border-radius:12px;font-size:13px;line-height:1.5;white-space:pre-wrap;word-break:break-word}
-.ib-msg.in{background:var(--card);border:1px solid var(--line);align-self:flex-start}
-.ib-msg.out{background:var(--teal);color:var(--on-teal);align-self:flex-end}
-.ib-msg.failed{background:var(--red-t);color:var(--red);border:1px solid var(--red-b)}
-.ib-msg small{display:block;font-size:10px;opacity:.7;margin-top:3px}
-.ib-reply{display:flex;gap:8px;padding:12px 18px;border-top:1px solid var(--line);align-items:flex-end}
-.ib-reply textarea{flex:1;resize:none;min-height:42px;max-height:140px}
-.ib-back{display:none}
-@media(max-width:860px){.ib-wrap{grid-template-columns:1fr}.ib-wrap.open-thread .ib-list{display:none}.ib-wrap:not(.open-thread) .ib-thread{display:none}.ib-back{display:inline-flex}}
 
 /* ---------- content calendar ---------- */
 .cc-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
@@ -360,6 +313,113 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
 .cc-post.posted{background:var(--gray-t);color:var(--muted);text-decoration:line-through}
 .cc-post.c-whatsapp{background:var(--teal-t);color:var(--teal)}.cc-post.c-facebook{background:var(--blue-t);color:var(--blue)}.cc-post.c-tiktok{background:var(--gray-t);color:var(--soft)}.cc-post.c-instagram{background:var(--pink-t);color:var(--pink)}
 @media(max-width:700px){.cc-day{min-height:60px;padding:3px}.cc-post{font-size:9px;padding:1px 3px}}
+
+/* ---------- structured sections (tabs, tables, notices) ---------- */
+.mk-tabs{display:flex;gap:2px;align-items:flex-end;border-bottom:1px solid var(--line);margin-bottom:22px;flex-wrap:wrap}
+.mk-tab{border:none;background:transparent;font-size:13px;font-weight:600;color:var(--muted);padding:11px 16px 12px;cursor:pointer;margin-bottom:-1px;border-bottom:2px solid transparent;font-family:var(--font-sans);transition:color .15s,border-color .15s}
+.mk-tab:hover{color:var(--text)}
+.mk-tab.on{color:var(--text);border-bottom-color:var(--teal)}
+.mk-tabs>.btn-g{margin:0 0 8px}
+.mk-warn{background:var(--card);color:var(--soft);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:8px;padding:11px 14px;font-size:12.5px;margin-bottom:16px;line-height:1.55}
+.mk-warn>i{color:var(--amber);font-size:15px;margin-right:6px;vertical-align:-2px}
+.mk-warn strong{color:var(--text)}
+.sec-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px}
+.sec-title{font-size:15px;font-weight:600;color:var(--text)}
+.sec-desc{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.55;max-width:660px}
+.sec-desc strong{color:var(--soft);font-weight:600}
+.dt{border:1px solid var(--line);border-radius:12px;background:var(--card);overflow:hidden}
+.dt-head,.dt-row{display:grid;align-items:center;column-gap:18px;padding:0 20px}
+.dt-head{height:40px;background:var(--card-hi);font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--muted)}
+.dt-row{padding-top:16px;padding-bottom:16px;border-top:1px solid var(--line);transition:background .12s}
+.dt-head+.dt-row{border-top:none}
+.dt-row:hover{background:var(--hover-2)}
+.dt-r{text-align:right}
+.dt-num{font-size:15px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
+.dt-num.zero{color:var(--muted);font-weight:500}
+.dt-name{font-size:13.5px;font-weight:600;color:var(--text)}
+.dt-sub{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5}
+.dt-actions{display:flex;gap:8px;justify-content:flex-end}
+.dt-ico{width:36px;height:36px;border-radius:9px;background:var(--teal-t);color:var(--teal);display:flex;align-items:center;justify-content:center;font-size:18px;flex:none}
+.dt-first{display:flex;align-items:center;gap:14px;min-width:0}
+.dt-first>div:last-child{min-width:0}
+.seg-cols{grid-template-columns:minmax(0,2.4fr) 100px minmax(160px,1.3fr) 190px}
+.auto-cols{grid-template-columns:minmax(0,3fr) repeat(4,minmax(64px,.7fr)) 150px}
+.reach{display:flex;flex-direction:column;gap:6px}
+.reach-top{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+.reach-top strong{color:var(--text);font-weight:600}
+.reach-bar{height:5px;border-radius:5px;background:var(--gray-t);overflow:hidden}
+.reach-bar>i{display:block;height:100%;background:var(--teal);border-radius:5px}
+.mk-switch{position:relative;width:38px;height:22px;flex:none;border:none;border-radius:20px;background:var(--switch-off);cursor:pointer;transition:background .15s;padding:0}
+.mk-switch::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+.mk-switch.on{background:var(--teal)}.mk-switch.on::after{transform:translateX(16px)}
+.mk-switch:disabled{opacity:.5;cursor:wait}
+.mk-switch:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.auto-meta{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:6px;font-size:11.5px;color:var(--muted)}
+.auto-meta i{font-size:13px;vertical-align:-2px;margin-right:3px}
+.mk-empty{padding:28px 18px;text-align:center;color:var(--muted);font-size:12.5px}
+@media(max-width:900px){
+  .dt-head{display:none}
+  .seg-cols,.auto-cols{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:14px}
+  .dt-row>.dt-first,.dt-row>.dt-actions,.dt-row>.reach{grid-column:1/-1}
+  .dt-r{text-align:left}
+  .dt-row>[data-label]::before{content:attr(data-label);display:block;font-size:11px;color:var(--muted);margin-bottom:2px;font-weight:500}
+  .dt-actions{justify-content:flex-start}
+}
+/* ---------- inbox workspace ---------- */
+#p-inbox.on{display:flex;flex-direction:column;height:calc(100vh - 108px);height:calc(100dvh - 108px);min-height:480px}
+.ib-wrap{flex:1;min-height:0;display:grid;grid-template-columns:minmax(310px,380px) minmax(0,1fr);border:1px solid var(--line);border-radius:12px;background:var(--card);overflow:hidden}
+.ib-list{display:flex;flex-direction:column;min-height:0;min-width:0;border-right:1px solid var(--line)}
+.ib-thread{display:flex;flex-direction:column;min-height:0;min-width:0;background:var(--navy)}
+.ib-list-head{display:flex;justify-content:space-between;align-items:center;padding:16px 16px 12px;gap:8px}
+.ib-title{font-size:15px;font-weight:600;color:var(--text)}
+.ib-subt{font-size:12px;color:var(--muted);margin-top:1px}
+.ib-search{position:relative;padding:0 16px 12px}
+.ib-search>i{position:absolute;left:28px;top:10px;font-size:15px;color:var(--muted);pointer-events:none}
+.ib-search input{padding:8px 11px 8px 34px;font-size:12.5px;border-radius:8px}
+.ib-filters{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 16px 12px;border-bottom:1px solid var(--line)}
+.ib-seg{display:inline-flex;background:var(--navy);border:1px solid var(--line);border-radius:8px;padding:2px}
+.ib-chip{border:none;background:transparent;color:var(--muted);font-size:12px;font-weight:600;padding:5px 11px;border-radius:6px;cursor:pointer;font-family:var(--font-sans);display:inline-flex;gap:6px;align-items:center}
+.ib-chip:hover{color:var(--text)}
+.ib-chip.on{background:var(--card);color:var(--text);box-shadow:0 0 0 1px var(--line)}
+.ib-chip em{font-style:normal;font-size:10.5px;background:var(--teal);color:var(--on-teal);border-radius:10px;padding:0 6px;line-height:16px}
+.ib-sel{font-size:12px;font-weight:500;padding:6px 8px;border-radius:8px;max-width:130px;background:transparent;color:var(--soft)}
+.ib-rows{flex:1;min-height:0;overflow:auto}
+.ib-row{display:flex;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line);cursor:pointer;position:relative;transition:background .12s}
+.ib-row:hover{background:var(--hover-2)}
+.ib-row.sel{background:var(--teal-t)}
+.ib-row.sel::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--teal)}
+.ib-av{width:38px;height:38px;border-radius:50%;background:var(--navy);border:1px solid var(--line);color:var(--teal);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex:none}
+.ib-name{font-size:13.5px;font-weight:500;color:var(--text);display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.ib-row.unread .ib-name{font-weight:700}
+.ib-name small{font-weight:400;color:var(--muted);font-size:11px;white-space:nowrap}
+.ib-prev{font-size:12.5px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ib-row.unread .ib-prev{color:var(--soft);font-weight:500}
+.ib-dot{width:8px;height:8px;border-radius:50%;background:var(--teal);display:inline-block;margin-left:6px}
+.ib-meta{display:flex;gap:10px;align-items:center;margin-top:7px;font-size:11px;color:var(--muted)}
+.ib-meta i{font-size:13px;vertical-align:-2px;margin-right:3px}
+.ib-tag{font-size:10.5px;font-weight:600;padding:1px 8px;border-radius:20px;background:var(--gray-t);color:var(--muted)}
+.ib-tag.t-new{background:var(--teal-t);color:var(--teal)}.ib-tag.t-vip{background:var(--amber-t);color:var(--amber)}
+.ib-th-head{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--line);background:var(--card)}
+.ib-msgs{flex:1;min-height:0;padding:20px 24px;display:flex;flex-direction:column;gap:4px;overflow:auto}
+.ib-day{align-self:center;font-size:11px;font-weight:600;color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:20px;padding:2px 12px;margin:12px 0 8px}
+.ib-m{display:flex;flex-direction:column;max-width:70%;margin-bottom:6px}
+.ib-m.in{align-self:flex-start;align-items:flex-start}.ib-m.out{align-self:flex-end;align-items:flex-end}
+.ib-bub{padding:9px 14px;border-radius:14px;font-size:13px;line-height:1.55;white-space:pre-wrap;word-break:break-word}
+.ib-m.in .ib-bub{background:var(--card);border:1px solid var(--line);border-top-left-radius:4px}
+.ib-m.out .ib-bub{background:var(--teal);color:var(--on-teal);border-top-right-radius:4px}
+.ib-m.failed .ib-bub{background:var(--red-t);color:var(--red);border:1px solid var(--red-b)}
+.ib-time{font-size:10.5px;color:var(--muted);margin-top:3px;padding:0 4px}
+.ib-time.bad{color:var(--red)}
+.ib-compose{border-top:1px solid var(--line);background:var(--card);padding:12px 20px 14px}
+.ib-compose textarea{width:100%;resize:none;min-height:56px;max-height:160px;border-radius:10px;font-size:13px}
+.ib-compose-foot{display:flex;align-items:center;justify-content:space-between;margin-top:8px;gap:10px}
+.ib-hint{font-size:11px;color:var(--muted)}
+.ib-empty{margin:auto;text-align:center;padding:40px 24px;color:var(--muted)}
+.ib-empty i{font-size:34px;color:var(--line-hi);display:block;margin-bottom:10px}
+.ib-empty b{display:block;font-size:14px;color:var(--soft);font-weight:600;margin-bottom:4px}
+.ib-empty span{font-size:12.5px;line-height:1.5}
+.ib-back{display:none}
+@media(max-width:860px){.ib-wrap{grid-template-columns:1fr}.ib-list{border-right:none}.ib-wrap.open-thread .ib-list{display:none}.ib-wrap:not(.open-thread) .ib-thread{display:none}.ib-back{display:inline-flex}.ib-m{max-width:88%}.ib-msgs{padding:16px}#p-inbox.on{height:calc(100dvh - 100px)}}
 </style>
 </head>
 <body>
@@ -795,13 +855,13 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
         <div id="ib-warn" style="display:none" class="mk-warn"></div>
         <div class="ib-wrap" id="ib-wrap">
           <div class="ib-list">
-            <div class="ib-list-head"><div><div style="font-size:15px;font-weight:600">All conversations</div><div style="font-size:11.5px;color:var(--color-text-secondary)" id="ib-sub">Loading…</div></div>
-              <button class="btn" style="font-size:12px" onclick="ibChannels()">Channels</button></div>
-            <div style="padding:0 16px 8px"><input id="ib-q" class="modal-input" placeholder="Search name, email or message" oninput="ibSearchSoon()" style="padding:8px 11px;font-size:12.5px"></div>
+            <div class="ib-list-head"><div><div class="ib-title">Conversations</div><div class="ib-subt" id="ib-sub">Loading…</div></div>
+              <button class="btn" style="font-size:12px" onclick="ibChannels()"><i class="ti ti-plug-connected" style="font-size:14px" aria-hidden="true"></i> Channels</button></div>
+            <div class="ib-search"><i class="ti ti-search" aria-hidden="true"></i><input id="ib-q" class="modal-input" placeholder="Search name, email or message" oninput="ibSearchSoon()" aria-label="Search conversations"></div>
             <div class="ib-filters" id="ib-filters"></div>
             <div class="ib-rows" id="ib-rows"><div class="mk-empty">Loading…</div></div>
           </div>
-          <div class="ib-thread" id="ib-thread"><div class="mk-empty" style="padding:70px 20px">Select a conversation to read and reply.</div></div>
+          <div class="ib-thread" id="ib-thread"></div>
         </div>
       </div>
 
@@ -859,15 +919,13 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
 
         <div id="mk-view-automations" class="mk-view" style="display:none">
           <div id="mk-auto-warning" style="display:none" class="mk-warn"><i class="ti ti-alert-triangle" aria-hidden="true"></i> Email sending isn't set up on the server yet, so automations can't be switched on. Add <strong>MAILGUN_API_KEY</strong> and <strong>MAILGUN_DOMAIN</strong> in your API's environment settings.</div>
-          <div style="font-size:12.5px;color:var(--color-text-secondary);line-height:1.6;margin-bottom:14px">Emails that send themselves. Switching one on only affects things that happen <strong>from that moment</strong> — it never emails your past customers in bulk. Everyone still gets an unsubscribe link, and nobody is emailed twice for the same thing.</div>
-          <div id="mk-automations"><div class="mk-empty">Loading…</div></div>
+          <div class="sec-head"><div><div class="sec-title">Automations</div><div class="sec-desc">Emails that send themselves. Switching one on only affects things that happen <strong>from that moment</strong> — past customers are never emailed in bulk. Everyone gets an unsubscribe link and nobody is emailed twice for the same thing.</div></div></div>
+          <div class="dt" id="mk-automations"><div class="mk-empty">Loading…</div></div>
         </div>
 
         <div id="mk-view-segments" class="mk-view" style="display:none">
-          <div class="card">
-            <div class="card-head"><div class="card-title">Customer segments</div><span style="font-size:11px;color:var(--color-text-secondary)">Updated live from your orders</span></div>
-            <div id="mk-segments" class="mk-seg-grid"><div class="mk-empty">Loading…</div></div>
-          </div>
+          <div class="sec-head"><div><div class="sec-title">Customer segments</div><div class="sec-desc">Groups that update on their own as customers order. Open one to see who is in it, or email the whole group in a click.</div></div></div>
+          <div class="dt" id="mk-segments"><div class="mk-empty">Loading…</div></div>
         </div>
 
         <div id="mk-view-analytics" class="mk-view" style="display:none">
@@ -2769,19 +2827,23 @@ async function mkLoadCampaigns() {
   }
 }
 
+const MK_SEG_ICON = k => /never/.test(k) ? 'user-question' : /inactive|dormant|lapsed/.test(k) ? 'hourglass' : /vip/.test(k) ? 'crown' : /new/.test(k) ? 'user-plus' : /order/.test(k) ? 'shopping-bag' : 'users';
 async function mkLoadSegments() {
   const box = document.getElementById('mk-segments');
   try {
     _mkSegments = await mkApi('/segments');
-    box.innerHTML = _mkSegments.map(s => `<div class="mk-seg">
-      <div class="mk-seg-name">${mkEsc(s.label)}</div>
-      <div class="mk-seg-desc">${mkEsc(s.description)}</div>
-      <div class="mk-seg-num">${s.total}</div>
-      <div class="mk-seg-sub">${s.reachable} reachable by email</div>
-      <div style="display:flex;gap:6px;margin-top:10px">
-        <button class="btn" style="font-size:11px" onclick="mkViewSegment('${s.key}')">View</button>
-        <button class="btn btn-g" style="font-size:11px" ${s.reachable ? '' : 'disabled title="No one here has an email address"'} onclick="mkOpenEditor(null,'${s.key}')">Email them</button>
-      </div></div>`).join('');
+    box.innerHTML = `<div class="dt-head seg-cols"><div>Segment</div><div class="dt-r">Customers</div><div>Reachable by email</div><div></div></div>` +
+      _mkSegments.map(s => {
+        const pct = s.total ? Math.round(s.reachable / s.total * 100) : 0;
+        return `<div class="dt-row seg-cols">
+          <div class="dt-first"><div class="dt-ico"><i class="ti ti-${MK_SEG_ICON(s.key)}" aria-hidden="true"></i></div><div><div class="dt-name">${mkEsc(s.label)}</div><div class="dt-sub">${mkEsc(s.description)}</div></div></div>
+          <div class="dt-r" data-label="Customers"><span class="dt-num ${s.total ? '' : 'zero'}">${s.total}</span></div>
+          <div class="reach" data-label="Reachable by email"><div class="reach-top"><span><strong>${s.reachable}</strong> of ${s.total}</span><span>${pct}%</span></div><div class="reach-bar"><i style="width:${pct}%"></i></div></div>
+          <div class="dt-actions">
+            <button class="btn" style="font-size:12px" onclick="mkViewSegment('${s.key}')">View</button>
+            <button class="btn btn-g" style="font-size:12px" ${s.reachable ? '' : 'disabled title="No one here has an email address"'} onclick="mkOpenEditor(null,'${s.key}')"><i class="ti ti-mail" style="font-size:13px" aria-hidden="true"></i> Email</button>
+          </div></div>`;
+      }).join('');
   } catch (err) {
     box.innerHTML = `<div class="mk-empty" style="color:var(--red)">Could not load segments: ${mkEsc(err.message)}</div>`;
   }
@@ -2942,28 +3004,24 @@ async function mkLoadAutomations() {
     const data = await mkApi('/automations');
     _mkAutos = data.automations;
     document.getElementById('mk-auto-warning').style.display = data.emailConfigured ? 'none' : 'block';
-    box.innerHTML = _mkAutos.map(a => `
-      <div class="mk-auto">
-        <div class="mk-auto-head">
+    if (!_mkAutos.length) { box.innerHTML = '<div class="mk-empty">No automations available.</div>'; return; }
+    const z = n => `<span class="dt-num ${n ? '' : 'zero'}">${n}</span>`;
+    box.innerHTML = `<div class="dt-head auto-cols"><div>Automation</div><div class="dt-r">Sent</div><div class="dt-r">Failed</div><div class="dt-r">Orders</div><div class="dt-r">Revenue</div><div></div></div>` + _mkAutos.map(a => `
+      <div class="dt-row auto-cols">
+        <div class="dt-first">
           <button class="mk-switch ${a.enabled ? 'on' : ''}" id="mk-sw-${a.id}" role="switch" aria-checked="${a.enabled}" aria-label="Turn ${mkEsc(a.name)} ${a.enabled ? 'off' : 'on'}" onclick="mkToggleAuto(${a.id})"></button>
-          <div style="flex:1;min-width:0">
-            <div style="font-size:14px;font-weight:600;color:var(--text)">${mkEsc(a.name)} <span class="pill ${a.enabled ? 'p-green' : 'p-gray'}" style="margin-left:6px">${a.enabled ? 'On' : 'Off'}</span></div>
-            <div style="font-size:12.5px;color:var(--color-text-secondary);margin-top:4px;line-height:1.5">${mkEsc(a.description)}</div>
-            <div style="font-size:12px;color:var(--soft);margin-top:6px">Sends <strong>${a.delayDays} day${a.delayDays === 1 ? '' : 's'}</strong> after ${a.kind === 'win_back' ? 'their last order' : 'the order is placed'}${a.enabled && a.enabledAt ? ` · on since ${mkDate(a.enabledAt)}` : ''}</div>
-          </div>
-          <div style="display:flex;gap:6px;flex:none">
-            <button class="btn" style="font-size:12px" onclick="mkEditAuto(${a.id})">Edit</button>
-            <button class="btn" style="font-size:12px" onclick="mkAutoSends(${a.id})">Activity</button>
+          <div>
+            <div class="dt-name">${mkEsc(a.name)} <span class="pill ${a.enabled ? 'p-green' : 'p-gray'}" style="margin-left:6px;vertical-align:1px">${a.enabled ? 'Active' : 'Off'}</span></div>
+            <div class="dt-sub">${mkEsc(a.description)}</div>
+            <div class="auto-meta"><span><i class="ti ti-clock" aria-hidden="true"></i>${a.delayDays} day${a.delayDays === 1 ? '' : 's'} after ${a.kind === 'win_back' ? 'their last order' : 'the order is placed'}</span>${a.enabled && a.enabledAt ? `<span><i class="ti ti-player-play" aria-hidden="true"></i>On since ${mkDate(a.enabledAt)}</span>` : ''}<span><i class="ti ti-send" aria-hidden="true"></i>Last sent ${a.lastSentAt ? mkDate(a.lastSentAt) : '—'}</span></div>
           </div>
         </div>
-        <div class="mk-auto-stats">
-          <div><strong>${a.sent}</strong>Emails sent</div>
-          <div><strong style="${a.failed ? 'color:var(--red)' : ''}">${a.failed}</strong>Failed</div>
-          <div><strong>${a.orders}</strong>Orders</div>
-          <div><strong>${naira(a.revenue)}</strong>Revenue</div>
-          <div><strong>${a.lastSentAt ? mkDate(a.lastSentAt) : '—'}</strong>Last sent</div>
-        </div>
-      </div>`).join('') || '<div class="mk-empty">No automations available.</div>';
+        <div class="dt-r" data-label="Sent">${z(a.sent)}</div>
+        <div class="dt-r" data-label="Failed"><span class="dt-num ${a.failed ? '' : 'zero'}" style="${a.failed ? 'color:var(--red)' : ''}">${a.failed}</span></div>
+        <div class="dt-r" data-label="Orders">${z(a.orders)}</div>
+        <div class="dt-r" data-label="Revenue">${z(naira(a.revenue)).replace('dt-num ', 'dt-num ' + (a.revenue ? '' : 'zero '))}</div>
+        <div class="dt-actions"><button class="btn" style="font-size:12px" onclick="mkEditAuto(${a.id})">Edit</button><button class="btn" style="font-size:12px" onclick="mkAutoSends(${a.id})">Activity</button></div>
+      </div>`).join('');
   } catch (err) { box.innerHTML = `<div class="mk-empty">${mkEsc(err.message)}</div>`; }
 }
 async function mkToggleAuto(id) {
@@ -3045,11 +3103,19 @@ function ibAgo(iso) {
   if (m < 1) return 'now'; if (m < 60) return m + 'm'; if (m < 1440) return Math.round(m / 60) + 'h'; if (m < 10080) return Math.round(m / 1440) + 'd';
   return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 }
+const IB_EMPTY = '<div class="ib-empty"><i class="ti ti-messages" aria-hidden="true"></i><b>Select a conversation</b><span>Pick a message on the left to read it and reply.</span></div>';
+const IB_ICON = { chat: 'message-circle-2', email: 'mail', whatsapp: 'brand-whatsapp', instagram: 'brand-instagram', facebook: 'brand-facebook' };
+function ibDay(iso) {
+  const d = new Date(iso), n = new Date(), k = x => x.toDateString();
+  if (k(d) === k(n)) return 'Today'; const y = new Date(n); y.setDate(n.getDate() - 1); if (k(d) === k(y)) return 'Yesterday';
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: d.getFullYear() === n.getFullYear() ? undefined : 'numeric' });
+}
 const ibInitials = n => String(n || '?').replace(/[@.].*$/, '').split(/\s+/).filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase() || '?';
 async function ibBadge() {
   try { const s = await ibApi('/summary'); const b = document.getElementById('s-badge-inbox'); b.textContent = s.unreadConversations; b.style.display = s.unreadConversations > 0 ? 'inline-block' : 'none'; } catch (e) { /* non-critical */ }
 }
 function ibOpenPanel() {
+  if (!_ib.sel) document.getElementById('ib-thread').innerHTML = IB_EMPTY;
   document.getElementById('ib-wrap').classList.remove('open-thread');
   ibRefresh(true);
   clearInterval(_ibTimer);
@@ -3068,22 +3134,21 @@ async function ibRefresh(showLoading) {
     document.getElementById('ib-sub').textContent = `${sum.open} open${chans.length ? ' · ' + chans.map(k => (sum.channels.find(c => c.key === k) || {}).label || k).join(', ') : ''}`;
     const b = document.getElementById('s-badge-inbox'); b.textContent = sum.unreadConversations; b.style.display = sum.unreadConversations > 0 ? 'inline-block' : 'none';
     const w = document.getElementById('ib-warn');
-    if (!sum.email.configured) { w.style.display = 'block'; w.innerHTML = 'Email isn\'t set up on the server yet (Mailgun), so email replies can\'t be sent or received.'; }
-    else if (!sum.email.receiving) { w.style.display = 'block'; w.innerHTML = 'Customer emails aren\'t coming into the inbox yet. Tap <strong>Channels</strong> for the 2-minute setup. Storefront chat works already.'; }
+    if (!sum.email.configured) { w.style.display = 'block'; w.innerHTML = '<i class="ti ti-alert-triangle" aria-hidden="true"></i>Email isn\'t set up on the server yet (Mailgun), so email replies can\'t be sent or received.'; }
+    else if (!sum.email.receiving) { w.style.display = 'block'; w.innerHTML = '<i class="ti ti-alert-triangle" aria-hidden="true"></i>Customer emails aren\'t coming into the inbox yet. Tap <strong>Channels</strong> for the 2-minute setup. Storefront chat works already.'; }
     else w.style.display = 'none';
     document.getElementById('ib-filters').innerHTML =
-      [['status', 'open', 'Open'], ['unread', '', 'Unread'], ['status', 'closed', 'Closed']].map(([k, v, l]) => `<button class="ib-chip ${(k === 'status' && _ib.status === v && !_ib.unread) || (k === 'unread' && _ib.unread) ? 'on' : ''}" onclick="ibFilter('${k}','${v}')">${l}</button>`).join('') +
-      `<select class="ib-chip" style="padding:5px 8px" onchange="ibFilter('channel',this.value)" aria-label="Channel"><option value="">All channels</option>${sum.channels.map(c => `<option value="${c.key}" ${_ib.channel === c.key ? 'selected' : ''}>${mkEsc(c.label)}</option>`).join('')}</select>`;
+      '<div class="ib-seg" role="group" aria-label="Filter conversations">' + [['status', 'open', 'Open', 0], ['unread', '', 'Unread', sum.unreadConversations], ['status', 'closed', 'Closed', 0]].map(([k, v, l, n]) => `<button class="ib-chip ${(k === 'status' && _ib.status === v && !_ib.unread) || (k === 'unread' && _ib.unread) ? 'on' : ''}" onclick="ibFilter('${k}','${v}')">${l}${n > 0 ? `<em>${n}</em>` : ''}</button>`).join('') + '</div>' +
+      `<select class="ib-sel" onchange="ibFilter('channel',this.value)" aria-label="Channel"><option value="">All channels</option>${sum.channels.map(c => `<option value="${c.key}" ${_ib.channel === c.key ? 'selected' : ''}>${mkEsc(c.label)}</option>`).join('')}</select>`;
     rows.innerHTML = list.length ? list.map(c => `
       <div class="ib-row ${c.unread ? 'unread' : ''} ${_ib.sel === c.id ? 'sel' : ''}" onclick="ibOpen(${c.id})">
-        ${c.unread ? '<span class="ib-dot"></span>' : ''}
         <div class="ib-av">${mkEsc(ibInitials(c.name))}</div>
         <div style="min-width:0;flex:1">
-          <div class="ib-name"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${mkEsc(c.name)}</span><small>${ibAgo(c.lastAt)}</small></div>
+          <div class="ib-name"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${mkEsc(c.name)}${c.unread ? '<span class="ib-dot" aria-label="Unread"></span>' : ''}</span><small>${ibAgo(c.lastAt)}</small></div>
           <div class="ib-prev">${c.lastDirection === 'out' ? 'You: ' : ''}${mkEsc(c.preview)}</div>
-          <div class="ib-tags"><span class="ib-tag t-ch">${mkEsc(c.channelLabel)}</span>${c.tags.map(t => `<span class="ib-tag ${t === 'New customer' ? 't-new' : t === 'VIP' ? 't-vip' : ''}">${mkEsc(t)}</span>`).join('')}</div>
+          <div class="ib-meta"><span><i class="ti ti-${IB_ICON[c.channel] || 'message'}" aria-hidden="true"></i>${mkEsc(c.channelLabel)}</span>${c.tags.map(t => `<span class="ib-tag ${t === 'New customer' ? 't-new' : t === 'VIP' ? 't-vip' : ''}">${mkEsc(t)}</span>`).join('')}</div>
         </div>
-      </div>`).join('') : `<div class="mk-empty" style="padding:40px 16px">${_ib.q || _ib.unread || _ib.channel ? 'No conversations match.' : _ib.status === 'closed' ? 'Nothing closed yet.' : 'No messages yet. Customer emails and storefront chats will appear here.'}</div>`;
+      </div>`).join('') : `<div class="mk-empty" style="padding:48px 20px">${_ib.q || _ib.unread || _ib.channel ? 'No conversations match.' : _ib.status === 'closed' ? 'Nothing closed yet.' : 'No messages yet. Customer emails and storefront chats will appear here.'}</div>`;
     if (_ib.sel && !showLoading) ibLoadThread(_ib.sel, true);
   } catch (err) { rows.innerHTML = `<div class="mk-empty">${mkEsc(err.message)}</div>`; }
 }
@@ -3094,20 +3159,28 @@ async function ibOpen(id) {
   await ibLoadThread(id, false);
   ibRefresh(false);
 }
-function ibBack() { _ib.sel = null; document.getElementById('ib-wrap').classList.remove('open-thread'); }
+function ibBack() { _ib.sel = null; document.getElementById('ib-thread').innerHTML = IB_EMPTY; document.getElementById('ib-wrap').classList.remove('open-thread'); }
 async function ibLoadThread(id, keepDraft) {
   const box = document.getElementById('ib-thread');
   const draft = keepDraft && document.getElementById('ib-text') ? document.getElementById('ib-text').value : '';
   try {
     const c = await ibApi('/conversations/' + id);
     if (_ib.sel !== id) return;
+    let lastDay = '';
+    const msgs = c.messages.map(m => {
+      const d = ibDay(m.at), sep = d !== lastDay ? `<div class="ib-day">${d}</div>` : ''; lastDay = d;
+      const bad = m.status === 'failed';
+      return `${sep}<div class="ib-m ${m.direction} ${bad ? 'failed' : ''}"><div class="ib-bub">${mkEsc(m.body)}</div><div class="ib-time ${bad ? 'bad' : ''}">${bad ? 'Not sent — ' + mkEsc(m.error || 'error') + ' · ' : ''}${new Date(m.at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</div></div>`;
+    }).join('');
     box.innerHTML = `
-      <div class="ib-th-head"><button class="btn ib-back" onclick="ibBack()" aria-label="Back to conversations">←</button><div class="ib-av">${mkEsc(ibInitials(c.name))}</div>
-        <div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600">${mkEsc(c.name)}</div><div style="font-size:11.5px;color:var(--color-text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${mkEsc(c.channelLabel)}${c.handle ? ' · ' + mkEsc(c.handle) : ''}${c.subject ? ' · ' + mkEsc(c.subject) : ''}</div></div>
-        <button class="btn" style="font-size:12px" onclick="ibSetStatus(${c.id}, '${c.status === 'open' ? 'closed' : 'open'}')">${c.status === 'open' ? 'Mark done' : 'Reopen'}</button></div>
-      <div class="ib-msgs" id="ib-msgs">${c.messages.map(m => `<div class="ib-msg ${m.direction} ${m.status === 'failed' ? 'failed' : ''}">${mkEsc(m.body)}<small>${m.status === 'failed' ? 'Not sent — ' + mkEsc(m.error || 'error') + ' · ' : ''}${mkDate(m.at)}</small></div>`).join('')}</div>
-      ${c.canReply ? `<div class="ib-reply"><textarea id="ib-text" rows="1" maxlength="5000" placeholder="Write a reply…" onkeydown="if((event.ctrlKey||event.metaKey)&&event.key==='Enter')ibSend(${c.id})"></textarea><button class="btn btn-g" id="ib-send" onclick="ibSend(${c.id})">Send</button></div><div id="ib-err" style="font-size:12px;color:var(--red);padding:0 16px 10px"></div>`
-        : `<div class="mk-empty" style="padding:16px">Replies for ${mkEsc(c.channelLabel)} aren't connected yet.</div>`}`;
+      <div class="ib-th-head"><button class="btn ib-back" onclick="ibBack()" aria-label="Back to conversations"><i class="ti ti-arrow-left" aria-hidden="true"></i></button><div class="ib-av">${mkEsc(ibInitials(c.name))}</div>
+        <div style="flex:1;min-width:0"><div style="font-size:14.5px;font-weight:600;color:var(--text)">${mkEsc(c.name)}</div><div style="font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><i class="ti ti-${IB_ICON[c.channel] || 'message'}" style="font-size:13px;vertical-align:-2px" aria-hidden="true"></i> ${mkEsc(c.channelLabel)}${c.handle ? ' · ' + mkEsc(c.handle) : ''}${c.subject ? ' · ' + mkEsc(c.subject) : ''}</div></div>
+        <span class="pill ${c.status === 'open' ? 'p-green' : 'p-gray'}">${c.status === 'open' ? 'Open' : 'Done'}</span>
+        <button class="btn" style="font-size:12px" onclick="ibSetStatus(${c.id}, '${c.status === 'open' ? 'closed' : 'open'}')"><i class="ti ti-${c.status === 'open' ? 'check' : 'rotate'}" style="font-size:14px" aria-hidden="true"></i> ${c.status === 'open' ? 'Mark done' : 'Reopen'}</button></div>
+      <div class="ib-msgs" id="ib-msgs">${msgs}</div>
+      ${c.canReply ? `<div class="ib-compose"><textarea id="ib-text" class="modal-input" rows="2" maxlength="5000" placeholder="Write a reply to ${mkEsc(c.name)}…" onkeydown="if((event.ctrlKey||event.metaKey)&&event.key==='Enter')ibSend(${c.id})"></textarea>
+          <div class="ib-compose-foot"><span class="ib-hint" id="ib-err">Ctrl + Enter to send</span><button class="btn btn-g" id="ib-send" onclick="ibSend(${c.id})"><i class="ti ti-send" style="font-size:14px" aria-hidden="true"></i> Send reply</button></div></div>`
+        : `<div class="ib-compose"><div class="ib-hint" style="text-align:center;padding:6px">Replies for ${mkEsc(c.channelLabel)} aren't connected yet.</div></div>`}`;
     const m = document.getElementById('ib-msgs'); if (m) m.scrollTop = m.scrollHeight;
     const t = document.getElementById('ib-text'); if (t && draft) t.value = draft;
     ibBadge();
@@ -3116,15 +3189,15 @@ async function ibLoadThread(id, keepDraft) {
 async function ibSend(id) {
   const t = document.getElementById('ib-text'), btn = document.getElementById('ib-send'), err = document.getElementById('ib-err');
   const body = t.value.trim(); if (!body) return;
-  err.textContent = ''; btn.disabled = true;
+  err.textContent = 'Sending…'; err.style.color = ''; btn.disabled = true;
   try {
     await ibApi(`/conversations/${id}/reply`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ body }) });
     t.value = ''; await ibLoadThread(id, false); ibRefresh(false);
-  } catch (e) { err.textContent = e.message; }
+  } catch (e) { err.textContent = e.message; err.style.color = 'var(--red)'; }
   btn.disabled = false;
 }
 async function ibSetStatus(id, status) {
-  try { await ibApi('/conversations/' + id, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) }); _ib.sel = null; document.getElementById('ib-thread').innerHTML = '<div class="mk-empty" style="padding:70px 20px">Select a conversation to read and reply.</div>'; document.getElementById('ib-wrap').classList.remove('open-thread'); ibRefresh(true); }
+  try { await ibApi('/conversations/' + id, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) }); _ib.sel = null; document.getElementById('ib-thread').innerHTML = IB_EMPTY; document.getElementById('ib-wrap').classList.remove('open-thread'); ibRefresh(true); }
   catch (e) { alert(e.message); }
 }
 function ibChannels() {
