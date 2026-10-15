@@ -232,6 +232,18 @@ tr:last-child td{border-bottom:none}
 .inv-card .inv-pic .pill{position:absolute;top:8px;left:8px}
 .inv-card .inv-body{padding:10px 12px 12px;display:flex;flex-direction:column;gap:3px;flex:1}
 .inv-card .inv-acts{display:flex;gap:6px;margin-top:8px}
+.pg{display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:8px}
+.pg-item{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:var(--navy)}
+.pg-item img{width:100%;height:100%;object-fit:cover;display:block}
+.pg-main{position:absolute;left:5px;bottom:5px;background:var(--teal);color:#04201a;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px}
+.pg-star,.pg-x{position:absolute;border:0;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:rgba(0,0,0,.6);color:#fff;font-size:14px;line-height:1;padding:0}
+.pg-x{top:5px;right:5px}.pg-star{left:5px;bottom:5px}
+.pg-add{aspect-ratio:1;border:1.5px dashed var(--line-hi, var(--line));border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;color:var(--muted);font-size:11.5px;text-align:center;padding:6px;background:var(--navy)}
+.pg-add:hover{border-color:var(--teal);color:var(--teal)}
+.pg-hint{font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.5}
+.spec-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.spec-chip{background:var(--teal-t);color:var(--teal);border:1px solid transparent;border-radius:20px;padding:4px 11px;font-size:12px;font-weight:600;cursor:pointer}
+.spec-chip:hover{border-color:var(--teal)}
 .view-toggle{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
 .view-toggle button{background:transparent;border:0;color:var(--muted);padding:7px 10px;cursor:pointer;font-size:14px}
 .view-toggle button.on{background:var(--teal-t);color:var(--teal)}
@@ -2205,11 +2217,11 @@ function openAddProductModal() {
 
     <div class="modal-field">
       <label class="modal-label">Product name</label>
-      <input id="ap-name" type="text" class="modal-input" placeholder="e.g. Velvet Oud 50ml">
+      <input id="ap-name" type="text" class="modal-input" placeholder="e.g. Velvet Oud 50ml" oninput="renderSpecSuggestions('ap')">
     </div>
     <div class="modal-field">
       <label class="modal-label">Category</label>
-      <input id="ap-category" type="text" class="modal-input" placeholder="e.g. Oud">
+      <input id="ap-category" type="text" class="modal-input" placeholder="e.g. Oud" oninput="renderSpecSuggestions('ap')">
     </div>
     <div class="modal-row modal-field">
       <div>
@@ -2226,13 +2238,10 @@ function openAddProductModal() {
       <input id="ap-qty" type="number" class="modal-input" value="10">
     </div>
     <div class="modal-field">
-      <label class="modal-label">Product photo (optional)</label>
-      <div id="ap-image-preview" onclick="document.getElementById('ap-image-file').click()"
-        style="width:100%;height:140px;border:1.5px dashed var(--color-border-tertiary);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--navy);overflow:hidden;color:var(--color-text-secondary);font-size:12px;text-align:center;padding:10px">
-        Click to upload a photo
-      </div>
-      <input id="ap-image-file" type="file" accept="image/*" style="display:none" onchange="uploadProductImage(this, 'ap-image-preview', 'ap-image-url')">
-      <input id="ap-image-url" type="hidden" value="">
+      <label class="modal-label">Product photos (optional)</label>
+      <div id="ap-gallery" class="pg"></div>
+      <input id="ap-image-file" type="file" accept="image/*" multiple style="display:none" onchange="addProductImages('ap', this)">
+      <div class="pg-hint">Add up to 8 photos. The first one is the main photo shown in your shop — tap a photo's star to make it the main one.</div>
     </div>
     <div class="modal-field">
       <label class="modal-label">Description (optional)</label>
@@ -2240,8 +2249,11 @@ function openAddProductModal() {
     </div>
     <div class="modal-field">
       <label class="modal-label">Specifications (optional)</label>
+      <div class="pg-hint" style="margin:0 0 8px">Details buyers look for. Tap a suggestion to add it, or write your own.</div>
+      <div id="ap-spec-chips" class="spec-chips"></div>
       <div id="ap-specs-list"></div>
       <button type="button" class="btn" style="font-size:12px" onclick="addSpecRow('ap-specs-list')"><i class="ti ti-plus" style="font-size:12px" aria-hidden="true"></i> Add spec</button>
+      <div class="pg-hint" style="margin-top:8px"><b>Sizes or colours?</b> Add one row per option (Size 43, Size 44 …) and customers can pick theirs in your shop. Need stock counted per size? Use the Sizes section after saving.</div>
     </div>
     <div id="ap-error" class="modal-error"></div>
     <div class="modal-actions">
@@ -2249,23 +2261,84 @@ function openAddProductModal() {
       <button class="modal-btn modal-btn-primary" onclick="submitAddProduct()">Add product</button>
     </div>
   `);
+  PRODUCT_IMGS.ap = [];
+  window._editCategory = '';
+  renderGallery('ap');
+  renderSpecSuggestions('ap');
 }
 
 // --- Product specifications (flexible label/value list) ---
 // Each row is just two text inputs — the merchant defines whatever labels
 // make sense for their product (Size, Material, Volume, whatever). No fixed
 // schema, since Kooza isn't only for one kind of product.
+const SPEC_SETS = [
+  [/shoe|sneaker|sandal|heel|loafer|boot|slide|footwear|oxford|derby|slipper/i, ['Size','Colour','Material','Gender','Type','Brand']],
+  [/cloth|wear|dress|shirt|tee|top|trouser|jean|fashion|ankara|skirt|jacket|suit|gown|native|fabric/i, ['Size','Colour','Fabric','Gender','Fit','Care']],
+  [/bag|purse|wallet|backpack|tote/i, ['Colour','Material','Dimensions','Closure','Brand']],
+  [/perfume|oud|fragrance|scent|cologne|body spray/i, ['Volume','Concentration','Notes','Gender','Brand']],
+  [/beauty|skin|hair|makeup|cosmetic|cream|lotion|wig|lip/i, ['Skin type','Volume','Ingredients','Shade','Expiry date','Brand']],
+  [/phone|laptop|electronic|gadget|tv|computer|tablet|speaker|charger|earphone|headphone/i, ['Brand','Model','Storage','Colour','Warranty','Condition']],
+  [/food|drink|snack|grocery|juice|spice|oil|rice|cake|bread/i, ['Weight','Flavour','Ingredients','Expiry date','Pack size']],
+  [/jewel|watch|ring|necklace|bracelet|earring/i, ['Material','Colour','Size','Brand','Length']],
+  [/furniture|home|decor|kitchen|bed|sofa|chair|table|lamp/i, ['Material','Colour','Dimensions','Weight','Brand']],
+];
+const SPEC_DEFAULT = ['Size','Colour','Material','Brand','Weight','Model'];
+const SPEC_EXAMPLES = {
+  size:'e.g. 43, M or 50ml', colour:'e.g. Black', color:'e.g. Black', material:'e.g. Leather', gender:'e.g. Men', type:'e.g. Boat shoe',
+  brand:'e.g. Nike', fabric:'e.g. Cotton', fit:'e.g. Slim fit', care:'e.g. Hand wash', dimensions:'e.g. 30 x 20 x 10 cm', closure:'e.g. Zip',
+  volume:'e.g. 50ml', concentration:'e.g. Eau de Parfum', notes:'e.g. Oud, Amber', 'skin type':'e.g. All skin types', ingredients:'e.g. Shea butter, Aloe',
+  shade:'e.g. Nude', 'expiry date':'e.g. Dec 2027', model:'e.g. A15', storage:'e.g. 128GB', warranty:'e.g. 12 months', condition:'e.g. Brand new',
+  weight:'e.g. 500g', flavour:'e.g. Chocolate', 'pack size':'e.g. Pack of 6', length:'e.g. 18 inches'
+};
+function specSuggestionsFor(category, name) {
+  const text = `${category || ''} ${name || ''}`;
+  for (const [re, labels] of SPEC_SETS) if (re.test(text)) return labels;
+  return SPEC_DEFAULT;
+}
 function specRowHTML(label, value) {
   const l = (label || '').replace(/"/g, '&quot;');
   const v = (value || '').replace(/"/g, '&quot;');
+  const ph = SPEC_EXAMPLES[(label || '').trim().toLowerCase()] || 'Value (e.g. 50ml)';
   return `<div class="spec-row" style="display:flex;gap:8px;margin-bottom:8px;align-items:center;">
-    <input type="text" placeholder="Label (e.g. Size)" class="modal-input spec-label" value="${l}" style="flex:1;">
-    <input type="text" placeholder="Value (e.g. 50ml)" class="modal-input spec-value" value="${v}" style="flex:1;">
-    <div onclick="this.parentElement.remove()" style="cursor:pointer;color:var(--color-text-secondary);font-size:20px;padding:0 6px;line-height:1;" title="Remove">&times;</div>
+    <input type="text" placeholder="Label (e.g. Size)" class="modal-input spec-label" list="spec-suggest-list" value="${l}" style="flex:1;" onchange="specLabelChanged(this)">
+    <input type="text" placeholder="${ph}" class="modal-input spec-value" value="${v}" style="flex:1;">
+    <div onclick="removeSpecRow(this)" style="cursor:pointer;color:var(--color-text-secondary);font-size:20px;padding:0 6px;line-height:1;" title="Remove">&times;</div>
   </div>`;
 }
-function addSpecRow(containerId) {
-  document.getElementById(containerId).insertAdjacentHTML('beforeend', specRowHTML('', ''));
+function specPrefixOf(el) { const list = el.closest('[id$="-specs-list"]'); return list ? list.id.replace('-specs-list', '') : null; }
+function specLabelChanged(input) {
+  const ph = SPEC_EXAMPLES[input.value.trim().toLowerCase()];
+  if (ph) input.parentElement.querySelector('.spec-value').placeholder = ph;
+  const prefix = specPrefixOf(input); if (prefix) renderSpecSuggestions(prefix);
+}
+function removeSpecRow(btn) {
+  const prefix = specPrefixOf(btn);
+  btn.parentElement.remove();
+  if (prefix) renderSpecSuggestions(prefix);
+}
+function addSpecRow(containerId, label) {
+  const box = document.getElementById(containerId);
+  box.insertAdjacentHTML('beforeend', specRowHTML(label || '', ''));
+  const row = box.lastElementChild;
+  (label ? row.querySelector('.spec-value') : row.querySelector('.spec-label')).focus();
+  const prefix = containerId.replace('-specs-list', '');
+  renderSpecSuggestions(prefix);
+}
+// Suggested labels for the product's category: tap to add. Used ones are hidden.
+function renderSpecSuggestions(prefix) {
+  const chips = document.getElementById(`${prefix}-spec-chips`);
+  if (!chips) return;
+  const category = (document.getElementById(`${prefix}-category`)?.value) || window._editCategory || '';
+  const name = (document.getElementById(`${prefix}-name`)?.value) || '';
+  const labels = specSuggestionsFor(category, name);
+  const used = [...document.querySelectorAll(`#${prefix}-specs-list .spec-label`)].map(i => i.value.trim().toLowerCase());
+  let dl = document.getElementById('spec-suggest-list');
+  if (!dl) { dl = document.createElement('datalist'); dl.id = 'spec-suggest-list'; document.body.appendChild(dl); }
+  dl.innerHTML = [...new Set([...labels, ...SPEC_DEFAULT])].map(l => `<option value="${l}">`).join('');
+  const left = labels.filter(l => !used.includes(l.toLowerCase()));
+  chips.innerHTML = left.length
+    ? left.map(l => `<button type="button" class="spec-chip" onclick="addSpecRow('${prefix}-specs-list','${l}')">+ ${l}</button>`).join('')
+    : '';
 }
 function collectSpecs(containerId) {
   const specs = [];
@@ -2283,7 +2356,7 @@ async function submitAddProduct() {
   const cost = Number(document.getElementById('ap-cost').value);
   const price = Number(document.getElementById('ap-price').value);
   const quantity = Number(document.getElementById('ap-qty').value);
-  const image_url = document.getElementById('ap-image-url').value || null;
+  const images = PRODUCT_IMGS.ap.slice();
   const description = document.getElementById('ap-description').value.trim() || null;
   const specifications = collectSpecs('ap-specs-list');
 
@@ -2293,7 +2366,7 @@ async function submitAddProduct() {
     const response = await apiFetch(`${API_BASE}/api/products`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, category, cost, price, quantity, image_url, description, specifications })
+      body: JSON.stringify({ name, category, cost, price, quantity, images, description, specifications })
     });
     if (!response.ok) throw new Error((await response.json()).error || 'Request failed');
     closeModal();
@@ -2305,7 +2378,64 @@ async function submitAddProduct() {
   }
 }
 
-// --- Product photo upload (ImageKit) ---
+// --- Product photos (several per product, ImageKit) ---
+// Each modal keeps its list of photo URLs in PRODUCT_IMGS[prefix] ('ap' = add, 'ep' = edit).
+// The first URL is the main photo. The browser asks our backend for a short-lived upload
+// permission (so the ImageKit private key never reaches the browser) and uploads straight to ImageKit.
+const PRODUCT_IMGS = { ap: [], ep: [] };
+const MAX_PRODUCT_IMGS = 8;
+
+async function uploadImageFile(file) {
+  const auth = await apiFetch(`${API_BASE}/api/imagekit/auth`).then(r => r.json());
+  if (auth.error) throw new Error(auth.error);
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('fileName', file.name);
+  formData.append('publicKey', auth.publicKey);
+  formData.append('signature', auth.signature);
+  formData.append('expire', auth.expire);
+  formData.append('token', auth.token);
+  formData.append('folder', `/bizflow/${getBusinessId()}`); // keeps each merchant's photos separate
+  const uploadRes = await fetch('https://upload.imagekit.io/api/v1/files/upload', { method: 'POST', body: formData });
+  const data = await uploadRes.json();
+  if (!uploadRes.ok) throw new Error(data.message || 'Upload failed');
+  return data.url;
+}
+
+function renderGallery(prefix, uploading) {
+  const box = document.getElementById(`${prefix}-gallery`);
+  if (!box) return;
+  const imgs = PRODUCT_IMGS[prefix];
+  box.innerHTML = imgs.map((u, i) => `
+    <div class="pg-item">
+      <img src="${u.replace(/"/g, '&quot;')}" alt="">
+      ${i === 0 ? '<span class="pg-main">Main</span>' : `<button type="button" class="pg-star" title="Make main photo" onclick="makeMainImage('${prefix}',${i})"><i class="ti ti-star" aria-hidden="true"></i></button>`}
+      <button type="button" class="pg-x" title="Remove photo" onclick="removeProductImage('${prefix}',${i})">&times;</button>
+    </div>`).join('')
+    + (uploading ? `<div class="pg-add" style="cursor:default">Uploading ${uploading}…</div>` : '')
+    + ((imgs.length < MAX_PRODUCT_IMGS && !uploading) ? `<div class="pg-add" onclick="document.getElementById('${prefix}-image-file').click()"><i class="ti ti-photo-plus" style="font-size:20px" aria-hidden="true"></i><span>${imgs.length ? 'Add more' : 'Add photos'}</span></div>` : '');
+}
+async function addProductImages(prefix, input) {
+  const files = [...input.files].slice(0, MAX_PRODUCT_IMGS - PRODUCT_IMGS[prefix].length);
+  input.value = '';
+  let done = 0;
+  for (const f of files) {
+    renderGallery(prefix, `${done + 1}/${files.length}`);
+    try { PRODUCT_IMGS[prefix].push(await uploadImageFile(f)); }
+    catch (err) { alert(`Could not upload ${f.name}: ${err.message}`); }
+    done++;
+  }
+  renderGallery(prefix);
+}
+function removeProductImage(prefix, i) { PRODUCT_IMGS[prefix].splice(i, 1); renderGallery(prefix); }
+function makeMainImage(prefix, i) {
+  const [u] = PRODUCT_IMGS[prefix].splice(i, 1);
+  PRODUCT_IMGS[prefix].unshift(u);
+  renderGallery(prefix);
+}
+
+// Older single-photo uploader (kept in case anything else still calls it)
+
 // Called when a merchant picks a file in either the Add or Edit product
 // modal. Gets a short-lived upload permission from our own backend (so the
 // ImageKit private key never touches the browser), then uploads the file
@@ -2454,13 +2584,10 @@ async function showEditProduct(productId) {
       </div>
     </div>
     <div class="modal-field">
-      <label class="modal-label">Product photo</label>
-      <div id="ep-image-preview" onclick="document.getElementById('ep-image-file').click()"
-        style="width:100%;height:140px;border:1.5px dashed var(--color-border-tertiary);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--navy);overflow:hidden;color:var(--color-text-secondary);font-size:12px;text-align:center;padding:10px">
-        ${p.image_url ? `<img src="${p.image_url}" style="width:100%;height:100%;object-fit:cover;">` : 'Click to upload a photo'}
-      </div>
-      <input id="ep-image-file" type="file" accept="image/*" style="display:none" onchange="uploadProductImage(this, 'ep-image-preview', 'ep-image-url')">
-      <input id="ep-image-url" type="hidden" value="${p.image_url || ''}">
+      <label class="modal-label">Product photos</label>
+      <div id="ep-gallery" class="pg"></div>
+      <input id="ep-image-file" type="file" accept="image/*" multiple style="display:none" onchange="addProductImages('ep', this)">
+      <div class="pg-hint">Add up to 8 photos. The first one is the main photo shown in your shop — tap a photo's star to make it the main one.</div>
     </div>
     <div class="modal-field">
       <label class="modal-label">Description (optional)</label>
@@ -2468,8 +2595,11 @@ async function showEditProduct(productId) {
     </div>
     <div class="modal-field">
       <label class="modal-label">Specifications (optional)</label>
+      <div class="pg-hint" style="margin:0 0 8px">Details buyers look for. Tap a suggestion to add it, or write your own.</div>
+      <div id="ep-spec-chips" class="spec-chips"></div>
       <div id="ep-specs-list">${(p.specifications || []).map(s => specRowHTML(s.label, s.value)).join('')}</div>
       <button type="button" class="btn" style="font-size:12px" onclick="addSpecRow('ep-specs-list')"><i class="ti ti-plus" style="font-size:12px" aria-hidden="true"></i> Add spec</button>
+      <div class="pg-hint" style="margin-top:8px"><b>Sizes or colours?</b> Add one row per option (Size 43, Size 44 …) and customers can pick theirs in your shop. Need stock counted per size? Use the Sizes section below.</div>
     </div>
     <div class="modal-field">
       <label class="modal-label">Sizes / variants (optional)</label>
@@ -2484,6 +2614,10 @@ async function showEditProduct(productId) {
       <button class="modal-btn modal-btn-primary" onclick="submitEditProduct('${p.id}')">Save changes</button>
     </div>
   `);
+  PRODUCT_IMGS.ep = (Array.isArray(p.images) && p.images.length ? p.images : (p.image_url ? [p.image_url] : [])).slice();
+  window._editCategory = p.category || '';
+  renderGallery('ep');
+  renderSpecSuggestions('ep');
 }
 
 async function submitEditProduct(productId) {
@@ -2493,7 +2627,7 @@ async function submitEditProduct(productId) {
     cost: Number(document.getElementById('ep-cost').value),
     price: Number(document.getElementById('ep-price').value),
     threshold: Number(document.getElementById('ep-threshold').value),
-    image_url: document.getElementById('ep-image-url').value || null,
+    images: PRODUCT_IMGS.ep.slice(),
     description: document.getElementById('ep-description').value.trim() || null,
     specifications: collectSpecs('ep-specs-list'),
   };
