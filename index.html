@@ -219,6 +219,22 @@ tr:last-child td{border-bottom:none}
 .inv-top{display:flex;justify-content:space-between;align-items:flex-start}
 .inv-name{font-size:13px;font-weight:600;color:var(--text)}
 .inv-meta{font-size:11.5px;color:var(--muted);margin-top:2px}
+#inventory-list .inv-row{display:grid;grid-template-columns:56px 1fr auto;gap:0 14px;align-items:center}
+#inventory-list .inv-row .inv-bar{grid-column:2/4}
+.inv-thumb{width:56px;height:56px;border-radius:10px;background:var(--navy);border:1px solid var(--line);overflow:hidden;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;color:var(--teal);flex-shrink:0}
+.inv-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.inv-main{min-width:0}
+.inv-main .inv-name{overflow:hidden;text-overflow:ellipsis}
+.inv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
+.inv-card{background:var(--navy);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.inv-card .inv-pic{aspect-ratio:1/.85;background:var(--card, var(--navy));display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:700;color:var(--teal);position:relative;border-bottom:1px solid var(--line)}
+.inv-card .inv-pic img{width:100%;height:100%;object-fit:cover;display:block}
+.inv-card .inv-pic .pill{position:absolute;top:8px;left:8px}
+.inv-card .inv-body{padding:10px 12px 12px;display:flex;flex-direction:column;gap:3px;flex:1}
+.inv-card .inv-acts{display:flex;gap:6px;margin-top:8px}
+.view-toggle{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.view-toggle button{background:transparent;border:0;color:var(--muted);padding:7px 10px;cursor:pointer;font-size:14px}
+.view-toggle button.on{background:var(--teal-t);color:var(--teal)}
 .notif{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:8px;background:var(--navy);border:1px solid var(--line);margin-bottom:8px;font-size:12.5px;cursor:pointer;transition:border-color .15s ease}
 .notif:hover{border-color:var(--line-hi)}
 .notif i{font-size:15px;margin-top:1px;flex-shrink:0}
@@ -838,9 +854,10 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
               <input type="text" id="inventory-search" placeholder="Search by product name..." style="flex:1;min-width:160px" oninput="filterInventory()">
               <select id="inventory-category-filter" onchange="filterInventory()"><option value="">All categories</option></select>
               <select id="inventory-stock-filter" onchange="filterInventory()"><option value="">All stock levels</option><option value="ok">In stock</option><option value="low">Low stock</option><option value="out">Out of stock</option></select>
+              <div class="view-toggle" role="group" aria-label="Inventory view"><button id="inv-view-list" onclick="setInventoryView('list')" title="List view"><i class="ti ti-list" aria-hidden="true"></i></button><button id="inv-view-grid" onclick="setInventoryView('grid')" title="Grid view"><i class="ti ti-layout-grid" aria-hidden="true"></i></button></div>
             </div>
             <div id="inventory-list">
-              <div class="inv-row">Loading…</div>
+              <div style="padding:14px;color:var(--muted)">Loading…</div>
             </div>
           </div>
         </div>
@@ -1829,31 +1846,70 @@ async function loadCustomers() {
 // INVENTORY — KPIs + product list + "Add product"
 // ================================================================
 
+function invViewMode() {
+  try { return localStorage.getItem('kooza-inv-view') === 'grid' ? 'grid' : 'list'; } catch (e) { return 'list'; }
+}
+function setInventoryView(mode) {
+  try { localStorage.setItem('kooza-inv-view', mode); } catch (e) {}
+  filterInventory();
+}
+function invEsc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function invImg(p) {
+  return p.image_url
+    ? `<img src="${invEsc(p.image_url)}" alt="" loading="lazy" onerror="this.replaceWith(document.createTextNode('${invEsc((p.name || '?').charAt(0).toUpperCase())}'))">`
+    : invEsc((p.name || '?').charAt(0).toUpperCase());
+}
+
 function renderInventoryList(products) {
+  const mode = invViewMode();
+  document.getElementById('inv-view-list')?.classList.toggle('on', mode === 'list');
+  document.getElementById('inv-view-grid')?.classList.toggle('on', mode === 'grid');
   if (!products.length) {
     document.getElementById('inventory-list').innerHTML = `<div style="padding:14px;text-align:center;color:var(--color-text-secondary)">No products match.</div>`;
     return;
   }
+  const stat = p => {
+    let color = 'var(--teal)', sub = `Threshold: ${p.threshold}`, subColor = 'var(--color-text-secondary)', qtyColor = 'var(--teal)';
+    if (p.quantity === 0) { color = qtyColor = subColor = 'var(--red)'; sub = 'Out of stock'; }
+    else if (p.quantity <= p.threshold) { color = qtyColor = subColor = 'var(--amber)'; sub = 'Low stock'; }
+    const margin = p.price ? Math.round(((p.price - p.cost) / p.price) * 100) : 0;
+    const pct = Math.min(100, Math.round((p.quantity / ((p.threshold || 1) * 4)) * 100));
+    return { color, sub, subColor, qtyColor, margin, pct };
+  };
+  const acts = p => `<button class="btn" style="font-size:11px;padding:5px 8px" onclick="showEditProduct('${p.id}')" title="Edit"><i class="ti ti-pencil" style="font-size:12px" aria-hidden="true"></i></button>
+            <button class="btn" style="font-size:11px;padding:5px 8px;color:var(--red)" onclick="deleteProduct('${p.id}')" title="Delete"><i class="ti ti-trash" style="font-size:12px" aria-hidden="true"></i></button>`;
+
+  if (mode === 'grid') {
+    document.getElementById('inventory-list').innerHTML = `<div class="inv-grid">` + products.map(p => {
+      const t = stat(p);
+      return `<div class="inv-card">
+        <div class="inv-pic">${invImg(p)}<span class="pill p-gray">${invEsc(p.category)}</span></div>
+        <div class="inv-body">
+          <div class="inv-name">${invEsc(p.name)}</div>
+          <div class="inv-meta">Sells ${naira(p.price)} · Margin ${t.margin}%</div>
+          <div style="font-size:13px;font-weight:500;color:${t.qtyColor};margin-top:4px">${p.quantity} units <span style="font-size:10px;font-weight:400;color:${t.subColor}">· ${t.sub}</span></div>
+          <div class="bar-wrap" style="margin-top:6px"><div class="bar-fill" style="width:${t.pct}%;background:${t.color}"></div></div>
+          <div class="inv-acts">${acts(p)}</div>
+        </div></div>`;
+    }).join('') + `</div>`;
+    return;
+  }
+
   document.getElementById('inventory-list').innerHTML = products.map(p => {
-    const margin = Math.round(((p.price - p.cost) / p.price) * 100);
-    const pct = Math.min(100, Math.round((p.quantity / (p.threshold * 4)) * 100));
-    let color = 'var(--teal)', label = `${p.quantity} units`, sub = `Threshold: ${p.threshold}`, subColor = 'var(--color-text-secondary)';
-    if (p.quantity === 0) { color = 'var(--red)'; subColor = 'var(--red)'; sub = 'Out of stock'; }
-    else if (p.quantity <= p.threshold) { color = 'var(--amber)'; subColor = 'var(--amber)'; sub = 'Low stock'; }
+    const t = stat(p);
     return `
       <div class="inv-row">
-        <div class="inv-top">
-          <div><div class="inv-name">${p.name} <span class="pill p-gray" style="margin-left:6px">${p.id}</span></div>
-          <div class="inv-meta">Cost ${naira(p.cost)} · Sells ${naira(p.price)} · Margin ${margin}%</div></div>
-          <div style="text-align:right;display:flex;align-items:center;gap:10px">
-            <div><div style="font-size:13px;font-weight:500;color:${p.quantity <= p.threshold ? (p.quantity === 0 ? 'var(--red)' : 'var(--amber)') : 'var(--teal)'}">${label}</div><div style="font-size:10px;color:${subColor}">${sub}</div></div>
-            <button class="btn" style="font-size:11px;padding:5px 8px" onclick="showEditProduct('${p.id}')" title="Edit"><i class="ti ti-pencil" style="font-size:12px" aria-hidden="true"></i></button>
-            <button class="btn" style="font-size:11px;padding:5px 8px;color:var(--red)" onclick="deleteProduct('${p.id}')" title="Delete"><i class="ti ti-trash" style="font-size:12px" aria-hidden="true"></i></button>
-          </div>
+        <div class="inv-thumb">${invImg(p)}</div>
+        <div class="inv-main">
+          <div class="inv-name">${invEsc(p.name)} <span class="pill p-gray" style="margin-left:6px">${invEsc(p.category)}</span></div>
+          <div class="inv-meta">Cost ${naira(p.cost)} · Sells ${naira(p.price)} · Margin ${t.margin}%</div>
         </div>
-        <div class="bar-wrap" style="margin-top:8px"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
-      </div>
-    `;
+        <div style="text-align:right;display:flex;align-items:center;gap:10px">
+          <div><div style="font-size:13px;font-weight:500;color:${t.qtyColor}">${p.quantity} units</div><div style="font-size:10px;color:${t.subColor}">${t.sub}</div></div>
+          ${acts(p)}
+        </div>
+        <div class="bar-wrap inv-bar" style="margin-top:8px"><div class="bar-fill" style="width:${t.pct}%;background:${t.color}"></div></div>
+      </div>`;
   }).join('');
 }
 
