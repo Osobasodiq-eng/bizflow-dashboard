@@ -861,7 +861,7 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
         </div>
         <div class="row2b">
           <div class="card" style="grid-column:1/-1">
-            <div class="card-head"><div class="card-title">Product inventory</div><div style="display:flex;gap:8px"><button class="btn" style="font-size:12px" onclick="showInventoryHistory()"><i class="ti ti-history" style="font-size:12px" aria-hidden="true"></i> History</button><button class="btn" style="font-size:12px" onclick="openImportModal('products')"><i class="ti ti-upload" style="font-size:12px" aria-hidden="true"></i> Import CSV</button><button class="btn" style="font-size:12px" onclick="exportProductsCSV()"><i class="ti ti-download" style="font-size:12px" aria-hidden="true"></i> Export CSV</button><button class="btn btn-g" style="font-size:12px" onclick="openAddProductModal()"><i class="ti ti-plus" style="font-size:12px" aria-hidden="true"></i> Add product</button></div></div>
+            <div class="card-head"><div class="card-title">Product inventory</div><div style="display:flex;gap:8px"><button class="btn" style="font-size:12px" onclick="showInventoryHistory()"><i class="ti ti-history" style="font-size:12px" aria-hidden="true"></i> History</button><button class="btn" style="font-size:12px" onclick="openImportModal('products')"><i class="ti ti-upload" style="font-size:12px" aria-hidden="true"></i> Bulk upload</button><button class="btn" style="font-size:12px" onclick="exportProductsCSV()"><i class="ti ti-download" style="font-size:12px" aria-hidden="true"></i> Export CSV</button><button class="btn btn-g" style="font-size:12px" onclick="openAddProductModal()"><i class="ti ti-plus" style="font-size:12px" aria-hidden="true"></i> Add product</button></div></div>
             <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
               <input type="text" id="inventory-search" placeholder="Search by product name..." style="flex:1;min-width:160px" oninput="filterInventory()">
               <select id="inventory-category-filter" onchange="filterInventory()"><option value="">All categories</option></select>
@@ -2061,11 +2061,12 @@ async function exportProductsCSV() {
   const rows = products.map(p => ({
     ...p,
     specifications: (p.specifications || []).map(s => `${s.label}:${s.value}`).join('|'),
+    images: (Array.isArray(p.images) && p.images.length ? p.images : (p.image_url ? [p.image_url] : [])).join('|'),
   }));
   downloadCSV('inventory.csv', [
     { key: 'name', label: 'Name' }, { key: 'category', label: 'Category' }, { key: 'cost', label: 'Cost' },
     { key: 'price', label: 'Price' }, { key: 'quantity', label: 'Quantity' }, { key: 'threshold', label: 'Threshold' },
-    { key: 'image_url', label: 'Image URL' }, { key: 'description', label: 'Description' }, { key: 'specifications', label: 'Specifications' },
+    { key: 'images', label: 'Images' }, { key: 'description', label: 'Description' }, { key: 'specifications', label: 'Specifications' },
   ], rows);
 }
 
@@ -2102,11 +2103,20 @@ const IMPORT_CONFIG = {
     onDone: () => { loadExpenses(); },
   },
   products: {
-    title: 'Import products', endpoint: '/api/products/import',
-    columns: ['name', 'category', 'cost', 'price', 'quantity', 'threshold', 'image_url', 'description', 'specifications'],
-    sample: 'name,category,cost,price,quantity,threshold,image_url,description,specifications\nRose Perfume 50ml,Floral,5000,12000,10,5,,A light floral fragrance.,Size:50ml|Concentration:Eau de Parfum\n',
+    title: 'Bulk upload products', endpoint: '/api/products/import',
+    columns: ['name', 'category', 'cost', 'price', 'quantity', 'threshold', 'images', 'description', 'specifications'],
+    sample: [
+      'name,category,cost,price,quantity,threshold,images,description,specifications',
+      `"Men's Boat Shoes",Men's Shoes,22000,33000,12,5,https://example.com/boat-front.jpg|https://example.com/boat-side.jpg|https://example.com/boat-sole.jpg,Classic deck shoes with a relaxed nautical style.,Gender:Men|Material:Leather|Size:42|Size:43|Size:44|Colour:Black|Colour:Brown`,
+      'Velvet Oud 50ml,Perfume,5000,12000,10,5,https://example.com/oud.jpg,A warm woody fragrance.,Volume:50ml|Concentration:Eau de Parfum|Gender:Unisex',
+      'Ankara Tote Bag,Bags,6000,15000,8,3,,Handmade and fully lined.,Material:Ankara fabric|Colour:Blue|Colour:Red|Dimensions:35 x 30 cm',
+    ].join('\n') + '\n',
     onDone: () => { loadInventory(); updateInventoryBadge(); },
-    note: 'image_url, description, and specifications are optional — leave them blank if you don\'t need them. Pack multiple specifications into one column like this: <code>Size:50ml|Material:Glass</code> (separate each label:value pair with a "|").',
+    note: `<b>One row per product</b> — up to 500 at a time. Only <b>name</b> and <b>price</b> are required; leave anything else blank.<br>
+      <b>images</b> — up to 8 photo links starting with https://, separated by <code>|</code>. The first is the main photo. No links yet? Leave it blank and add photos later with Edit.<br>
+      <b>specifications</b> — pack as <code>Label:Value|Label:Value</code>. For sizes or colours, repeat the label once per option (<code>Size:42|Size:43|Colour:Black|Colour:Brown</code>) and customers can pick them in your shop.<br>
+      <span style="color:var(--muted)">Good labels: Size, Colour, Material, Gender, Brand, Volume, Weight, Model.</span>`,
+    preview: true,
   },
   customers: {
     title: 'Import customers', endpoint: '/api/customers/import',
@@ -2145,28 +2155,91 @@ function openImportModal(type) {
     <div class="modal-sub">Upload a CSV with these columns: <strong>${cfg.columns.join(', ')}</strong></div>
     ${cfg.note ? `<div class="modal-info-box">${cfg.note}</div>` : ''}
     <div class="modal-field">
-      <input type="file" id="import-file" accept=".csv" class="modal-input" style="padding:8px">
+      <input type="file" id="import-file" accept=".csv" class="modal-input" style="padding:8px" ${cfg.preview ? 'onchange="previewImport()"' : ''}>
     </div>
+    <div id="import-preview"></div>
     <div style="margin-bottom:14px">
-      <a href="#" onclick="downloadSampleCSV('${type}');return false;" style="font-size:12px;color:var(--teal);text-decoration:none">Download a sample CSV to see the format ↓</a>
+      <a href="#" onclick="downloadSampleCSV('${type}');return false;" style="font-size:12px;color:var(--teal);text-decoration:none">${cfg.preview ? 'Download the CSV template (with examples) ↓' : 'Download a sample CSV to see the format ↓'}</a>
     </div>
     <div id="import-result"></div>
     <div id="import-error" class="modal-error"></div>
     <div class="modal-actions">
       <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Cancel</button>
-      <button class="modal-btn modal-btn-primary" onclick="submitImport()">Upload and import</button>
+      <button class="modal-btn modal-btn-primary" id="import-go" onclick="submitImport()">${cfg.preview ? 'Upload products' : 'Upload and import'}</button>
     </div>
   `);
 }
 
 function downloadSampleCSV(type) {
   const cfg = IMPORT_CONFIG[type];
-  const blob = new Blob([cfg.sample], { type: 'text/csv;charset=utf-8;' });
+  const blob = new Blob(['\ufeff' + cfg.sample], { type: 'text/csv;charset=utf-8;' }); // BOM so Excel reads ₦ and accents correctly
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = `sample-${type}.csv`;
+  a.href = url; a.download = type === 'products' ? 'kooza-products-template.csv' : `sample-${type}.csv`;
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
+}
+
+// ---- Products bulk upload: tolerant header names + a check-before-you-upload preview ----
+const PRODUCT_HEADER_ALIASES = {
+  name:'name', product:'name', 'product_name':'name', title:'name',
+  category:'category', type:'category',
+  cost:'cost', 'cost_price':'cost', price:'price', 'selling_price':'price', 'sell_price':'price',
+  quantity:'quantity', qty:'quantity', stock:'quantity', threshold:'threshold', 'low_stock_threshold':'threshold',
+  images:'images', image:'images', 'image_url':'images', 'image_urls':'images', photo:'images', photos:'images', 'image_links':'images',
+  description:'description', specifications:'specifications', specification:'specifications', specs:'specifications', spec:'specifications',
+};
+function normalizeProductRows(rawRows) {
+  return rawRows.map(r => {
+    const out = {};
+    Object.keys(r).forEach(k => {
+      const key = PRODUCT_HEADER_ALIASES[String(k).trim().toLowerCase().replace(/[\s-]+/g, '_')];
+      if (key && out[key] == null || (key && out[key] === '')) out[key] = r[k];
+    });
+    return out;
+  });
+}
+function checkProductRow(r) {
+  const problems = [];
+  if (!String(r.name || '').trim()) problems.push('name is missing');
+  const price = Number(String(r.price == null ? '' : r.price).replace(/[₦,\s]/g, ''));
+  if (String(r.price == null ? '' : r.price).trim() === '' || !Number.isFinite(price)) problems.push('price is missing or not a number');
+  const imgs = String(r.images || '').split(/[|\n;]+/).map(x => x.trim()).filter(Boolean);
+  if (imgs.length && imgs.some(u => !/^https?:\/\//i.test(u))) problems.push('image links must start with https://');
+  if (imgs.length > 8) problems.push('more than 8 images (extra ones are ignored)');
+  return problems;
+}
+function previewImport() {
+  const type = window._importType;
+  const box = document.getElementById('import-preview');
+  const file = document.getElementById('import-file').files[0];
+  box.innerHTML = '';
+  window._importRows = null;
+  if (!file || type !== 'products') return;
+  Papa.parse(file, {
+    header: true, skipEmptyLines: true,
+    complete: (results) => {
+      const rows = normalizeProductRows(results.data);
+      if (!rows.length) { box.innerHTML = '<div class="modal-error">That file has no rows.</div>'; return; }
+      if (rows.length > 500) { box.innerHTML = '<div class="modal-error">That is more than 500 products — please split it into smaller files.</div>'; return; }
+      window._importRows = rows;
+      const bad = rows.map((r, i) => ({ row: i + 2, name: r.name || '(no name)', problems: checkProductRow(r) })).filter(x => x.problems.length);
+      const okCount = rows.length - bad.filter(x => x.problems.some(p => !p.startsWith('more than'))).length;
+      const sample = rows.slice(0, 4).map(r => {
+        const imgs = String(r.images || '').split(/[|\n;]+/).map(x => x.trim()).filter(Boolean);
+        const specs = String(r.specifications || '').split('|').filter(Boolean).length;
+        return `<tr><td>${invEsc(r.name || '—')}</td><td>${invEsc(r.price || '—')}</td><td>${imgs.length} photo${imgs.length === 1 ? '' : 's'}</td><td>${specs} spec${specs === 1 ? '' : 's'}</td></tr>`;
+      }).join('');
+      box.innerHTML = `<div class="modal-info-box" style="margin-bottom:14px">
+        <strong style="color:var(--teal)">${okCount} of ${rows.length} product${rows.length === 1 ? '' : 's'} ready to upload.</strong>
+        <table style="width:100%;font-size:11.5px;margin-top:8px;border-collapse:collapse"><thead><tr style="text-align:left;color:var(--muted)"><th>Name</th><th>Price</th><th>Photos</th><th>Specs</th></tr></thead><tbody>${sample}</tbody></table>
+        ${rows.length > 4 ? `<div style="font-size:11px;color:var(--muted);margin-top:4px">…and ${rows.length - 4} more</div>` : ''}
+        ${bad.length ? `<div style="margin-top:8px;color:var(--amber)">${bad.length} row(s) need attention (problem rows are skipped):</div>
+          <div style="max-height:110px;overflow-y:auto;margin-top:4px">${bad.map(b => `<div style="font-size:11.5px;padding:3px 0;border-bottom:1px solid var(--line)">Row ${b.row} · ${invEsc(b.name)}: ${b.problems.join(', ')}</div>`).join('')}</div>` : ''}
+      </div>`;
+    },
+    error: (err) => { box.innerHTML = `<div class="modal-error">Could not read that file: ${invEsc(err.message)}</div>`; }
+  });
 }
 
 function submitImport() {
@@ -2182,7 +2255,7 @@ function submitImport() {
     header: true,
     skipEmptyLines: true,
     complete: async (results) => {
-      const rows = results.data;
+      const rows = type === 'products' ? normalizeProductRows(results.data) : results.data;
       if (!rows.length) { errorEl.textContent = 'That CSV file appears to be empty.'; return; }
       try {
         const response = await apiFetch(`${API_BASE}${cfg.endpoint}`, {
@@ -2194,7 +2267,7 @@ function submitImport() {
 
         document.getElementById('import-result').innerHTML = `
           <div class="modal-info-box">
-            <strong style="color:var(--teal)">${data.created} row(s) imported successfully.</strong>
+            <strong style="color:var(--teal)">${data.created} ${type === 'products' ? 'product(s) uploaded' : 'row(s) imported'} successfully.</strong>
             ${data.errors.length ? `<div style="margin-top:8px;color:var(--red)">${data.errors.length} row(s) skipped:</div>
               <div style="max-height:130px;overflow-y:auto;margin-top:6px">
                 ${data.errors.map(e => `<div style="font-size:11.5px;padding:4px 0;border-bottom:1px solid var(--line)">Row ${e.row}: ${e.error}</div>`).join('')}
