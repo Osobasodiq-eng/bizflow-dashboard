@@ -1040,8 +1040,13 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
 
         <div id="mk-view-analytics" class="mk-view" style="display:none">
           <div class="card" style="margin-bottom:14px">
-            <div class="card-head"><div class="card-title">Revenue by channel</div><span style="font-size:11px;color:var(--color-text-secondary)">Paid orders placed through a campaign's “Shop now” button</span></div>
+            <div class="card-head"><div class="card-title">Revenue by channel</div><span style="font-size:11px;color:var(--color-text-secondary)">Paid orders from campaign emails and from your tracked links</span></div>
             <div id="mk-channels"><div class="mk-empty">Loading…</div></div>
+          </div>
+          <div class="card" style="margin-bottom:14px">
+            <div class="card-head"><div class="card-title">Your tracked links</div></div>
+            <div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5">Use these links in your bio, posts and WhatsApp status instead of your normal shop link. When someone buys, the sale is credited to that channel above.</div>
+            <div id="mk-links"></div>
           </div>
           <div class="card">
             <div class="card-head"><div class="card-title">Campaign performance</div></div>
@@ -3408,7 +3413,26 @@ async function mkViewSegment(key) {
   }
 }
 
+const MK_LINK_CHANNELS = [['instagram', 'Instagram', 'brand-instagram'], ['whatsapp', 'WhatsApp', 'brand-whatsapp'], ['facebook', 'Facebook', 'brand-facebook'], ['tiktok', 'TikTok', 'brand-tiktok']];
+function trackedLink(src) { return `${STOREFRONT_BASE}?business=${getBusinessId()}&src=${src}`; }
+function mkCopyText(text, btn) {
+  const done = () => { if (btn) { const t = btn.textContent; btn.textContent = 'Copied ✓'; setTimeout(() => btn.textContent = t, 1400); } };
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, () => { prompt('Copy this link:', text); });
+  else prompt('Copy this link:', text);
+}
+function mkRenderLinks() {
+  const box = document.getElementById('mk-links');
+  if (!box) return;
+  box.innerHTML = MK_LINK_CHANNELS.map(([k, label, icon]) => `
+    <div class="modal-list-row" style="align-items:center;gap:10px">
+      <span style="display:flex;align-items:center;gap:8px;min-width:110px"><i class="ti ti-${icon}" style="font-size:16px;color:var(--teal)" aria-hidden="true"></i><strong>${label}</strong></span>
+      <span style="flex:1;font-size:11.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${trackedLink(k)}</span>
+      <button class="btn" style="font-size:11px;padding:4px 10px" onclick="mkCopyText('${trackedLink(k)}', this)">Copy</button>
+    </div>`).join('');
+}
+
 async function mkLoadAnalytics() {
+  mkRenderLinks();
   try {
     const a = await mkApi('/analytics');
     const max = Math.max(1, ...a.channels.map(c => c.revenue));
@@ -3807,6 +3831,10 @@ function ccOpen(id, date) {
       <button class="modal-btn modal-btn-secondary" onclick="ccCopy()">Copy caption</button>
       <button class="modal-btn modal-btn-primary" onclick="ccSave()">Save</button>
     </div>
+    <div class="modal-row" style="margin-top:8px">
+      <button class="modal-btn modal-btn-secondary" onclick="mkCopyText(trackedLink(document.getElementById('cc-channel').value), this)">Copy tracked shop link</button>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px">Put this link in the post so sales from it show up under that channel in Analytics.</div>
     ${id ? `<div class="modal-row" style="margin-top:8px">
       <button class="modal-btn modal-btn-secondary" onclick="ccSetStatus(${id}, '${p.status === 'posted' ? 'planned' : 'posted'}')">${p.status === 'posted' ? 'Mark as not posted' : 'Mark as posted ✓'}</button>
       <button class="modal-btn modal-btn-secondary" style="color:var(--red)" onclick="ccDelete(${id})">Delete</button></div>` : ''}
