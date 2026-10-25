@@ -4933,6 +4933,44 @@ const STORE_THEMES = {
   noir:       { label: 'Noir',       primary: '#1F1F1F', accent: '#C9A961' },
 };
 
+
+// How products are laid out on the storefront. Keys must match VALID_DISPLAYS in routes/business.js.
+const STORE_DISPLAYS = {
+  grid:      { label: 'Classic grid',  hint: 'Clean, even rows. Works for anything.',
+    svg: '<rect x="6" y="6" width="16" height="14" rx="3"/><rect x="26" y="6" width="16" height="14" rx="3"/><rect x="46" y="6" width="12" height="14" rx="3"/><rect x="6" y="25" width="16" height="14" rx="3"/><rect x="26" y="25" width="16" height="14" rx="3"/><rect x="46" y="25" width="12" height="14" rx="3"/>' },
+  shelf:     { label: 'Shelf',         hint: 'Items stand on wooden shelves. Shoes, bags, home goods.',
+    svg: '<rect x="8" y="9" width="12" height="14" rx="2"/><rect x="26" y="12" width="12" height="11" rx="2"/><rect x="44" y="7" width="12" height="16" rx="2"/><rect x="4" y="24" width="56" height="4" rx="1" class="fill"/><rect x="8" y="33" width="12" height="4" rx="1"/><rect x="26" y="31" width="12" height="6" rx="1"/><rect x="4" y="38" width="56" height="3" rx="1" class="fill"/>' },
+  hanger:    { label: 'Hanger rail',   hint: 'Clothes hang from a rail. Fashion and fabrics.',
+    svg: '<rect x="3" y="5" width="58" height="3" rx="1.5" class="fill"/><path d="M17 8v4M17 12c-3 0-3-4 0-4M9 20l8-8 8 8z" fill="none"/><rect x="9" y="21" width="16" height="18" rx="2"/><path d="M47 8v4M47 12c-3 0-3-4 0-4M39 20l8-8 8 8z" fill="none"/><rect x="39" y="21" width="16" height="18" rx="2"/>' },
+  spotlight: { label: 'Spotlight',     hint: 'Products on glowing podiums. Jewellery, perfume, gadgets.',
+    svg: '<path d="M32 3l-12 28h24z" class="soft"/><rect x="24" y="13" width="16" height="14" rx="3"/><ellipse cx="32" cy="33" rx="16" ry="4" class="fill"/><ellipse cx="32" cy="38" rx="20" ry="3" class="soft"/>' },
+  pinboard:  { label: 'Pinboard',      hint: 'Polaroids pinned to a corkboard. Handmade and art.',
+    svg: '<rect x="3" y="3" width="58" height="38" rx="4" class="soft"/><g transform="rotate(-6 18 22)"><rect x="8" y="9" width="18" height="22" rx="1"/></g><g transform="rotate(5 46 22)"><rect x="36" y="8" width="18" height="22" rx="1"/></g><circle cx="17" cy="9" r="2.4" class="fill"/><circle cx="46" cy="8" r="2.4" class="fill"/>' },
+  lookbook:  { label: 'Lookbook',      hint: 'Big editorial mosaic with names over photos.',
+    svg: '<rect x="4" y="4" width="30" height="36" rx="3"/><rect x="38" y="4" width="22" height="17" rx="3"/><rect x="38" y="23" width="22" height="17" rx="3"/>' },
+  catalogue: { label: 'Catalogue',     hint: 'Photo plus details on each row. Services, food, anything with a story.',
+    svg: '<rect x="4" y="5" width="24" height="15" rx="3"/><rect x="8" y="9" width="8" height="7" rx="1.5" class="fill"/><path d="M19 10h7M19 14h5" fill="none"/><rect x="34" y="5" width="26" height="15" rx="3"/><rect x="38" y="9" width="8" height="7" rx="1.5" class="fill"/><path d="M49 10h8M49 14h5" fill="none"/><rect x="4" y="25" width="24" height="15" rx="3"/><rect x="8" y="29" width="8" height="7" rx="1.5" class="fill"/><rect x="34" y="25" width="26" height="15" rx="3"/><rect x="38" y="29" width="8" height="7" rx="1.5" class="fill"/>' },
+  stall:     { label: 'Market stall',  hint: 'Striped awning with crates and chalkboard prices. Food, produce, thrift.',
+    svg: '<path d="M4 4h56v10c-3 4-6 4-9 0-3 4-6 4-9 0-3 4-6 4-9 0-3 4-6 4-9 0-3 4-6 4-9 0z" class="fill"/><rect x="7" y="21" width="22" height="18" rx="2"/><rect x="35" y="21" width="22" height="18" rx="2"/>' },
+  carousel:  { label: '3D carousel',   hint: 'Swipe through products in a cover-flow carousel.',
+    svg: '<path d="M4 12l12 3v14l-12 3z" class="soft"/><path d="M60 12l-12 3v14l12 3z" class="soft"/><rect x="20" y="6" width="24" height="32" rx="3"/>' },
+};
+function displayCardHtml(key, current) {
+  const d = STORE_DISPLAYS[key], on = key === current;
+  return `<div id="ss-disp-${key}" onclick="selectStoreDisplay('${key}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')selectStoreDisplay('${key}')"
+    style="cursor:pointer;border-radius:10px;padding:8px 6px;border:2px solid ${on ? 'var(--teal)' : 'var(--color-border-tertiary)'};display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;">
+    <svg viewBox="0 0 64 44" width="64" height="44" style="color:var(--teal);overflow:visible" aria-hidden="true"><style>#ss-disp-${key} svg *{fill:currentColor;fill-opacity:.28;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}#ss-disp-${key} svg .fill{fill-opacity:.85}#ss-disp-${key} svg .soft{fill-opacity:.12}</style>${d.svg}</svg>
+    <span style="font-size:11px;font-weight:700;">${d.label}</span></div>`;
+}
+function selectStoreDisplay(key) {
+  document.getElementById('ss-display').value = key;
+  Object.keys(STORE_DISPLAYS).forEach(k => {
+    const el = document.getElementById(`ss-disp-${k}`);
+    if (el) el.style.borderColor = k === key ? 'var(--teal)' : 'var(--color-border-tertiary)';
+  });
+  const h = document.getElementById('ss-display-hint'); if (h) h.textContent = STORE_DISPLAYS[key].hint;
+}
+
 async function showStoreSettings() {
   openModal(`<div class="modal-title"><i class="ti ti-palette" style="color:var(--teal)" aria-hidden="true"></i> Store settings</div>
     <div class="modal-sub">Loading…</div>`);
@@ -4989,6 +5027,13 @@ async function showStoreSettings() {
       <input id="ss-theme" type="hidden" value="${business.theme}">
     </div>
 
+    <div class="modal-field">
+      <label class="modal-label">How products are displayed</label>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">${Object.keys(STORE_DISPLAYS).map(k => displayCardHtml(k, business.display_style || 'grid')).join('')}</div>
+      <div id="ss-display-hint" style="font-size:12px;color:var(--muted);margin-top:8px;">${STORE_DISPLAYS[business.display_style || 'grid'].hint}</div>
+      <input id="ss-display" type="hidden" value="${business.display_style || 'grid'}">
+    </div>
+
     <div id="ss-error" class="modal-error"></div>
 
     <div class="modal-actions">
@@ -5012,6 +5057,7 @@ async function submitStoreSettings() {
     banner_url: document.getElementById('ss-banner-url').value || null,
     description: document.getElementById('ss-description').value.trim() || null,
     theme: document.getElementById('ss-theme').value,
+    display_style: document.getElementById('ss-display').value,
   };
   try {
     const res = await apiFetch(`${API_BASE}/api/business`, {
