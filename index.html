@@ -536,6 +536,7 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
 .ib-empty span{font-size:12.5px;line-height:1.5}
 .ib-back{display:none}
 @media(max-width:860px){.ib-wrap{grid-template-columns:1fr}.ib-list{border-right:none}.ib-wrap.open-thread .ib-list{display:none}.ib-wrap:not(.open-thread) .ib-thread{display:none}.ib-back{display:inline-flex}.ib-m{max-width:88%}.ib-msgs{padding:16px}#p-inbox.on{height:calc(100dvh - 100px)}}
+.modal-row .modal-field{min-width:0}.modal-row input[type=datetime-local]{min-width:0;font-size:12px}
 </style>
 </head>
 <body>
@@ -1011,7 +1012,7 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
           <button class="mk-tab on" data-tab="overview" onclick="mkShowTab('overview')">Overview</button>
           <button class="mk-tab" data-tab="campaigns" onclick="mkShowTab('campaigns')">Campaigns</button>
           <button class="mk-tab" data-tab="automations" onclick="mkShowTab('automations')">Automations</button>
-          <button class="mk-tab" data-tab="discounts" onclick="mkShowTab('discounts')">Discounts</button>
+          <button class="mk-tab" data-tab="discounts" onclick="mkShowTab('discounts')">Sales &amp; codes</button>
           <button class="mk-tab" data-tab="segments" onclick="mkShowTab('segments')">Segments</button>
           <button class="mk-tab" data-tab="analytics" onclick="mkShowTab('analytics')">Analytics</button>
           <span style="flex:1"></span>
@@ -1052,6 +1053,9 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
         </div>
 
         <div id="mk-view-discounts" class="mk-view" style="display:none">
+          <div class="sec-head"><div><div class="sec-title">Sales</div><div class="sec-desc">Cut prices automatically for a while — on everything, on whole categories, or on products you pick. Customers see the new price with the old one crossed out and a “−20%” badge. No code needed.</div></div>
+            <button class="btn btn-g" style="font-size:12px;flex:none" onclick="mkOpenSale()"><i class="ti ti-plus" style="font-size:12px" aria-hidden="true"></i> New sale</button></div>
+          <div class="card" style="padding:0;overflow:auto;margin-bottom:26px"><div id="mk-sales"><div class="mk-empty">Loading…</div></div></div>
           <div class="sec-head"><div><div class="sec-title">Discount codes</div><div class="sec-desc">Give customers a code to use at checkout — percent off or a fixed amount. Attach a code to an email campaign, or share a ready-made link that fills it in for them.</div></div>
             <button class="btn btn-g" style="font-size:12px;flex:none" onclick="mkOpenDiscount()"><i class="ti ti-plus" style="font-size:12px" aria-hidden="true"></i> New code</button></div>
           <div class="card" style="padding:0;overflow:auto"><div id="mk-discounts"><div class="mk-empty">Loading…</div></div></div>
@@ -3353,7 +3357,7 @@ function mkShowTab(tab) {
   if (tab === 'overview') mkLoadOverview();
   if (tab === 'campaigns') mkLoadCampaigns();
   if (tab === 'automations') mkLoadAutomations();
-  if (tab === 'discounts') mkLoadDiscounts();
+  if (tab === 'discounts') { mkLoadSales(); mkLoadDiscounts(); }
   if (tab === 'segments') mkLoadSegments();
   if (tab === 'analytics') mkLoadAnalytics();
 }
@@ -3612,6 +3616,115 @@ async function mkDuplicate(id) {
     const c = await mkApi(`/campaigns/${id}`);
     mkOpenEditor(null, null, { name: `Copy of ${c.name}`, segment: c.segment, subject: c.subject, body: c.body, discountCode: c.discountCode, status: 'draft' });
   } catch (err) { alert(err.message); }
+}
+
+
+// ---------- sales (automatic price cuts) ----------
+let _mkSales = [], _saProducts = [];
+function mkSalePill(st) {
+  const map = { live: ['p-green', 'Live now'], off: ['p-gray', 'Off'], ended: ['p-red', 'Ended'], scheduled: ['p-blue', 'Scheduled'] };
+  const [cls, label] = map[st] || ['p-gray', st];
+  return `<span class="pill ${cls}">${label}</span>`;
+}
+function mkSaleScope(sa) {
+  if (sa.scope === 'all') return `All products (${sa.affected})`;
+  if (sa.scope === 'categories') return `${sa.categories.map(mkEsc).join(', ')} · ${sa.affected} product${sa.affected === 1 ? '' : 's'}`;
+  return `${sa.affected} chosen product${sa.affected === 1 ? '' : 's'}`;
+}
+async function mkLoadSales() {
+  const box = document.getElementById('mk-sales');
+  try {
+    _mkSales = await mkApi('/sales');
+    if (!_mkSales.length) { box.innerHTML = `<div class="mk-empty">No sales yet. Click “New sale” to put 20% off everything for the weekend, or discount just a few products.</div>`; return; }
+    box.innerHTML = `<table><thead><tr><th>Sale</th><th>Off</th><th>Applies to</th><th>When</th><th>Status</th><th></th></tr></thead><tbody>` +
+      _mkSales.map(sa => `<tr>
+        <td style="font-weight:600;color:var(--text)">${mkEsc(sa.name)}</td>
+        <td><strong>${sa.percent}%</strong></td>
+        <td style="font-size:12px">${mkSaleScope(sa)}</td>
+        <td style="font-size:11px;color:var(--color-text-secondary)">${sa.startsAt ? 'From ' + mkDate(sa.startsAt) + '<br>' : ''}${sa.endsAt ? 'Until ' + mkDate(sa.endsAt) : (sa.startsAt ? '' : 'Until you stop it')}</td>
+        <td>${mkSalePill(sa.state)}</td>
+        <td style="white-space:nowrap;text-align:right">
+          <button class="btn" style="font-size:11px" onclick="mkOpenSale(${sa.id})">Edit</button>
+          <button class="btn" style="font-size:11px" onclick="mkToggleSale(${sa.id}, ${!sa.active})">${sa.active ? 'Stop' : 'Start'}</button>
+          <button class="btn" style="font-size:11px;color:var(--red)" onclick="mkDeleteSale(${sa.id})" title="Delete">✕</button>
+        </td></tr>`).join('') + '</tbody></table>';
+  } catch (err) {
+    box.innerHTML = `<div class="mk-empty" style="color:var(--red)">Could not load sales: ${mkEsc(err.message)}</div>`;
+  }
+}
+async function mkOpenSale(id) {
+  const sa = id ? _mkSales.find(x => x.id === id) : null;
+  openModal(`<div class="modal-title"><i class="ti ti-discount-2" style="color:var(--teal)" aria-hidden="true"></i> ${sa ? 'Edit sale' : 'New sale'}</div><div class="modal-sub">Loading your products…</div>`);
+  try {
+    const res = await apiFetch(`${API_BASE}/api/products`);
+    _saProducts = await res.json();
+  } catch (e) { _saProducts = []; }
+  const cats = [...new Set(_saProducts.map(p => p.category || 'Other'))].sort();
+  const scope = sa ? sa.scope : 'all';
+  const chosenCats = new Set((sa ? sa.categories : []).map(c => c.toLowerCase()));
+  const chosenIds = new Set(sa ? sa.productIds : []);
+  openModal(`
+    <div class="modal-title"><i class="ti ti-discount-2" style="color:var(--teal)" aria-hidden="true"></i> ${sa ? 'Edit sale' : 'New sale'}</div>
+    <div class="modal-sub">Prices drop on your storefront automatically while the sale runs, then go back to normal. Your real product prices are never changed.</div>
+    <div class="modal-row">
+      <div class="modal-field" style="flex:2"><label class="modal-label">Sale name</label><input id="sa-name" class="modal-input" maxlength="80" placeholder="e.g. Black Friday" value="${sa ? mkEsc(sa.name) : ''}"></div>
+      <div class="modal-field" style="flex:1"><label class="modal-label">Percent off</label><input id="sa-pct" class="modal-input" type="number" min="1" max="90" placeholder="20" value="${sa ? sa.percent : ''}"></div>
+    </div>
+    <div class="modal-field"><label class="modal-label">What is on sale?</label>
+      <select id="sa-scope" class="modal-select" onchange="mkSaleScopeChange()">
+        <option value="all" ${scope === 'all' ? 'selected' : ''}>Everything in my store</option>
+        <option value="categories" ${scope === 'categories' ? 'selected' : ''}>Certain categories</option>
+        <option value="products" ${scope === 'products' ? 'selected' : ''}>Products I choose</option></select></div>
+    <div id="sa-cats" class="modal-field" style="display:none"><label class="modal-label">Categories</label>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">${cats.map(c => `<label style="display:flex;align-items:center;gap:6px;font-size:12.5px;border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer"><input type="checkbox" class="sa-cat" value="${mkEsc(c)}" ${chosenCats.has(c.toLowerCase()) ? 'checked' : ''}> ${mkEsc(c)}</label>`).join('') || '<span style="font-size:12px;color:var(--muted)">No products yet.</span>'}</div></div>
+    <div id="sa-prods" class="modal-field" style="display:none"><label class="modal-label">Products <span id="sa-count" style="color:var(--muted);font-weight:400"></span></label>
+      <input id="sa-search" class="modal-input" placeholder="Search products…" oninput="mkSaleFilter()" style="margin-bottom:8px">
+      <div style="max-height:200px;overflow:auto;border:1px solid var(--line);border-radius:10px">${_saProducts.map(p => `<label class="sa-row" data-name="${mkEsc((p.name || '').toLowerCase())}" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--line);cursor:pointer;font-size:13px"><input type="checkbox" class="sa-prod" value="${p.id}" ${chosenIds.has(p.id) ? 'checked' : ''} onchange="mkSaleCount()"><span style="flex:1">${mkEsc(p.name)}<span style="color:var(--muted);font-size:11px"> · ${mkEsc(p.category || 'Other')}</span></span><span style="color:var(--muted)">${naira(p.price)}</span></label>`).join('') || '<div class="mk-empty">No products yet.</div>'}</div></div>
+    <div class="modal-row">
+      <div class="modal-field" style="flex:1"><label class="modal-label">Starts (optional)</label><input id="sa-start" class="modal-input" type="datetime-local" value="${sa ? mkLocalInput(sa.startsAt) : ''}"></div>
+      <div class="modal-field" style="flex:1"><label class="modal-label">Ends (optional)</label><input id="sa-end" class="modal-input" type="datetime-local" value="${sa ? mkLocalInput(sa.endsAt) : ''}"></div>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin:-4px 0 8px">Leave both empty to start now and run until you stop it. If a product is in two sales, it gets the bigger discount — they don't add up.</div>
+    <div class="modal-error" id="sa-error"></div>
+    <div class="modal-actions"><button class="modal-btn modal-btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="modal-btn modal-btn-primary" id="sa-save" onclick="mkSaveSale(${sa ? sa.id : 'null'})">${sa ? 'Save changes' : 'Start sale'}</button></div>`);
+  mkSaleScopeChange(); mkSaleCount();
+}
+function mkSaleScopeChange() {
+  const v = document.getElementById('sa-scope').value;
+  document.getElementById('sa-cats').style.display = v === 'categories' ? 'block' : 'none';
+  document.getElementById('sa-prods').style.display = v === 'products' ? 'block' : 'none';
+}
+function mkSaleCount() { const n = document.querySelectorAll('.sa-prod:checked').length; const el = document.getElementById('sa-count'); if (el) el.textContent = n ? `— ${n} selected` : ''; }
+function mkSaleFilter() {
+  const q = document.getElementById('sa-search').value.trim().toLowerCase();
+  document.querySelectorAll('.sa-row').forEach(r => r.style.display = !q || r.dataset.name.includes(q) ? 'flex' : 'none');
+}
+async function mkSaveSale(id) {
+  const err = document.getElementById('sa-error'); err.textContent = '';
+  const scope = document.getElementById('sa-scope').value;
+  const body = {
+    name: document.getElementById('sa-name').value.trim(), percent: document.getElementById('sa-pct').value, scope,
+    categories: [...document.querySelectorAll('.sa-cat:checked')].map(e => e.value),
+    productIds: [...document.querySelectorAll('.sa-prod:checked')].map(e => Number(e.value)),
+    startsAt: document.getElementById('sa-start').value ? new Date(document.getElementById('sa-start').value).toISOString() : null,
+    endsAt: document.getElementById('sa-end').value ? new Date(document.getElementById('sa-end').value).toISOString() : null,
+  };
+  // the API checks "pick at least one" when creating; check here too (and when editing) for a clear message
+  if (scope === 'categories' && !body.categories.length) { err.textContent = 'Pick at least one category.'; return; }
+  if (scope === 'products' && !body.productIds.length) { err.textContent = 'Pick at least one product.'; return; }
+  const btn = document.getElementById('sa-save'); btn.disabled = true;
+  try {
+    await mkApi(id ? `/sales/${id}` : '/sales', { method: id ? 'PATCH' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    closeModal(); showSuccessBurst(id ? 'Sale updated' : 'Sale is live'); mkLoadSales();
+  } catch (e) { err.textContent = e.message; btn.disabled = false; }
+}
+async function mkToggleSale(id, on) {
+  try { await mkApi(`/sales/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ active: on }) }); mkLoadSales(); } catch (e) { alert(e.message); }
+}
+async function mkDeleteSale(id) {
+  if (!confirm('Delete this sale? Prices go back to normal straight away. Past orders keep what customers paid.')) return;
+  try { await mkApi(`/sales/${id}`, { method: 'DELETE' }); mkLoadSales(); } catch (e) { alert(e.message); }
 }
 
 // ---------- discounts ----------
