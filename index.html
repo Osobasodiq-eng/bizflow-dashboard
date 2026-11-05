@@ -5234,6 +5234,29 @@ const STORE_DISPLAYS = {
   carousel:  { label: '3D carousel',   hint: 'Swipe through products in a cover-flow carousel.',
     svg: '<path d="M4 12l12 3v14l-12 3z" class="soft"/><path d="M60 12l-12 3v14l12 3z" class="soft"/><rect x="20" y="6" width="24" height="32" rx="3"/>' },
 };
+const STORE_DESIGNS = {
+  cinematic:{label:'Cinematic 3D',hint:'Dark, animated 3D hero and playful effects. The showpiece look.',svg:'<rect x="4" y="4" width="56" height="20" rx="3"/><circle cx="46" cy="14" r="6" class="fill"/><rect x="4" y="29" width="16" height="11" rx="2"/><rect x="24" y="29" width="16" height="11" rx="2"/><rect x="44" y="29" width="16" height="11" rx="2"/>'},
+  minimal:{label:'Clean',hint:'Light, calm and uncluttered. Lets your products do the talking.',svg:'<rect x="4" y="4" width="26" height="4" rx="2" class="fill"/><rect x="4" y="12" width="30" height="3" rx="1.5"/><rect x="4" y="19" width="12" height="5" rx="2" class="fill"/><rect x="40" y="4" width="20" height="21" rx="3"/><rect x="4" y="30" width="12" height="11" rx="2"/><rect x="20" y="30" width="12" height="11" rx="2"/><rect x="36" y="30" width="12" height="11" rx="2"/><rect x="52" y="30" width="8" height="11" rx="2"/>'},
+  editorial:{label:'Boutique',hint:'Serif type, centred logo and tall portrait cards. Fashion-magazine feel.',svg:'<rect x="22" y="3" width="20" height="4" rx="2" class="fill"/><rect x="4" y="11" width="56" height="13" rx="1"/><rect x="18" y="15" width="28" height="3" rx="1.5" class="fill"/><rect x="4" y="28" width="16" height="14" rx="0"/><rect x="24" y="28" width="16" height="14" rx="0"/><rect x="44" y="28" width="16" height="14" rx="0"/>'},
+  bold:{label:'Streetwear',hint:'Loud colour blocks, thick borders and hard shadows.',svg:'<rect x="4" y="4" width="50" height="18" class="fill"/><rect x="7" y="25" width="50" height="3" class="fill"/><rect x="4" y="31" width="14" height="10"/><rect x="24" y="31" width="14" height="10"/><rect x="44" y="31" width="14" height="10"/>'},
+  marketplace:{label:'Marketplace',hint:'Search first, category sidebar and a dense grid. Best for big catalogues.',svg:'<rect x="4" y="3" width="56" height="6" rx="2"/><rect x="4" y="13" width="14" height="28" rx="2" class="fill"/><rect x="22" y="13" width="11" height="12" rx="1.5"/><rect x="36" y="13" width="11" height="12" rx="1.5"/><rect x="50" y="13" width="10" height="12" rx="1.5"/><rect x="22" y="29" width="11" height="12" rx="1.5"/><rect x="36" y="29" width="11" height="12" rx="1.5"/><rect x="50" y="29" width="10" height="12" rx="1.5"/>'},
+  social:{label:'Link-in-bio',hint:'A narrow, phone-style page with a profile header. Made for Instagram and WhatsApp traffic.',svg:'<circle cx="32" cy="9" r="6" class="fill"/><rect x="18" y="18" width="28" height="5" rx="2.5" class="fill"/><circle cx="22" cy="30" r="3"/><circle cx="32" cy="30" r="3"/><circle cx="42" cy="30" r="3"/><rect x="18" y="35" width="13" height="7" rx="2"/><rect x="33" y="35" width="13" height="7" rx="2"/>'}
+};
+function designCardHtml(key, current) {
+  const d = STORE_DESIGNS[key], on = key === current;
+  return `<div id="ss-des-${key}" onclick="selectStoreDesign('${key}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')selectStoreDesign('${key}')"
+    style="cursor:pointer;border-radius:10px;padding:8px 6px;border:2px solid ${on ? 'var(--teal)' : 'var(--color-border-tertiary)'};display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;">
+    <svg viewBox="0 0 64 44" width="64" height="44" style="color:var(--teal);overflow:visible" aria-hidden="true"><style>#ss-des-${key} svg *{fill:currentColor;fill-opacity:.2;stroke:currentColor;stroke-width:1.4}#ss-des-${key} svg .fill{fill-opacity:.8}</style>${d.svg}</svg>
+    <span style="font-size:11px;font-weight:700;">${d.label}</span></div>`;
+}
+function selectStoreDesign(key) {
+  document.getElementById('ss-design').value = key;
+  Object.keys(STORE_DESIGNS).forEach(k => {
+    const el = document.getElementById(`ss-des-${k}`);
+    if (el) el.style.borderColor = k === key ? 'var(--teal)' : 'var(--color-border-tertiary)';
+  });
+  const h = document.getElementById('ss-design-hint'); if (h) h.textContent = STORE_DESIGNS[key].hint;
+}
 function displayCardHtml(key, current) {
   const d = STORE_DISPLAYS[key], on = key === current;
   return `<div id="ss-disp-${key}" onclick="selectStoreDisplay('${key}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')selectStoreDisplay('${key}')"
@@ -5307,6 +5330,13 @@ async function showStoreSettings() {
     </div>
 
     <div class="modal-field">
+      <label class="modal-label">Store design &amp; layout</label>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">${Object.keys(STORE_DESIGNS).map(k => designCardHtml(k, STORE_DESIGNS[business.design_style] ? business.design_style : 'cinematic')).join('')}</div>
+      <div id="ss-design-hint" style="font-size:12px;color:var(--muted);margin-top:8px;">${STORE_DESIGNS[STORE_DESIGNS[business.design_style] ? business.design_style : 'cinematic'].hint}</div>
+      <input id="ss-design" type="hidden" value="${STORE_DESIGNS[business.design_style] ? business.design_style : 'cinematic'}">
+    </div>
+
+    <div class="modal-field">
       <label class="modal-label">How products are displayed</label>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">${Object.keys(STORE_DISPLAYS).map(k => displayCardHtml(k, business.display_style || 'grid')).join('')}</div>
       <div id="ss-display-hint" style="font-size:12px;color:var(--muted);margin-top:8px;">${STORE_DISPLAYS[business.display_style || 'grid'].hint}</div>
@@ -5337,6 +5367,7 @@ async function submitStoreSettings() {
     description: document.getElementById('ss-description').value.trim() || null,
     theme: document.getElementById('ss-theme').value,
     display_style: document.getElementById('ss-display').value,
+    design_style: document.getElementById('ss-design').value,
   };
   try {
     const res = await apiFetch(`${API_BASE}/api/business`, {
