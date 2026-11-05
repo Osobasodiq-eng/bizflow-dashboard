@@ -1011,6 +1011,7 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
           <button class="mk-tab on" data-tab="overview" onclick="mkShowTab('overview')">Overview</button>
           <button class="mk-tab" data-tab="campaigns" onclick="mkShowTab('campaigns')">Campaigns</button>
           <button class="mk-tab" data-tab="automations" onclick="mkShowTab('automations')">Automations</button>
+          <button class="mk-tab" data-tab="discounts" onclick="mkShowTab('discounts')">Discounts</button>
           <button class="mk-tab" data-tab="segments" onclick="mkShowTab('segments')">Segments</button>
           <button class="mk-tab" data-tab="analytics" onclick="mkShowTab('analytics')">Analytics</button>
           <span style="flex:1"></span>
@@ -1032,7 +1033,7 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
           <div class="card" style="background:var(--navy)">
             <div class="card-head"><div class="card-title">Coming next</div></div>
             <div style="font-size:12.5px;color:var(--color-text-secondary);line-height:1.7">
-              <strong style="color:var(--text)">WhatsApp, Instagram and Facebook</strong> messages in your <strong style="color:var(--text)">Inbox</strong> need those accounts connected through Meta (approval takes days to weeks). Email campaigns, automations, the inbox (storefront chat and email), the content calendar and sales tracking all work today.
+              <strong style="color:var(--text)">WhatsApp broadcasts</strong> already work without Meta: open a segment's <strong style="color:var(--text)">WhatsApp</strong> button and message customers one tap at a time. <strong style="color:var(--text)">WhatsApp, Instagram and Facebook</strong> messages in your <strong style="color:var(--text)">Inbox</strong> need those accounts connected through Meta (approval takes days to weeks). Email campaigns, automations, the inbox (storefront chat and email), the content calendar and sales tracking all work today.
             </div>
           </div>
         </div>
@@ -1048,6 +1049,12 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
           <div id="mk-auto-warning" style="display:none" class="mk-warn"><i class="ti ti-alert-triangle" aria-hidden="true"></i> Email sending isn't set up on the server yet, so automations can't be switched on. Add <strong>MAILGUN_API_KEY</strong> and <strong>MAILGUN_DOMAIN</strong> in your API's environment settings.</div>
           <div class="sec-head"><div><div class="sec-title">Automations</div><div class="sec-desc">Emails that send themselves. Switching one on only affects things that happen <strong>from that moment</strong> — past customers are never emailed in bulk. Everyone gets an unsubscribe link and nobody is emailed twice for the same thing.</div></div></div>
           <div class="dt" id="mk-automations"><div class="mk-empty">Loading…</div></div>
+        </div>
+
+        <div id="mk-view-discounts" class="mk-view" style="display:none">
+          <div class="sec-head"><div><div class="sec-title">Discount codes</div><div class="sec-desc">Give customers a code to use at checkout — percent off or a fixed amount. Attach a code to an email campaign, or share a ready-made link that fills it in for them.</div></div>
+            <button class="btn btn-g" style="font-size:12px;flex:none" onclick="mkOpenDiscount()"><i class="ti ti-plus" style="font-size:12px" aria-hidden="true"></i> New code</button></div>
+          <div class="card" style="padding:0;overflow:auto"><div id="mk-discounts"><div class="mk-empty">Loading…</div></div></div>
         </div>
 
         <div id="mk-view-segments" class="mk-view" style="display:none">
@@ -3346,6 +3353,7 @@ function mkShowTab(tab) {
   if (tab === 'overview') mkLoadOverview();
   if (tab === 'campaigns') mkLoadCampaigns();
   if (tab === 'automations') mkLoadAutomations();
+  if (tab === 'discounts') mkLoadDiscounts();
   if (tab === 'segments') mkLoadSegments();
   if (tab === 'analytics') mkLoadAnalytics();
 }
@@ -3361,7 +3369,7 @@ function mkCampaignsTable(list, { actions }) {
   return `<table><thead><tr><th>Campaign</th><th>Audience</th><th>Status</th><th>Sent</th><th>Orders</th><th>Revenue</th><th>When</th>${actions ? '<th></th>' : ''}</tr></thead><tbody>` +
     list.map(c => `<tr>
       <td><div style="font-weight:600;color:var(--text)">${mkEsc(c.name)}</div><div style="font-size:11px;color:var(--color-text-secondary)">${mkEsc(c.subject)}</div></td>
-      <td>${mkEsc(c.segmentLabel)}</td>
+      <td>${mkEsc(c.segmentLabel)}${c.discountCode ? `<div style="font-size:11px;color:var(--teal)"><i class="ti ti-ticket" aria-hidden="true"></i> ${mkEsc(c.discountCode)}</div>` : ''}</td>
       <td>${mkStatusPill(c)}</td>
       <td>${c.status === 'draft' || c.status === 'scheduled' ? '—' : `${c.sentCount}/${c.recipientCount}${c.failedCount ? ` <span style="color:var(--red)">(${c.failedCount} failed)</span>` : ''}`}</td>
       <td>${c.orders || '—'}</td>
@@ -3369,6 +3377,7 @@ function mkCampaignsTable(list, { actions }) {
       <td style="font-size:11px;color:var(--color-text-secondary)">${c.status === 'scheduled' ? mkDate(c.scheduledAt) : mkDate(c.sentAt || c.createdAt)}</td>
       ${actions ? `<td style="white-space:nowrap;text-align:right">
         ${c.status === 'draft' || c.status === 'scheduled' ? `<button class="btn" style="font-size:11px" onclick="mkOpenEditor(${c.id})">Edit</button>` : `<button class="btn" style="font-size:11px" onclick="mkViewCampaign(${c.id})">Details</button>`}
+        <button class="btn" style="font-size:11px" onclick="mkDuplicate(${c.id})" title="Start a new campaign from this one">Duplicate</button>
         ${c.status !== 'sending' ? `<button class="btn" style="font-size:11px;color:var(--red)" onclick="mkDeleteCampaign(${c.id})" title="Delete">✕</button>` : ''}
       </td>` : ''}
     </tr>`).join('') + '</tbody></table>';
@@ -3417,6 +3426,7 @@ async function mkLoadSegments() {
           <div class="dt-actions">
             <button class="btn" style="font-size:12px" onclick="mkViewSegment('${s.key}')">View</button>
             <button class="btn btn-g" style="font-size:12px" ${s.reachable ? '' : 'disabled title="No one here has an email address"'} onclick="mkOpenEditor(null,'${s.key}')"><i class="ti ti-mail" style="font-size:13px" aria-hidden="true"></i> Email</button>
+            <button class="btn" style="font-size:12px" ${s.total ? '' : 'disabled'} onclick="mkOpenWhatsApp('${s.key}')" title="Message them one by one on WhatsApp"><i class="ti ti-brand-whatsapp" style="font-size:13px;color:#25D366" aria-hidden="true"></i> WhatsApp</button>
           </div></div>`;
       }).join('');
   } catch (err) {
@@ -3503,13 +3513,14 @@ async function mkDeleteCampaign(id) {
 
 // ---- campaign editor ----
 let _mkEditingId = null;
-async function mkOpenEditor(id, presetSegment) {
+async function mkOpenEditor(id, presetSegment, template) {
   _mkEditingId = id || null;
   openModal(`<div class="modal-title">${id ? 'Edit campaign' : 'New email campaign'}</div><div class="modal-sub">Loading…</div>`);
   try {
-    const [segments, existing] = await Promise.all([mkApi('/segments'), id ? mkApi(`/campaigns/${id}`) : null]);
+    const [segments, existing, codes] = await Promise.all([mkApi('/segments'), id ? mkApi(`/campaigns/${id}`) : null, mkApi('/discounts').catch(() => [])]);
     _mkSegments = segments;
-    const c = existing || { name: '', segment: presetSegment || 'all', subject: '', body: '', status: 'draft' };
+    const c = existing || template || { name: '', segment: presetSegment || 'all', subject: '', body: '', status: 'draft' };
+    const usable = codes.filter(d => d.state === 'active' || d.state === 'scheduled' || d.code === c.discountCode);
     const minTime = new Date(Date.now() + 5 * 60000 - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
     openModal(`
       <div class="modal-title">${id ? 'Edit campaign' : 'New email campaign'}</div>
@@ -3521,6 +3532,9 @@ async function mkOpenEditor(id, presetSegment) {
       <div class="modal-field"><label class="modal-label">Subject</label><input id="mk-subject" class="modal-input" maxlength="150" placeholder="e.g. {{first_name}}, new arrivals just landed" value="${mkEsc(c.subject)}"></div>
       <div class="modal-field"><label class="modal-label">Message</label><textarea id="mk-body" class="modal-input" maxlength="5000" placeholder="Hi {{first_name}},&#10;&#10;We just restocked your favourites…">${mkEsc(c.body)}</textarea>
         <div style="font-size:11px;color:var(--muted);margin-top:5px">Personalise with <code>{{first_name}}</code>. A “Shop now” button to your store is added automatically.</div></div>
+      <div class="modal-field"><label class="modal-label">Discount code (optional)</label>
+        <select id="mk-code" class="modal-select"><option value="">No discount code</option>${usable.map(d => `<option value="${mkEsc(d.code)}" ${d.code === c.discountCode ? 'selected' : ''}>${mkEsc(d.code)} — ${mkEsc(d.label)}</option>`).join('')}</select>
+        <div style="font-size:11px;color:var(--muted);margin-top:5px">${codes.length ? 'The code is shown in the email and filled in automatically when they tap “Shop now”. Use <code>{{code}}</code> to place it inside your message.' : 'No codes yet — create one under the Discounts tab first.'}</div></div>
       <div class="modal-error" id="mk-error"></div>
       <div class="modal-row">
         <button class="modal-btn modal-btn-secondary" id="mk-test-btn" onclick="mkSendTest()">Send test to me</button>
@@ -3548,6 +3562,7 @@ function mkFields() {
   return {
     name: document.getElementById('mk-name').value.trim(), segment: document.getElementById('mk-segment').value,
     subject: document.getElementById('mk-subject').value.trim(), body: document.getElementById('mk-body').value.trim(),
+    discountCode: (document.getElementById('mk-code') || {}).value || '',
   };
 }
 function mkBusy(on) { ['mk-test-btn', 'mk-save-btn', 'mk-send-btn', 'mk-sched-btn'].forEach(id => { const b = document.getElementById(id); if (b) b.disabled = on; }); }
@@ -3565,7 +3580,7 @@ function mkSaveDraft() { mkRun(async () => { await mkSave(); closeModal(); showS
 function mkSendTest() {
   mkRun(async () => {
     const f = mkFields();
-    const r = await mkPost('/test', { subject: f.subject, body: f.body });
+    const r = await mkPost('/test', { subject: f.subject, body: f.body, discountCode: f.discountCode });
     mkBusy(false); document.getElementById('mk-error').style.color = 'var(--teal)'; document.getElementById('mk-error').textContent = `Test sent to ${r.sentTo} — check your inbox (and spam).`;
   });
 }
@@ -3588,6 +3603,157 @@ function mkSchedule() {
     await mkPost(`/campaigns/${saved.id}/schedule`, { scheduledAt: new Date(when).toISOString() });
     closeModal(); showSuccessBurst('Campaign scheduled'); mkShowTab('campaigns');
   });
+}
+
+
+// ---------- duplicate a campaign ----------
+async function mkDuplicate(id) {
+  try {
+    const c = await mkApi(`/campaigns/${id}`);
+    mkOpenEditor(null, null, { name: `Copy of ${c.name}`, segment: c.segment, subject: c.subject, body: c.body, discountCode: c.discountCode, status: 'draft' });
+  } catch (err) { alert(err.message); }
+}
+
+// ---------- discounts ----------
+let _mkDiscounts = [];
+function mkDiscountPill(d) {
+  const map = { active: ['p-green', 'Active'], off: ['p-gray', 'Off'], expired: ['p-red', 'Expired'], used_up: ['p-amber', 'Used up'], scheduled: ['p-blue', 'Starts soon'] };
+  const [cls, label] = map[d.state] || ['p-gray', d.state];
+  return `<span class="pill ${cls}">${label}</span>`;
+}
+function mkDiscountLink(code) { return `${STOREFRONT_BASE}?business=${getBusinessId()}&code=${encodeURIComponent(code)}`; }
+async function mkLoadDiscounts() {
+  const box = document.getElementById('mk-discounts');
+  try {
+    _mkDiscounts = await mkApi('/discounts');
+    if (!_mkDiscounts.length) { box.innerHTML = `<div class="mk-empty">No discount codes yet. Click “New code” — for example 10% off for first-time buyers.</div>`; return; }
+    box.innerHTML = `<table><thead><tr><th>Code</th><th>Offer</th><th>Used</th><th>Valid</th><th>Orders</th><th>Sales</th><th>Status</th><th></th></tr></thead><tbody>` +
+      _mkDiscounts.map(d => `<tr>
+        <td><div style="font-weight:800;letter-spacing:.08em;color:var(--text)">${mkEsc(d.code)}</div>${d.minOrder ? `<div style="font-size:11px;color:var(--color-text-secondary)">Min. spend ${naira(d.minOrder)}</div>` : ''}</td>
+        <td>${mkEsc(d.label)}</td>
+        <td>${d.uses}${d.maxUses ? ` / ${d.maxUses}` : ''}</td>
+        <td style="font-size:11px;color:var(--color-text-secondary)">${d.startsAt ? 'From ' + mkDate(d.startsAt) + '<br>' : ''}${d.expiresAt ? 'Until ' + mkDate(d.expiresAt) : (d.startsAt ? '' : 'No end date')}</td>
+        <td>${d.orders || '—'}</td>
+        <td>${d.revenue ? naira(d.revenue) : '—'}${d.given ? `<div style="font-size:11px;color:var(--color-text-secondary)">${naira(d.given)} off</div>` : ''}</td>
+        <td>${mkDiscountPill(d)}</td>
+        <td style="white-space:nowrap;text-align:right">
+          <button class="btn" style="font-size:11px" onclick="mkCopyText(mkDiscountLink('${mkEsc(d.code)}'), this)" title="A shop link that fills this code in at checkout">Copy link</button>
+          <button class="btn" style="font-size:11px" onclick="mkOpenDiscount(${d.id})">Edit</button>
+          <button class="btn" style="font-size:11px" onclick="mkToggleDiscount(${d.id}, ${!d.active})">${d.active ? 'Turn off' : 'Turn on'}</button>
+          <button class="btn" style="font-size:11px;color:var(--red)" onclick="mkDeleteDiscount(${d.id})" title="Delete">✕</button>
+        </td></tr>`).join('') + '</tbody></table>';
+  } catch (err) {
+    box.innerHTML = `<div class="mk-empty" style="color:var(--red)">Could not load discount codes: ${mkEsc(err.message)}</div>`;
+  }
+}
+const mkLocalInput = iso => iso ? new Date(new Date(iso).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : '';
+function mkOpenDiscount(id) {
+  const d = id ? _mkDiscounts.find(x => x.id === id) : null;
+  const t = d ? d.type : 'percent';
+  openModal(`
+    <div class="modal-title"><i class="ti ti-ticket" style="color:var(--teal)" aria-hidden="true"></i> ${d ? 'Edit discount code' : 'New discount code'}</div>
+    <div class="modal-sub">Customers type this at checkout. It takes money off the items — never the delivery fee.</div>
+    <div class="modal-field"><label class="modal-label">Code</label>
+      <input id="dc-code" class="modal-input" maxlength="24" style="text-transform:uppercase;letter-spacing:.08em" placeholder="Leave blank to make one for me, e.g. WELCOME10" value="${d ? mkEsc(d.code) : ''}" ${d ? 'readonly title="A code can\'t be renamed — make a new one instead"' : ''}></div>
+    <div class="modal-field"><label class="modal-label">What does it take off?</label>
+      <div class="modal-row">
+        <select id="dc-type" class="modal-select" style="flex:1" onchange="mkDiscountTypeHint()"><option value="percent" ${t === 'percent' ? 'selected' : ''}>Percent off (%)</option><option value="fixed" ${t === 'fixed' ? 'selected' : ''}>Fixed amount (₦)</option></select>
+        <input id="dc-value" class="modal-input" type="number" min="1" step="any" style="flex:1" placeholder="10" value="${d ? d.value : ''}"></div>
+      <div id="dc-hint" style="font-size:11px;color:var(--muted);margin-top:5px"></div></div>
+    <div class="modal-row">
+      <div class="modal-field" style="flex:1"><label class="modal-label">Minimum spend (₦, optional)</label><input id="dc-min" class="modal-input" type="number" min="0" placeholder="0" value="${d && d.minOrder ? d.minOrder : ''}"></div>
+      <div class="modal-field" style="flex:1"><label class="modal-label">Use limit (optional)</label><input id="dc-max" class="modal-input" type="number" min="1" placeholder="Unlimited" value="${d && d.maxUses ? d.maxUses : ''}"></div>
+    </div>
+    <div class="modal-row">
+      <div class="modal-field" style="flex:1"><label class="modal-label">Starts (optional)</label><input id="dc-start" class="modal-input" type="datetime-local" value="${d ? mkLocalInput(d.startsAt) : ''}"></div>
+      <div class="modal-field" style="flex:1"><label class="modal-label">Ends (optional)</label><input id="dc-end" class="modal-input" type="datetime-local" value="${d ? mkLocalInput(d.expiresAt) : ''}"></div>
+    </div>
+    <div class="modal-error" id="dc-error"></div>
+    <div class="modal-actions"><button class="modal-btn modal-btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="modal-btn modal-btn-primary" id="dc-save" onclick="mkSaveDiscount(${d ? d.id : 'null'})">${d ? 'Save changes' : 'Create code'}</button></div>`);
+  mkDiscountTypeHint();
+}
+function mkDiscountTypeHint() {
+  const t = document.getElementById('dc-type').value, el = document.getElementById('dc-hint'), v = document.getElementById('dc-value');
+  if (t === 'percent') { v.placeholder = '10'; v.max = 100; el.textContent = 'e.g. 10 takes 10% off the items in the bag.'; }
+  else { v.placeholder = '2000'; v.removeAttribute('max'); el.textContent = 'e.g. 2000 takes ₦2,000 off the items in the bag.'; }
+}
+async function mkSaveDiscount(id) {
+  const err = document.getElementById('dc-error'); err.textContent = '';
+  const g = k => document.getElementById(k).value.trim();
+  const body = {
+    type: g('dc-type'), value: g('dc-value'), minOrder: g('dc-min') || 0, maxUses: g('dc-max') || null,
+    startsAt: g('dc-start') ? new Date(g('dc-start')).toISOString() : null, expiresAt: g('dc-end') ? new Date(g('dc-end')).toISOString() : null,
+  };
+  if (!id) body.code = g('dc-code');
+  const btn = document.getElementById('dc-save'); btn.disabled = true;
+  try {
+    await mkApi(id ? `/discounts/${id}` : '/discounts', { method: id ? 'PATCH' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    closeModal(); showSuccessBurst(id ? 'Code updated' : 'Code created'); mkLoadDiscounts();
+  } catch (e) { err.textContent = e.message; btn.disabled = false; }
+}
+async function mkToggleDiscount(id, on) {
+  try { await mkApi(`/discounts/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ active: on }) }); mkLoadDiscounts(); } catch (e) { alert(e.message); }
+}
+async function mkDeleteDiscount(id) {
+  if (!confirm('Delete this code? Customers can no longer use it. Past orders keep their record of it.')) return;
+  try { await mkApi(`/discounts/${id}`, { method: 'DELETE' }); mkLoadDiscounts(); } catch (e) { alert(e.message); }
+}
+
+// ---------- WhatsApp broadcast (click-to-chat: no Meta account needed) ----------
+// Opens a WhatsApp chat per customer with your message already typed. You tap Send in WhatsApp.
+function mkWaNumber(raw) {
+  let d = String(raw || '').replace(/\D/g, '');
+  if (d.startsWith('00')) d = d.slice(2);
+  if (d.startsWith('234')) { /* already international */ }
+  else if (d.startsWith('0')) d = '234' + d.slice(1);
+  else if (d.length === 10) d = '234' + d;
+  return /^\d{11,15}$/.test(d) ? d : null;
+}
+let _waCustomers = [], _waCodes = [], _waSegKey = null;
+async function mkOpenWhatsApp(key) {
+  _waSegKey = key;
+  const seg = _mkSegments.find(s => s.key === key);
+  openModal(`<div class="modal-title"><i class="ti ti-brand-whatsapp" style="color:#25D366" aria-hidden="true"></i> WhatsApp — ${mkEsc(seg.label)}</div><div class="modal-sub">Loading…</div>`);
+  try {
+    const [data, codes] = await Promise.all([mkApi(`/segments/${key}/customers`), mkApi('/discounts').catch(() => [])]);
+    _waCodes = codes.filter(d => d.state === 'active');
+    const all = data.customers;
+    _waCustomers = all.filter(c => !c.optedOut).map(c => ({ ...c, wa: mkWaNumber(c.phone) })).filter(c => c.wa);
+    const skippedOptOut = all.filter(c => c.optedOut).length, skippedNoNum = all.filter(c => !c.optedOut && !mkWaNumber(c.phone)).length;
+    const msg = 'Hi {{first_name}}! 👋 We have something for you at ' + (localStorage.getItem('bizflow_business') || 'our store') + '. Take a look: {{link}}';
+    openModal(`
+      <div class="modal-title"><i class="ti ti-brand-whatsapp" style="color:#25D366" aria-hidden="true"></i> WhatsApp — ${mkEsc(seg.label)}</div>
+      <div class="modal-sub">${_waCustomers.length} customer${_waCustomers.length === 1 ? '' : 's'} with a WhatsApp-ready number${data.total > 200 ? ' (first 200 shown)' : ''}. Tapping a name opens WhatsApp with your message ready — you press Send. ${skippedOptOut ? skippedOptOut + ' unsubscribed customer' + (skippedOptOut === 1 ? '' : 's') + ' left out. ' : ''}${skippedNoNum ? skippedNoNum + ' without a usable number left out.' : ''}</div>
+      <div class="modal-field"><label class="modal-label">Your message</label>
+        <textarea id="wa-msg" class="modal-input" rows="4" maxlength="1000" oninput="mkWaRefresh()">${mkEsc(msg)}</textarea>
+        <div style="font-size:11px;color:var(--muted);margin-top:5px">Use <code>{{first_name}}</code>, <code>{{link}}</code> (your shop link, tracked as WhatsApp sales) and <code>{{code}}</code>.</div></div>
+      <div class="modal-field"><label class="modal-label">Discount code (optional)</label>
+        <select id="wa-code" class="modal-select" onchange="mkWaRefresh()"><option value="">No discount code</option>${_waCodes.map(d => `<option value="${mkEsc(d.code)}">${mkEsc(d.code)} — ${mkEsc(d.label)}</option>`).join('')}</select></div>
+      <div id="wa-list" style="max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:10px"></div>
+      <div class="modal-actions" style="margin-top:12px"><button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button></div>`);
+    mkWaRefresh();
+  } catch (err) {
+    openModal(`<div class="modal-title">WhatsApp</div><div class="modal-error">${mkEsc(err.message)}</div><div class="modal-actions"><button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button></div>`);
+  }
+}
+function mkWaText(c) {
+  const code = document.getElementById('wa-code').value;
+  const link = `${STOREFRONT_BASE}?business=${getBusinessId()}&src=whatsapp${code ? '&code=' + encodeURIComponent(code) : ''}`;
+  const first = (c.name || '').trim().split(/\s+/)[0] || 'there';
+  let t = document.getElementById('wa-msg').value
+    .replace(/\{\{\s*first_name\s*\}\}/gi, first).replace(/\{\{\s*link\s*\}\}/gi, link).replace(/\{\{\s*code\s*\}\}/gi, code || '');
+  if (code && !/\{\{\s*code\s*\}\}/i.test(document.getElementById('wa-msg').value)) t += `\nUse code ${code} at checkout.`;
+  return t;
+}
+const _waDone = new Set();
+function mkWaRefresh() {
+  const box = document.getElementById('wa-list');
+  box.innerHTML = _waCustomers.length ? _waCustomers.map(c => `<a class="modal-list-row" style="text-decoration:none;color:inherit;align-items:center" target="_blank" rel="noopener"
+      href="https://wa.me/${c.wa}?text=${encodeURIComponent(mkWaText(c))}" onclick="_waDone.add(${c.id});this.querySelector('.wa-st').innerHTML='<span style=&quot;color:var(--teal)&quot;>Opened ✓</span>'">
+      <span><strong>${mkEsc(c.name)}</strong><div style="font-size:11px;color:var(--muted)">+${c.wa}</div></span>
+      <span class="wa-st" style="font-size:12px">${_waDone.has(c.id) ? '<span style="color:var(--teal)">Opened ✓</span>' : '<span style="color:#25D366;font-weight:700">Open WhatsApp →</span>'}</span></a>`).join('')
+    : '<div class="mk-empty">No one here has a phone number WhatsApp can use.</div>';
 }
 
 // ---------- automations ----------
