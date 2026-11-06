@@ -5242,6 +5242,34 @@ const STORE_DESIGNS = {
   marketplace:{label:'Marketplace',hint:'Search first, category sidebar and a dense grid. Best for big catalogues.',svg:'<rect x="4" y="3" width="56" height="6" rx="2"/><rect x="4" y="13" width="14" height="28" rx="2" class="fill"/><rect x="22" y="13" width="11" height="12" rx="1.5"/><rect x="36" y="13" width="11" height="12" rx="1.5"/><rect x="50" y="13" width="10" height="12" rx="1.5"/><rect x="22" y="29" width="11" height="12" rx="1.5"/><rect x="36" y="29" width="11" height="12" rx="1.5"/><rect x="50" y="29" width="10" height="12" rx="1.5"/>'},
   social:{label:'Link-in-bio',hint:'A narrow, phone-style page with a profile header. Made for Instagram and WhatsApp traffic.',svg:'<circle cx="32" cy="9" r="6" class="fill"/><rect x="18" y="18" width="28" height="5" rx="2.5" class="fill"/><circle cx="22" cy="30" r="3"/><circle cx="32" cy="30" r="3"/><circle cx="42" cy="30" r="3"/><rect x="18" y="35" width="13" height="7" rx="2"/><rect x="33" y="35" width="13" height="7" rx="2"/>'}
 };
+const STORE_LOOKS = {
+  none:{label:'Standard',hint:'Keeps the layout\'s own look, using your colour theme and light/dark toggle.',bg:'#ffffff',fg:'#0d1330',ac:'#de9530'},
+  glass:{label:'Glass',hint:'Frosted translucent cards over a glowing gradient. Modern and airy (dark).',bg:'linear-gradient(135deg,#3b2f8f,#0b1024 60%,#1d6fa5)',fg:'#ffffff',ac:'#ff9a62'},
+  neon:{label:'Neon',hint:'Black with glowing neon edges and a grid backdrop. Great for tech, gaming, streetwear.',bg:'#05050c',fg:'#eafcff',ac:'#2ee6ff'},
+  luxe:{label:'Luxe',hint:'Black and gold with elegant serif type. For jewellery, fragrance, premium fashion.',bg:'#0a0806',fg:'#f3ead8',ac:'#d8b866'},
+  pastel:{label:'Pastel',hint:'Soft candy colours, round shapes and bubbly buttons. Playful and friendly.',bg:'#fff8f3',fg:'#3b2f4a',ac:'#ff8fab'},
+  vintage:{label:'Vintage',hint:'Warm paper texture, serif type and stamp-style borders. Craft and heritage brands.',bg:'#f3ead7',fg:'#2e2418',ac:'#b5452b'},
+  mono:{label:'Mono',hint:'Black and white, monospace type, sharp edges. Minimal and editorial.',bg:'#ffffff',fg:'#111111',ac:'#111111'}
+};
+function lookCardHtml(key, current) {
+  const d = STORE_LOOKS[key], on = key === current;
+  return `<div id="ss-look-${key}" onclick="selectStoreLook('${key}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')selectStoreLook('${key}')"
+    style="cursor:pointer;border-radius:10px;padding:8px 6px;border:2px solid ${on ? 'var(--teal)' : 'var(--color-border-tertiary)'};display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;">
+    <div style="width:64px;height:44px;border-radius:8px;background:${d.bg};border:1px solid rgba(128,128,128,.35);position:relative;overflow:hidden">
+      <div style="position:absolute;left:8px;top:9px;width:30px;height:5px;border-radius:3px;background:${d.fg};opacity:.9"></div>
+      <div style="position:absolute;left:8px;top:19px;width:22px;height:3px;border-radius:2px;background:${d.fg};opacity:.5"></div>
+      <div style="position:absolute;left:8px;bottom:7px;width:20px;height:9px;border-radius:5px;background:${d.ac}"></div>
+    </div>
+    <span style="font-size:11px;font-weight:700;">${d.label}</span></div>`;
+}
+function selectStoreLook(key) {
+  document.getElementById('ss-look').value = key;
+  Object.keys(STORE_LOOKS).forEach(k => {
+    const el = document.getElementById(`ss-look-${k}`);
+    if (el) el.style.borderColor = k === key ? 'var(--teal)' : 'var(--color-border-tertiary)';
+  });
+  const h = document.getElementById('ss-look-hint'); if (h) h.textContent = STORE_LOOKS[key].hint;
+}
 function designCardHtml(key, current) {
   const d = STORE_DESIGNS[key], on = key === current;
   return `<div id="ss-des-${key}" onclick="selectStoreDesign('${key}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')selectStoreDesign('${key}')"
@@ -5330,10 +5358,17 @@ async function showStoreSettings() {
     </div>
 
     <div class="modal-field">
-      <label class="modal-label">Store design &amp; layout</label>
+      <label class="modal-label">Store layout</label>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">${Object.keys(STORE_DESIGNS).map(k => designCardHtml(k, STORE_DESIGNS[business.design_style] ? business.design_style : 'cinematic')).join('')}</div>
       <div id="ss-design-hint" style="font-size:12px;color:var(--muted);margin-top:8px;">${STORE_DESIGNS[STORE_DESIGNS[business.design_style] ? business.design_style : 'cinematic'].hint}</div>
       <input id="ss-design" type="hidden" value="${STORE_DESIGNS[business.design_style] ? business.design_style : 'cinematic'}">
+    </div>
+
+    <div class="modal-field">
+      <label class="modal-label">Store design (look &amp; feel)</label>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">${Object.keys(STORE_LOOKS).map(k => lookCardHtml(k, (STORE_LOOKS[business.look_style] ? business.look_style : 'none'))).join('')}</div>
+      <div id="ss-look-hint" style="font-size:12px;color:var(--muted);margin-top:8px;">${STORE_LOOKS[(STORE_LOOKS[business.look_style] ? business.look_style : 'none')].hint}</div>
+      <input id="ss-look" type="hidden" value="${(STORE_LOOKS[business.look_style] ? business.look_style : 'none')}">
     </div>
 
     <div class="modal-field">
@@ -5368,6 +5403,7 @@ async function submitStoreSettings() {
     theme: document.getElementById('ss-theme').value,
     display_style: document.getElementById('ss-display').value,
     design_style: document.getElementById('ss-design').value,
+    look_style: document.getElementById('ss-look').value,
   };
   try {
     const res = await apiFetch(`${API_BASE}/api/business`, {
