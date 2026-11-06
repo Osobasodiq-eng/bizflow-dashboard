@@ -1575,6 +1575,7 @@ function ntStart() {
 }
 
 function enterApp() {
+  saLoad();
   document.getElementById('auth-screen').style.display = 'none';
   const businessName = localStorage.getItem('bizflow_business') || 'My Business';
   document.getElementById('s-mname').textContent = businessName;
@@ -3456,7 +3457,7 @@ async function mkViewSegment(key) {
 }
 
 const MK_LINK_CHANNELS = [['instagram', 'Instagram', 'brand-instagram'], ['whatsapp', 'WhatsApp', 'brand-whatsapp'], ['facebook', 'Facebook', 'brand-facebook'], ['tiktok', 'TikTok', 'brand-tiktok']];
-function trackedLink(src) { return `${STOREFRONT_BASE}?business=${getBusinessId()}&src=${src}`; }
+function trackedLink(src) { return storeLink('src=' + src); }
 function mkCopyText(text, btn) {
   const done = () => { if (btn) { const t = btn.textContent; btn.textContent = 'Copied ✓'; setTimeout(() => btn.textContent = t, 1400); } };
   if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, () => { prompt('Copy this link:', text); });
@@ -3734,7 +3735,7 @@ function mkDiscountPill(d) {
   const [cls, label] = map[d.state] || ['p-gray', d.state];
   return `<span class="pill ${cls}">${label}</span>`;
 }
-function mkDiscountLink(code) { return `${STOREFRONT_BASE}?business=${getBusinessId()}&code=${encodeURIComponent(code)}`; }
+function mkDiscountLink(code) { return storeLink('code=' + encodeURIComponent(code)); }
 async function mkLoadDiscounts() {
   const box = document.getElementById('mk-discounts');
   try {
@@ -3852,7 +3853,7 @@ async function mkOpenWhatsApp(key) {
 }
 function mkWaText(c) {
   const code = document.getElementById('wa-code').value;
-  const link = `${STOREFRONT_BASE}?business=${getBusinessId()}&src=whatsapp${code ? '&code=' + encodeURIComponent(code) : ''}`;
+  const link = storeLink('src=whatsapp' + (code ? '&code=' + encodeURIComponent(code) : ''));
   const first = (c.name || '').trim().split(/\s+/)[0] || 'there';
   let t = document.getElementById('wa-msg').value
     .replace(/\{\{\s*first_name\s*\}\}/gi, first).replace(/\{\{\s*link\s*\}\}/gi, link).replace(/\{\{\s*code\s*\}\}/gi, code || '');
@@ -4853,7 +4854,7 @@ function openWhatsappChat() {
 function showStorePreview() {
   const businessId = getBusinessId();
   if (!businessId) { alert('Could not find your store ID — try logging out and back in.'); return; }
-  const link = `${STOREFRONT_BASE}?business=${businessId}`;
+  const link = storeLink('');
 
   openModal(`
     <div class="modal-title"><i class="ti ti-eye" style="color:var(--teal)" aria-hidden="true"></i> Storefront preview</div>
@@ -5139,7 +5140,7 @@ function showStorefrontHub() {
     <div style="display:flex;flex-direction:column;gap:9px;margin-top:16px;">
       <button class="btn" style="justify-content:flex-start;width:100%" onclick="closeModal(); showStoreSettings();"><i class="ti ti-palette" style="font-size:14px" aria-hidden="true"></i> Store settings</button>
       <button class="btn" style="justify-content:flex-start;width:100%" onclick="closeModal(); showStorePreview();"><i class="ti ti-eye" style="font-size:14px" aria-hidden="true"></i> Preview store</button>
-      <button class="btn" style="justify-content:flex-start;width:100%" onclick="closeModal(); showStoreLink();"><i class="ti ti-link" style="font-size:14px" aria-hidden="true"></i> Store link</button>
+      <button class="btn" style="justify-content:flex-start;width:100%" onclick="closeModal(); showStoreLink();"><i class="ti ti-world" style="font-size:14px" aria-hidden="true"></i> Store address &amp; link</button>
     </div>
     <div class="modal-actions"><button class="modal-btn modal-btn-secondary" style="width:100%" onclick="closeModal()">Close</button></div>
   `);
@@ -5163,25 +5164,96 @@ function getBusinessId() {
   }
 }
 
-function showStoreLink() {
-  const businessId = getBusinessId();
-  if (!businessId) { alert('Could not find your store ID — try logging out and back in.'); return; }
-  const link = `${STOREFRONT_BASE}?business=${businessId}`;
+function showStoreLink() { showStoreAddress(); }
 
-  openModal(`
-    <div class="modal-title"><i class="ti ti-link" style="color:var(--teal)" aria-hidden="true"></i> Your store link</div>
-    <div class="modal-sub">Share this with customers on WhatsApp, Instagram, or anywhere else — anyone who opens it can browse your products and order.</div>
-
-    <div style="display:flex;gap:8px;margin-top:14px;">
-      <input id="store-link-input" type="text" readonly value="${link}"
-        style="flex:1;padding:10px 12px;border:1px solid var(--color-border-tertiary);border-radius:8px;font-size:13px;font-family:monospace;background:var(--navy);color:var(--color-text-primary)"
-        onclick="this.select()">
-      <button class="modal-btn modal-btn-primary" style="white-space:nowrap" onclick="copyStoreLink()">Copy</button>
-    </div>
+// --- Store address: your own link on our domain (Growth+) or your own domain (Pro) ---
+var SA = null;
+async function saLoad() {
+  try { const r = await apiFetch(`${API_BASE}/api/domains`); if (r.ok) SA = await r.json(); } catch (e) { /* the plain link keeps working */ }
+  return SA;
+}
+function storeBase() { if (SA && SA.currentKind && SA.currentKind !== 'default') { try { return new URL(SA.currentUrl).origin; } catch (e) { /* fall through */ } } return null; }
+// params: "src=whatsapp" etc. (or ''); uses the merchant's own address when they have one
+function storeLink(params) {
+  const own = storeBase();
+  if (own) return `${own}/${params ? '?' + params : ''}`;
+  return `${STOREFRONT_BASE}?business=${getBusinessId()}${params ? '&' + params : ''}`;
+}
+function saPill(txt, kind) { const c = kind === 'ok' ? 'var(--teal)' : 'var(--amber,#b7791f)'; return `<span style="font-size:11px;font-weight:700;color:${c};border:1px solid ${c};border-radius:999px;padding:2px 8px;margin-left:8px">${txt}</span>`; }
+function saLock(feature, plan, text) {
+  return `<div style="border:1px dashed var(--color-border-tertiary);border-radius:10px;padding:14px;display:flex;gap:12px;align-items:center"><i class="ti ti-lock" style="font-size:20px;color:var(--muted)" aria-hidden="true"></i><div style="flex:1;font-size:13px;line-height:1.5"><b>${mkEsc(text)}</b><br><span style="color:var(--muted)">Included in the ${mkEsc(plan)} plan and above.</span></div><button class="modal-btn modal-btn-primary" onclick="closeModal();go('billing',document.getElementById('s-nav-billing'))">See plans</button></div>`;
+}
+function saHtml() {
+  const d = SA, dom = d.baseDomain || 'yourdomain.com', cur = d.currentUrl;
+  const rec = (t, n, v) => `<tr><td style="padding:4px 10px 4px 0;font-weight:700">${t}</td><td style="padding:4px 10px 4px 0;font-family:monospace">${n}</td><td style="padding:4px 0;font-family:monospace;word-break:break-all">${v}</td></tr>`;
+  const sub = !d.canSubdomain ? saLock('subdomain', d.subdomainPlan, 'Get your own store name address') : `
+    <div style="display:flex;gap:6px;align-items:center"><input id="sa-sub" class="modal-input" style="flex:1;min-width:0" placeholder="${mkEsc(d.suggestion || 'yourbrand')}" value="${mkEsc(d.subdomain || '')}" oninput="saCheck()"><span style="font-size:13px;color:var(--muted);white-space:nowrap">.${mkEsc(dom)}</span></div>
+    <div id="sa-sub-msg" style="font-size:12px;min-height:18px;margin-top:6px;color:var(--muted)">${d.subdomain ? 'Your store lives at <b>' + mkEsc(d.subdomain + '.' + dom) + '</b>' : 'Letters, numbers and dashes. Pick something customers will remember.'}</div>
+    ${d.baseDomain ? '' : '<div style="font-size:12px;color:var(--amber,#b7791f);margin-top:4px">Heads up: Kooza\'s store domain isn\'t switched on yet. You can reserve your name now and it goes live as soon as it is.</div>'}
+    <div style="display:flex;gap:8px;margin-top:10px"><button class="modal-btn modal-btn-primary" id="sa-sub-save" onclick="saSaveSub()">${d.subdomain ? 'Change name' : 'Claim this name'}</button>${d.subdomain ? '<button class="modal-btn modal-btn-secondary" onclick="saRemove(\'subdomain\')">Remove</button>' : ''}</div>`;
+  const custom = !d.canCustom ? saLock('custom_domain', d.customPlan, 'Use your own domain, like yourbrand.com') : (d.customDomain ? `
+    <div style="font-size:14px;font-weight:700">${mkEsc(d.customDomain)}${d.customStatus === 'verified' ? saPill('Connected', 'ok') : saPill('Waiting for DNS', 'warn')}</div>
+    ${d.customStatus === 'verified' ? '<div style="font-size:12px;color:var(--muted);margin-top:6px">Live. The secure (https) padlock can take up to 15 minutes to appear the first time.</div>' : `
+    <div style="font-size:12px;color:var(--muted);margin:8px 0 6px;line-height:1.5">At the company where you bought the domain, open its DNS settings and add <b>one</b> of these records, then press <b>Check connection</b>:</div>
+    <table style="font-size:12px;border-collapse:collapse;width:100%"><tr style="color:var(--muted)"><td>Type</td><td>Name</td><td>Value</td></tr>
+      ${rec('CNAME', 'www, shop (or your subdomain)', mkEsc(d.dns.cname))}${rec('A', '@ (the bare domain)', mkEsc(d.dns.a))}</table>`}
+    <div id="sa-cd-msg" style="font-size:12px;margin-top:8px;color:var(--muted)"></div>
+    <div style="display:flex;gap:8px;margin-top:10px">${d.customStatus === 'verified' ? '' : '<button class="modal-btn modal-btn-primary" id="sa-verify" onclick="saVerify()">Check connection</button>'}<button class="modal-btn modal-btn-secondary" onclick="saRemove(\'custom\')">Remove domain</button></div>` : `
+    <div style="display:flex;gap:8px"><input id="sa-cd" class="modal-input" style="flex:1;min-width:0" placeholder="yourbrand.com"><button class="modal-btn modal-btn-primary" onclick="saSaveCustom()">Connect</button></div>
+    <div id="sa-cd-msg" style="font-size:12px;margin-top:8px;color:var(--muted)">You'll need to own the domain. We'll show you the one DNS record to add.</div>`);
+  return `
+    <div class="modal-title"><i class="ti ti-world" style="color:var(--teal)" aria-hidden="true"></i> Store address</div>
+    <div class="modal-sub">Where customers find your store. Share this link anywhere.</div>
+    <div style="display:flex;gap:8px;margin-top:14px;"><input id="store-link-input" type="text" readonly value="${mkEsc(cur)}" style="flex:1;padding:10px 12px;border:1px solid var(--color-border-tertiary);border-radius:8px;font-size:13px;font-family:monospace;background:var(--navy);color:var(--color-text-primary)" onclick="this.select()"><button class="modal-btn modal-btn-primary" style="white-space:nowrap" onclick="copyStoreLink()">Copy</button></div>
     <div id="store-link-copied" style="font-size:12px;color:var(--teal);margin-top:8px;display:none;">Copied to clipboard ✓</div>
-
-    <div class="modal-actions"><button class="modal-btn modal-btn-secondary" style="width:100%" onclick="closeModal()">Close</button></div>
-  `);
+    <div style="margin-top:18px"><div class="modal-label" style="margin-bottom:8px">Your store name <span style="font-weight:400;color:var(--muted)">(on our domain)</span></div>${sub}</div>
+    <div style="margin-top:18px"><div class="modal-label" style="margin-bottom:8px">Your own domain</div>${custom}</div>
+    <div class="modal-actions"><button class="modal-btn modal-btn-secondary" style="width:100%" onclick="closeModal()">Close</button></div>`;
+}
+async function showStoreAddress() {
+  openModal('<div class="modal-title">Store address</div><div class="modal-sub">Loading…</div>');
+  await saLoad();
+  if (!SA) { openModal('<div class="modal-title">Store address</div><div class="modal-sub">Couldn\'t load this right now. Try again in a moment.</div><div class="modal-actions"><button class="modal-btn modal-btn-secondary" style="width:100%" onclick="closeModal()">Close</button></div>'); return; }
+  openModal(saHtml());
+}
+var saTimer = null;
+function saCheck() {
+  clearTimeout(saTimer);
+  const el = document.getElementById('sa-sub'), msg = document.getElementById('sa-sub-msg'); if (!el || !msg) return;
+  if (!el.value.trim()) { msg.style.color = 'var(--muted)'; msg.textContent = 'Letters, numbers and dashes. Pick something customers will remember.'; return; }
+  saTimer = setTimeout(async () => {
+    try {
+      const r = await apiFetch(`${API_BASE}/api/domains/check?name=${encodeURIComponent(el.value)}`); const d = await r.json();
+      msg.style.color = d.available ? 'var(--teal)' : 'var(--red,#d6283f)';
+      msg.textContent = d.available ? `✓ ${d.preview} is available` : (d.error || 'Not available');
+    } catch (e) { /* ignore */ }
+  }, 350);
+}
+async function saCall(path, method, body) {
+  const r = await apiFetch(`${API_BASE}/api/domains${path}`, { method, headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+  const d = await r.json().catch(() => ({}));
+  if (r.status === 402) { kzUpgrade(d); return null; }
+  if (!r.ok) throw new Error(d.error || 'Something went wrong');
+  return d;
+}
+async function saSaveSub() {
+  const btn = document.getElementById('sa-sub-save'), msg = document.getElementById('sa-sub-msg');
+  try { btn.disabled = true; const d = await saCall('/subdomain', 'PUT', { subdomain: document.getElementById('sa-sub').value }); if (!d) return; SA = d; openModal(saHtml()); showSuccessBurst('Store name saved'); }
+  catch (e) { btn.disabled = false; msg.style.color = 'var(--red,#d6283f)'; msg.textContent = e.message; }
+}
+async function saSaveCustom() {
+  const msg = document.getElementById('sa-cd-msg');
+  try { const d = await saCall('/custom', 'PUT', { domain: document.getElementById('sa-cd').value }); if (!d) return; SA = d; openModal(saHtml()); if (d.warning) document.getElementById('sa-cd-msg').textContent = d.warning; }
+  catch (e) { msg.style.color = 'var(--red,#d6283f)'; msg.textContent = e.message; }
+}
+async function saVerify() {
+  const btn = document.getElementById('sa-verify'), msg = document.getElementById('sa-cd-msg'); btn.disabled = true; btn.textContent = 'Checking…';
+  try { const d = await saCall('/custom/verify', 'POST'); if (!d) return; SA = d; openModal(saHtml()); const m = document.getElementById('sa-cd-msg'); if (m) m.textContent = d.message || ''; if (d.verified) showSuccessBurst('Domain connected'); }
+  catch (e) { btn.disabled = false; btn.textContent = 'Check connection'; msg.textContent = e.message; }
+}
+async function saRemove(which) {
+  if (!confirm(which === 'custom' ? 'Disconnect this domain from your store?' : 'Remove your store name address? Links that use it will stop working.')) return;
+  try { const d = await saCall(which === 'custom' ? '/custom' : '/subdomain', 'DELETE'); if (d) { SA = d; openModal(saHtml()); } } catch (e) { alert(e.message); }
 }
 
 function copyStoreLink() {
