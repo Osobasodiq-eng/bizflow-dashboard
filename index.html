@@ -702,7 +702,7 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
       <div class="s-section">ACCOUNT</div>
       <div class="s-item" id="s-nav-billing" onclick="go('billing',this)"><i class="ti ti-diamond" aria-hidden="true"></i> Plan &amp; billing <span class="badge" id="s-plan-pill" style="display:none"></span></div>
       <div class="s-section">GROWTH</div>
-      <div class="s-item" style="opacity:0.45;cursor:default"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i> WhatsApp <span class="badge">Soon</span></div>
+      <div class="s-item" onclick="metaOpenChannels()"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i> WhatsApp <span class="badge" id="s-wa-badge">Connect</span></div>
     </div>
     <div class="s-footer">
       <div class="s-merchant">
@@ -1576,6 +1576,7 @@ function ntStart() {
 
 function enterApp() {
   saLoad();
+  metaLoad().catch(() => {});
   document.getElementById('auth-screen').style.display = 'none';
   const businessName = localStorage.getItem('bizflow_business') || 'My Business';
   document.getElementById('s-mname').textContent = businessName;
@@ -4174,9 +4175,9 @@ async function ibLoadThread(id, keepDraft) {
         <span class="pill ${c.status === 'open' ? 'p-green' : 'p-gray'}">${c.status === 'open' ? 'Open' : 'Done'}</span>
         <button class="btn" style="font-size:12px" onclick="ibSetStatus(${c.id}, '${c.status === 'open' ? 'closed' : 'open'}')"><i class="ti ti-${c.status === 'open' ? 'check' : 'rotate'}" style="font-size:14px" aria-hidden="true"></i> ${c.status === 'open' ? 'Mark done' : 'Reopen'}</button></div>
       <div class="ib-msgs" id="ib-msgs">${msgs}</div>
-      ${c.canReply ? `<div class="ib-compose"><textarea id="ib-text" class="modal-input" rows="2" maxlength="5000" placeholder="Write a reply to ${mkEsc(c.name)}…" onkeydown="if((event.ctrlKey||event.metaKey)&&event.key==='Enter')ibSend(${c.id})"></textarea>
+      ${c.canReply && !(c.replyWindow && !c.replyWindow.open) ? `<div class="ib-compose"><textarea id="ib-text" class="modal-input" rows="2" maxlength="5000" placeholder="Write a reply to ${mkEsc(c.name)}…" onkeydown="if((event.ctrlKey||event.metaKey)&&event.key==='Enter')ibSend(${c.id})"></textarea>
           <div class="ib-compose-foot"><span class="ib-hint" id="ib-err">Ctrl + Enter to send</span><button class="btn btn-g" id="ib-send" onclick="ibSend(${c.id})"><i class="ti ti-send" style="font-size:14px" aria-hidden="true"></i> Send reply</button></div></div>`
-        : `<div class="ib-compose"><div class="ib-hint" style="text-align:center;padding:6px">Replies for ${mkEsc(c.channelLabel)} aren't connected yet.</div></div>`}`;
+        : `<div class="ib-compose"><div class="ib-hint" style="text-align:center;padding:6px;line-height:1.5">${c.replyWindow && !c.replyWindow.open ? 'It\'s been over 24 hours since ' + mkEsc(c.name) + ' last wrote, and ' + mkEsc(c.channelLabel) + ' only allows replies within 24 hours. You can reply as soon as they message again.' : 'Replies for ' + mkEsc(c.channelLabel) + ' aren\'t connected yet.'}</div></div>`}`;
     const m = document.getElementById('ib-msgs'); if (m) m.scrollTop = m.scrollHeight;
     const t = document.getElementById('ib-text'); if (t && draft) t.value = draft;
     ibBadge();
@@ -4196,7 +4197,8 @@ async function ibSetStatus(id, status) {
   try { await ibApi('/conversations/' + id, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) }); _ib.sel = null; document.getElementById('ib-thread').innerHTML = IB_EMPTY; document.getElementById('ib-wrap').classList.remove('open-thread'); ibRefresh(true); }
   catch (e) { alert(e.message); }
 }
-function ibChannels() {
+async function ibChannels() {
+  try { await metaLoad(); metaSdk().catch(() => {}); } catch (e) { /* rows fall back to 'not available' */ }
   const s = _ib.summary || { email: {}, channels: [] };
   const row = (name, status, ok, detail) => `<div style="display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--line)"><div style="flex:1"><div style="font-size:13.5px;font-weight:600">${name}</div><div style="font-size:12px;color:var(--muted);line-height:1.5;margin-top:2px">${detail}</div></div><span class="pill ${ok ? 'p-green' : 'p-gray'}" style="align-self:flex-start">${status}</span></div>`;
   openModal(`
@@ -4211,10 +4213,95 @@ function ibChannels() {
           <li>Action <strong>Forward</strong> to: <code>${mkEsc(API_BASE)}/api/inbound/email</code></li>
           <li>In Render, add environment variable <code>MAILGUN_INBOUND</code> = <code>true</code>.</li></ol><div style="margin-top:6px">Your inbox address will be <strong>${mkEsc(s.email.address || '')}</strong>. Mailgun's free sandbox can't receive email — you need your own verified domain.</div>`
       : 'Add MAILGUN_API_KEY and MAILGUN_DOMAIN on the server first.')}
-    ${row('WhatsApp', 'Soon', false, 'Needs a WhatsApp Business account connected through Meta.')}
-    ${row('Instagram', 'Soon', false, 'Needs your Instagram business account connected through Meta.')}
-    ${row('Facebook Messenger', 'Soon', false, 'Needs your Facebook page connected through Meta.')}
+    <div id="meta-rows">${metaRows()}</div>
     <div class="modal-actions" style="margin-top:12px"><button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button></div>`);
+}
+
+// ================================================================
+// META CHANNELS — WhatsApp Business, Facebook Messenger, Instagram (connect from Inbox → Channels)
+// ================================================================
+var META = null, _metaPages = null, _metaBusy = '';
+async function metaLoad() { const r = await apiFetch(`${API_BASE}/api/meta`); META = await r.json(); metaBadge(); return META; }
+function metaBadge() { const b = document.getElementById('s-wa-badge'); if (!b) return; const on = META && META.channels.some(c => c.channel === 'whatsapp' && c.status === 'active'); b.textContent = on ? 'On' : 'Connect'; }
+function metaOpenChannels() { go('inbox', document.getElementById('s-nav-inbox') || undefined); setTimeout(() => ibChannels(), 50); }
+function metaSdk() {
+  return new Promise((resolve, reject) => {
+    if (window.FB) return resolve(window.FB);
+    if (!META || !META.appId) return reject(new Error('Meta isn\'t switched on yet'));
+    window.fbAsyncInit = function () { FB.init({ appId: META.appId, cookie: true, xfbml: false, version: META.version }); resolve(window.FB); };
+    const sc = document.createElement('script'); sc.async = true; sc.src = 'https://connect.facebook.net/en_US/sdk.js';
+    sc.onerror = () => reject(new Error('Couldn\'t load Facebook. Check your connection or ad-blocker.')); document.head.appendChild(sc);
+  });
+}
+async function metaCall(path, method, body) {
+  const r = await apiFetch(`${API_BASE}/api/meta${path}`, { method, headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+  const d = await r.json().catch(() => ({}));
+  if (r.status === 402) { kzUpgrade(d); return null; }
+  if (!r.ok) throw new Error(d.error || 'Something went wrong');
+  return d;
+}
+function metaRows() {
+  const m = META;
+  const def = { whatsapp: ['WhatsApp', 'brand-whatsapp', 'Customers message your WhatsApp Business number and you answer from the inbox.'], facebook: ['Facebook Messenger', 'brand-facebook', 'Messages sent to your Facebook page.'], instagram: ['Instagram', 'brand-instagram', 'Direct messages to your Instagram business account (it must be linked to your Facebook page).'] };
+  const btn = (label, fn, key) => `<button class="btn btn-g" ${_metaBusy ? 'disabled' : ''} onclick="${fn}">${_metaBusy === key ? 'Connecting…' : label}</button>`;
+  return Object.keys(def).map(k => {
+    const [name, icon, blurb] = def[k], conns = m ? m.channels.filter(c => c.channel === k) : [];
+    const off = !m || !m.configured || (k === 'whatsapp' && !m.whatsappReady);
+    const right = conns.length ? '' : off ? '<span class="pill p-gray">Not available yet</span>' : btn('Connect', k === 'whatsapp' ? 'metaConnectWA()' : `metaConnectFB('${k}')`, k);
+    const list = conns.map(c => `<div style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12.5px"><i class="ti ti-circle-check" style="color:var(--${c.status === 'active' ? 'teal' : 'red'})" aria-hidden="true"></i><span style="flex:1"><b>${mkEsc(c.name || '')}</b> ${mkEsc(c.detail || '')}${c.status !== 'active' ? ` <span style="color:var(--red)">needs reconnecting</span>` : ''}</span><button class="btn" style="font-size:12px" onclick="metaDisconnect(${c.id})">Disconnect</button></div>`).join('');
+    const extra = !conns.length && off ? `<div style="font-size:11.5px;color:var(--muted);margin-top:4px">${!m || !m.configured ? 'Kooza hasn\'t switched on Meta messaging yet.' : 'WhatsApp sign-up isn\'t configured yet.'}</div>` : '';
+    return `<div style="display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--line)"><i class="ti ti-${icon}" style="font-size:20px;color:var(--teal);margin-top:2px" aria-hidden="true"></i><div style="flex:1"><div style="font-size:13.5px;font-weight:600">${name}</div><div style="font-size:12px;color:var(--muted);line-height:1.5">${blurb}</div>${list}${extra}${_metaPages && _metaPages.at === k ? metaPagePicker() : ''}</div><div>${right}</div></div>`;
+  }).join('');
+}
+function metaRefresh() { const el = document.getElementById('meta-rows'); if (el) el.innerHTML = metaRows(); }
+function metaConnectWA() {
+  if (!window.FB) { alert('Facebook is still loading. Try again in a moment.'); return; }
+  let sess = null;
+  const onMsg = e => { try { if (!/(^|\.)facebook\.com$/.test(new URL(e.origin).hostname)) return; const d = typeof e.data === 'string' ? JSON.parse(e.data) : e.data; if (d && d.type === 'WA_EMBEDDED_SIGNUP' && d.data && d.data.phone_number_id) sess = d.data; } catch (x) { /* not ours */ } };
+  window.addEventListener('message', onMsg);
+  _metaBusy = 'whatsapp'; metaRefresh();
+  FB.login(async resp => {
+    const code = resp && resp.authResponse && resp.authResponse.code;
+    for (let i = 0; i < 30 && code && !sess; i++) await new Promise(r => setTimeout(r, 300)); // the finish event can arrive just after the code
+    window.removeEventListener('message', onMsg);
+    try {
+      if (!code || !sess) throw new Error('WhatsApp sign-up was cancelled or didn\'t finish.');
+      const d = await metaCall('/whatsapp/connect', 'POST', { code, wabaId: sess.waba_id, phoneNumberId: sess.phone_number_id });
+      if (d) { await metaLoad(); showSuccessBurst('WhatsApp connected'); }
+    } catch (e) { if (code || sess) alert(e.message); }
+    _metaBusy = ''; metaRefresh();
+  }, { config_id: META.waConfigId, response_type: 'code', override_default_response_type: true, extras: { setup: {}, featureType: '', sessionInfoVersion: '3' } });
+}
+function metaConnectFB(from) {
+  if (!window.FB) { alert('Facebook is still loading. Try again in a moment.'); return; }
+  _metaBusy = from || 'facebook'; metaRefresh();
+  FB.login(async resp => {
+    const tok = resp && resp.authResponse && resp.authResponse.accessToken;
+    try {
+      if (!tok) throw new Error('Facebook sign-in was cancelled.');
+      const d = await metaCall('/pages', 'POST', { accessToken: tok });
+      if (d) { if (!d.pages.length) throw new Error('No Facebook pages were found on that account. Create a page first, then try again.'); _metaPages = { token: tok, pages: d.pages, at: from || 'facebook' }; }
+    } catch (e) { if (tok) alert(e.message); }
+    _metaBusy = ''; metaRefresh();
+  }, { scope: META.scopes });
+}
+function metaPagePicker() {
+  const p = _metaPages;
+  return `<div style="margin-top:10px;border:1px solid var(--line);border-radius:10px;padding:10px"><div style="font-size:12.5px;font-weight:600;margin-bottom:6px">Which page should customers message?</div>
+    ${p.pages.map((g, i) => `<label style="display:flex;gap:8px;align-items:center;padding:5px 0;font-size:13px;cursor:pointer"><input type="radio" name="meta-page" value="${mkEsc(g.id)}" ${i === 0 ? 'checked' : ''}> ${mkEsc(g.name)}${g.instagram ? ` <span style="color:var(--muted);font-size:12px">· Instagram @${mkEsc(g.instagram.username || '')}</span>` : ''}</label>`).join('')}
+    <label style="display:flex;gap:8px;align-items:center;padding:6px 0;font-size:12.5px"><input type="checkbox" id="meta-ig" checked> Also connect the linked Instagram account (if there is one)</label>
+    <div style="display:flex;gap:8px;margin-top:6px"><button class="btn btn-g" onclick="metaPickPage()">Connect page</button><button class="btn" onclick="_metaPages=null;metaRefresh()">Cancel</button></div></div>`;
+}
+async function metaPickPage() {
+  const sel = document.querySelector('input[name="meta-page"]:checked'); if (!sel) return;
+  try {
+    const d = await metaCall('/pages/connect', 'POST', { accessToken: _metaPages.token, pageId: sel.value, instagram: document.getElementById('meta-ig').checked });
+    if (d) { _metaPages = null; await metaLoad(); metaRefresh(); showSuccessBurst('Connected'); }
+  } catch (e) { alert(e.message); }
+}
+async function metaDisconnect(id) {
+  if (!confirm('Disconnect this channel? You will stop receiving its messages here. Past conversations are kept.')) return;
+  try { await metaCall('/channels/' + id, 'DELETE'); await metaLoad(); metaRefresh(); } catch (e) { alert(e.message); }
 }
 
 // ================================================================
