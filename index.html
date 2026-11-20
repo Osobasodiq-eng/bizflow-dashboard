@@ -352,7 +352,6 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
   .orders-toolbar input{flex:1 1 100%}
   #modal-box{width:94vw!important;padding:20px!important;max-height:88vh!important}
   .auth-panels{flex-direction:column;max-width:420px!important;margin:20px auto!important}
-  .auth-brand-panel{display:none}
   #auth-screen{align-items:flex-start!important}
   .auth-panels{overflow:visible!important;margin-top:20px!important}
   .auth-form-panel{padding:36px 26px!important}
@@ -537,6 +536,99 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
 .ib-back{display:none}
 @media(max-width:860px){.ib-wrap{grid-template-columns:1fr}.ib-list{border-right:none}.ib-wrap.open-thread .ib-list{display:none}.ib-wrap:not(.open-thread) .ib-thread{display:none}.ib-back{display:inline-flex}.ib-m{max-width:88%}.ib-msgs{padding:16px}#p-inbox.on{height:calc(100dvh - 100px)}}
 .modal-row .modal-field{min-width:0}.modal-row input[type=datetime-local]{min-width:0;font-size:12px}
+/* ---------- login: animated brand panel ---------- */
+.auth-brand-panel{flex:1;position:relative;padding:30px 34px 26px;display:flex;flex-direction:column;gap:16px;color:var(--text);min-width:280px;overflow:hidden;background:var(--navy-2)}
+.ab-glow{position:absolute;inset:-30% -20% auto auto;width:360px;height:360px;background:radial-gradient(circle,rgba(47,175,158,.28),transparent 65%);pointer-events:none;animation:abFloat 9s ease-in-out infinite alternate}
+.ab-logo{display:flex;align-items:center;gap:10px;position:relative;z-index:1}
+.ab-stage{position:relative;z-index:1;aspect-ratio:10/7;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.1);box-shadow:0 14px 34px rgba(0,0,0,.35)}
+.ab-scene{position:absolute;inset:0;opacity:0;transform:scale(1.05);transition:opacity .7s ease,transform 1.3s ease;pointer-events:none}
+.ab-scene.on{opacity:1;transform:none}
+.ab-svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.ab-chip{position:absolute;display:flex;align-items:center;gap:9px;padding:7px 11px 7px 9px;border-radius:12px;background:rgba(10,31,51,.8);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.14);box-shadow:0 8px 22px rgba(0,0,0,.35);opacity:0;color:#fff}
+.ab-chip i{font-size:19px}
+.ab-chip b{display:block;font-size:11.5px;font-weight:600;line-height:1.25}
+.ab-chip span{display:block;font-size:10.5px;color:rgba(255,255,255,.68);line-height:1.3}
+.ab-chip.a{top:10px;left:10px}
+.ab-chip.b{bottom:10px;right:10px}
+.ab-scene[data-i="3"] .ab-chip.a{top:auto;bottom:10px}
+.ab-scene[data-i="3"] .ab-chip.b{display:none}
+.ab-scene.on .ab-chip.a{animation:abChip .6s .5s cubic-bezier(.2,.9,.3,1.2) both}
+.ab-scene.on .ab-chip.b{animation:abChip .6s 1.6s cubic-bezier(.2,.9,.3,1.2) both}
+.ab-copy{position:relative;z-index:1}
+.ab-h1{font-size:22px;font-weight:600;line-height:1.28;margin:0 0 8px}
+.ab-caps{position:relative;min-height:56px}
+.ab-cap{position:absolute;inset:0 auto auto 0;margin:0;font-size:13px;line-height:1.55;color:rgba(255,255,255,.74);opacity:0;transform:translateY(6px);transition:opacity .5s ease,transform .5s ease;max-width:330px}
+.ab-cap b{color:#fff;font-weight:600}
+.ab-cap.on{opacity:1;transform:none}
+.ab-foot{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:auto}
+.ab-copyright{font-size:11px;color:rgba(255,255,255,.45)}
+.ab-dots{display:flex;gap:6px}
+.ab-dot{width:30px;height:5px;padding:0;border:0;border-radius:3px;background:rgba(255,255,255,.18);cursor:pointer;overflow:hidden}
+.ab-dot i{display:block;height:100%;width:0;background:var(--teal-2)}
+.ab-dot.on i{animation:abFill 5.2s linear forwards}
+.ab-paused .ab-dot.on i{animation-play-state:paused}
+.ab-dot:focus-visible{outline:2px solid var(--teal-2);outline-offset:2px}
+/* scene 1 */
+.s1-wave path{opacity:0}
+.ab-scene.on .s1-wave path{animation:abWave 1.5s ease-in-out infinite}
+.ab-scene.on .s1-wave path:nth-child(2){animation-delay:.18s}.ab-scene.on .s1-wave path:nth-child(3){animation-delay:.36s}
+.s1-badge{transform-box:fill-box;transform-origin:center;opacity:0}
+.ab-scene.on .s1-badge{animation:abPop .6s .9s cubic-bezier(.2,.9,.3,1.3) both}
+.s1-check{stroke-dasharray:30;stroke-dashoffset:30}
+.ab-scene.on .s1-check{animation:abDraw .5s 1.3s ease forwards}
+.coin{opacity:0}
+.ab-scene.on .coin{animation:abCoin 2.6s ease-out infinite}
+.ab-scene.on .coin.c2{animation-delay:.8s}.ab-scene.on .coin.c3{animation-delay:1.6s}
+/* scene 2 */
+.ab-scene.on .road-dash{animation:abDash .55s linear infinite}
+.rider{transform:translateX(-140px)}
+.ab-scene.on .rider{animation:abRide 5.2s linear forwards}
+.wheel{transform-box:fill-box;transform-origin:center}
+.ab-scene.on .wheel{animation:abSpin .45s linear infinite}
+.ab-scene.on .speed{animation:abBlink .4s steps(2) infinite}
+.pin{transform-box:fill-box;transform-origin:bottom center}
+.ab-scene.on .pin{animation:abBounce 1.2s ease-in-out infinite}
+/* scene 3 */
+.beam{transform:translateX(0)}
+.ab-scene.on .beam{animation:abScan 2.4s ease-in-out infinite alternate}
+/* scene 4 */
+.bar{transform-box:fill-box;transform-origin:bottom;transform:scaleY(0)}
+.ab-scene.on .bar{animation:abGrow .7s ease-out forwards}
+.erow{opacity:0}
+.ab-scene.on .erow{animation:abRow .55s ease-out forwards}
+.receipt{opacity:0}
+.ab-scene.on .receipt.r1{animation:abFly 2.4s .3s ease-in infinite}
+.ab-scene.on .receipt.r2{animation:abFly 2.4s 1.5s ease-in infinite}
+@keyframes abFloat{from{transform:translate(0,0)}to{transform:translate(-30px,40px)}}
+@keyframes abChip{from{opacity:0;transform:translateY(10px) scale(.92)}to{opacity:1;transform:none}}
+@keyframes abFill{from{width:0}to{width:100%}}
+@keyframes abWave{0%,100%{opacity:0}40%{opacity:1}}
+@keyframes abPop{from{opacity:0;transform:scale(.2)}to{opacity:1;transform:scale(1)}}
+@keyframes abDraw{to{stroke-dashoffset:0}}
+@keyframes abCoin{0%{opacity:0;transform:translateY(24px)}20%{opacity:1}100%{opacity:0;transform:translateY(-46px)}}
+@keyframes abDash{to{stroke-dashoffset:48}}
+@keyframes abRide{from{transform:translateX(-140px)}to{transform:translateX(450px)}}
+@keyframes abSpin{to{transform:rotate(360deg)}}
+@keyframes abBlink{50%{opacity:.1}}
+@keyframes abBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes abScan{from{transform:translateX(0)}to{transform:translateX(236px)}}
+@keyframes abGrow{to{transform:scaleY(1)}}
+@keyframes abRow{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+@keyframes abFly{0%{opacity:0;transform:translate(130px,160px) rotate(-14deg)}15%{opacity:1}100%{opacity:0;transform:translate(236px,94px) rotate(8deg)}}
+@media (max-width:860px){
+  .auth-brand-panel{display:flex!important;padding:16px 16px 14px!important;gap:12px;min-width:0}
+  .ab-copy,.ab-copyright{display:none}
+  .ab-stage{aspect-ratio:16/9;max-height:190px;width:100%}
+  .ab-foot{justify-content:center;margin-top:0}
+  .ab-chip.b{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .ab-scene,.ab-cap{transition:none}
+  .ab-glow,.ab-scene *,.ab-chip,.ab-dot i{animation:none!important}
+  .ab-scene .s1-badge,.ab-scene .erow,.ab-scene .ab-chip{opacity:1!important}
+  .ab-scene .s1-check{stroke-dashoffset:0}.ab-scene .bar{transform:none}.ab-scene .rider{transform:translateX(150px)}
+  .ab-dot.on i{width:100%}
+}
 </style>
 </head>
 <body>
@@ -545,11 +637,10 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
   <button class="theme-btn theme-float" type="button" onclick="kzToggleTheme()" data-theme-toggle aria-label="Switch to light mode" title="Switch theme"><i class="ti ti-sun" aria-hidden="true"></i><i class="ti ti-moon" aria-hidden="true"></i></button>
   <div class="auth-panels" style="display:flex;width:100%;max-width:920px;margin:auto;box-shadow:0 20px 60px rgba(0,0,0,0.45);border:1px solid var(--line);border-radius:16px;overflow:hidden">
 
-    <!-- Left brand panel -->
-    <div class="auth-brand-panel kz-fade-in" data-theme="dark" style="flex:1;position:relative;padding:48px 40px;display:flex;flex-direction:column;justify-content:space-between;color:var(--text);min-width:280px;overflow:hidden;background:var(--navy-2);">
-      <img src="https://images.unsplash.com/photo-1485217988980-11786ced9454?auto=format&fit=crop&w=900&q=80" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.55;">
-      <div style="position:absolute;inset:0;background:linear-gradient(165deg, rgba(10,31,51,0.82) 0%, rgba(15,42,68,0.90) 55%, rgba(10,31,51,0.97) 100%);"></div>
-      <div style="display:flex;align-items:center;gap:10px;position:relative;z-index:1;">
+    <!-- Left brand panel: a rotating story of the day-to-day work Kooza runs -->
+    <div class="auth-brand-panel kz-fade-in" data-theme="dark">
+      <div class="ab-glow" aria-hidden="true"></div>
+      <div class="ab-logo">
         <svg width="34" height="34" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
           <rect width="40" height="40" rx="10" fill="rgba(255,255,255,0.16)"/>
           <path d="M11 27 L11 13" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
@@ -559,11 +650,149 @@ code{background:var(--navy);border:1px solid var(--line);border-radius:5px;paddi
         </svg>
         <span style="font-size:19px;font-weight:600;letter-spacing:-0.3px">Kooza<span style="color:var(--amber)">.</span></span>
       </div>
-      <div style="position:relative;z-index:1;">
-        <h1 style="font-size:26px;font-weight:600;line-height:1.3;margin-bottom:12px">Run your business<br>from one place.</h1>
-        <p style="font-size:13px;color:rgba(255,255,255,0.72);line-height:1.6;max-width:280px">Orders, customers, inventory, and payments — tracked in real time, from anywhere.</p>
+
+      <div class="ab-stage" id="ab-stage" role="group" aria-label="What you can do with Kooza">
+        <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+          <linearGradient id="abg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#14566a"/><stop offset="1" stop-color="#0d2740"/></linearGradient>
+          <linearGradient id="abg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a5a2c"/><stop offset=".55" stop-color="#1f3f5e"/><stop offset="1" stop-color="#0d2740"/></linearGradient>
+          <linearGradient id="abg3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1b4a78"/><stop offset="1" stop-color="#0d2740"/></linearGradient>
+          <linearGradient id="abg4" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3b3f6b"/><stop offset="1" stop-color="#0f2a44"/></linearGradient>
+          <linearGradient id="abbeam" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#34D399" stop-opacity="0"/><stop offset="1" stop-color="#34D399" stop-opacity=".55"/></linearGradient>
+        </defs></svg>
+
+        <!-- 1 · GET PAID -->
+        <div class="ab-scene on" data-i="0">
+          <svg class="ab-svg" viewBox="0 0 400 280" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <rect width="400" height="280" fill="url(#abg1)"/>
+            <!-- back-shelf with stock -->
+            <rect x="214" y="48" width="170" height="6" rx="3" fill="#2a6a8a"/><rect x="214" y="98" width="170" height="6" rx="3" fill="#2a6a8a"/>
+            <rect x="226" y="14" width="16" height="34" rx="5" fill="#D89A3D"/><rect x="250" y="22" width="16" height="26" rx="5" fill="#2FAF9E"/><rect x="274" y="10" width="18" height="38" rx="5" fill="#EDF2F5" opacity=".85"/><rect x="300" y="20" width="30" height="28" rx="4" fill="#F0716F"/><rect x="338" y="12" width="34" height="36" rx="4" fill="#D89A3D" opacity=".8"/>
+            <rect x="226" y="68" width="34" height="30" rx="4" fill="#EDF2F5" opacity=".8"/><rect x="268" y="60" width="28" height="38" rx="4" fill="#2FAF9E"/><rect x="304" y="72" width="30" height="26" rx="4" fill="#D89A3D"/><rect x="342" y="64" width="30" height="34" rx="4" fill="#F0716F" opacity=".9"/>
+            <rect y="252" width="400" height="28" fill="#0a2236"/>
+            <!-- seller -->
+            <circle cx="302" cy="106" r="27" fill="#151515"/>
+            <rect x="272" y="138" width="60" height="84" rx="26" fill="#2FAF9E"/>
+            <circle cx="302" cy="115" r="20" fill="#5B3A29"/>
+            <circle cx="295" cy="112" r="2" fill="#151515"/><circle cx="309" cy="112" r="2" fill="#151515"/><path d="M294 121 Q302 128 310 121" stroke="#151515" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <path d="M282 172 Q256 190 240 188" stroke="#2FAF9E" stroke-width="13" fill="none" stroke-linecap="round"/><circle cx="238" cy="188" r="7" fill="#5B3A29"/>
+            <!-- customer -->
+            <rect x="78" y="226" width="18" height="28" rx="4" fill="#1c3a57"/><rect x="102" y="226" width="18" height="28" rx="4" fill="#1c3a57"/>
+            <rect x="72" y="148" width="54" height="86" rx="22" fill="#D89A3D"/>
+            <circle cx="99" cy="127" r="20" fill="#C68642"/>
+            <path d="M79 124 a20 20 0 0 1 40 0 q-20 -9 -40 0z" fill="#1a1410"/>
+            <circle cx="92" cy="129" r="2" fill="#1a1410"/><circle cx="106" cy="129" r="2" fill="#1a1410"/><path d="M92 136 Q99 141 106 136" stroke="#1a1410" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <path d="M118 166 Q146 160 168 176" stroke="#D89A3D" stroke-width="13" fill="none" stroke-linecap="round"/>
+            <g transform="rotate(-10 178 174)"><rect x="168" y="158" width="18" height="32" rx="4" fill="#0A1F33" stroke="#8FD5C9" stroke-width="1.5"/><rect x="171" y="163" width="12" height="20" rx="2" fill="#2FAF9E" opacity=".8"/></g>
+            <circle cx="170" cy="180" r="6" fill="#C68642"/>
+            <!-- counter + POS + bag -->
+            <rect x="172" y="196" width="228" height="12" rx="4" fill="#EDF2F5"/><rect x="172" y="208" width="228" height="46" fill="#17395A"/>
+            <rect x="214" y="176" width="38" height="20" rx="5" fill="#EDF2F5"/><rect x="219" y="180" width="28" height="8" rx="2" fill="#34D399"/>
+            <path d="M346 196 v-36 h30 v36z" fill="#D89A3D"/><path d="M353 160 a8 8 0 0 1 16 0" stroke="#EDF2F5" stroke-width="3" fill="none"/>
+            <!-- tap-to-pay waves, badge, coins -->
+            <g class="s1-wave" fill="none" stroke="#8FD5C9" stroke-width="3" stroke-linecap="round"><path d="M194 168 a16 16 0 0 1 0 24"/><path d="M201 162 a24 24 0 0 1 0 36"/><path d="M208 156 a32 32 0 0 1 0 48"/></g>
+            <g class="s1-badge"><circle cx="233" cy="146" r="17" fill="#34D399"/><path class="s1-check" d="M225 146 l6 6 l11 -12" stroke="#0A1F33" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
+            <g class="coin c1"><circle cx="150" cy="150" r="9" fill="#D89A3D"/><text x="150" y="154" font-size="11" font-weight="700" text-anchor="middle" fill="#0A1F33">₦</text></g>
+            <g class="coin c2"><circle cx="262" cy="150" r="9" fill="#D89A3D"/><text x="262" y="154" font-size="11" font-weight="700" text-anchor="middle" fill="#0A1F33">₦</text></g>
+            <g class="coin c3"><circle cx="206" cy="140" r="8" fill="#F5C26B"/><text x="206" y="144" font-size="10" font-weight="700" text-anchor="middle" fill="#0A1F33">₦</text></g>
+          </svg>
+          <div class="ab-chip a"><i class="ti ti-circle-check" style="color:#34D399"></i><div><b>Payment received</b><span>₦45,000 · Chinedu O.</span></div></div>
+          <div class="ab-chip b"><i class="ti ti-brand-whatsapp" style="color:#34D399"></i><div><b>Receipt sent</b><span>Customer notified</span></div></div>
+        </div>
+
+        <!-- 2 · DELIVER -->
+        <div class="ab-scene" data-i="1">
+          <svg class="ab-svg" viewBox="0 0 400 280" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <rect width="400" height="280" fill="url(#abg2)"/>
+            <circle cx="312" cy="62" r="28" fill="#F5C26B" opacity=".9"/><circle cx="312" cy="62" r="42" fill="#F5C26B" opacity=".14"/>
+            <g fill="#1a3d5e"><rect x="14" y="116" width="54" height="90"/><rect x="76" y="146" width="40" height="60"/><rect x="126" y="96" width="62" height="110"/><rect x="198" y="136" width="46" height="70"/><rect x="254" y="110" width="70" height="96"/><rect x="334" y="140" width="56" height="66"/></g>
+            <g fill="#F5C26B" opacity=".75"><rect x="24" y="128" width="8" height="8"/><rect x="42" y="148" width="8" height="8"/><rect x="138" y="110" width="8" height="8"/><rect x="160" y="132" width="8" height="8"/><rect x="266" y="124" width="8" height="8"/><rect x="296" y="150" width="8" height="8"/><rect x="346" y="154" width="8" height="8"/></g>
+            <rect y="204" width="400" height="76" fill="#0b2236"/><rect y="204" width="400" height="4" fill="#1d4a6d"/>
+            <line class="road-dash" x1="-60" x2="460" y1="250" y2="250" stroke="#EDF2F5" stroke-width="3" stroke-dasharray="26 22" opacity=".45"/>
+            <g class="pin"><path d="M356 190 c-12 -14 -18 -22 -18 -32 a18 18 0 0 1 36 0 c0 10 -6 18 -18 32z" fill="#F0716F"/><circle cx="356" cy="158" r="7" fill="#EDF2F5"/></g>
+            <g transform="translate(0 244)"><g class="rider">
+              <g class="speed" stroke="#EDF2F5" stroke-width="3" stroke-linecap="round" opacity=".4"><line x1="-70" y1="-62" x2="-34" y2="-62"/><line x1="-84" y1="-48" x2="-40" y2="-48"/><line x1="-64" y1="-34" x2="-30" y2="-34"/></g>
+              <rect x="-16" y="-78" width="44" height="38" rx="6" fill="#2FAF9E"/><rect x="-16" y="-62" width="44" height="6" fill="#0A1F33" opacity=".25"/><rect x="2" y="-78" width="8" height="38" fill="#EDF2F5" opacity=".55"/>
+              <rect x="20" y="-34" width="52" height="10" rx="5" fill="#D89A3D"/><rect x="18" y="-42" width="32" height="9" rx="4" fill="#1d4a6d"/>
+              <path d="M70 -28 L78 -68" stroke="#EDF2F5" stroke-width="5" stroke-linecap="round"/><path d="M70 -70 L88 -70" stroke="#EDF2F5" stroke-width="5" stroke-linecap="round"/>
+              <path d="M44 -44 L60 -26" stroke="#1c3a57" stroke-width="10" stroke-linecap="round"/><ellipse cx="62" cy="-24" rx="8" ry="4" fill="#0A1F33"/>
+              <rect x="32" y="-90" width="24" height="48" rx="11" fill="#F0716F"/>
+              <path d="M52 -74 L82 -68" stroke="#F0716F" stroke-width="9" stroke-linecap="round"/><circle cx="84" cy="-68" r="5" fill="#8D5A3B"/>
+              <circle cx="46" cy="-100" r="12" fill="#8D5A3B"/><path d="M33 -102 a13 13 0 0 1 26 0 v4 h-26z" fill="#EDF2F5"/><rect x="47" y="-104" width="14" height="6" rx="3" fill="#0A1F33" opacity=".7"/>
+              <g class="wheel"><circle cx="12" cy="-15" r="15" fill="#0A1F33" stroke="#EDF2F5" stroke-width="4"/><line x1="12" y1="-27" x2="12" y2="-3" stroke="#EDF2F5" stroke-width="2"/><line x1="0" y1="-15" x2="24" y2="-15" stroke="#EDF2F5" stroke-width="2"/></g>
+              <g class="wheel"><circle cx="82" cy="-15" r="15" fill="#0A1F33" stroke="#EDF2F5" stroke-width="4"/><line x1="82" y1="-27" x2="82" y2="-3" stroke="#EDF2F5" stroke-width="2"/><line x1="70" y1="-15" x2="94" y2="-15" stroke="#EDF2F5" stroke-width="2"/></g>
+            </g></g>
+          </svg>
+          <div class="ab-chip a"><i class="ti ti-truck-delivery" style="color:#F5C26B"></i><div><b>Order #1042 · On the way</b><span>Arriving in about 18 min</span></div></div>
+          <div class="ab-chip b"><i class="ti ti-map-pin-check" style="color:#34D399"></i><div><b>Delivered · Ikeja</b><span>Signed for by Ada</span></div></div>
+        </div>
+
+        <!-- 3 · INVENTORY -->
+        <div class="ab-scene" data-i="2">
+          <svg class="ab-svg" viewBox="0 0 400 280" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <rect width="400" height="280" fill="url(#abg3)"/>
+            <rect y="252" width="400" height="28" fill="#0a2236"/>
+            <rect x="14" y="28" width="6" height="226" fill="#3a6a8f"/><rect x="252" y="28" width="6" height="226" fill="#3a6a8f"/>
+            <rect x="14" y="88" width="244" height="7" rx="3" fill="#4a7ea3"/><rect x="14" y="158" width="244" height="7" rx="3" fill="#4a7ea3"/><rect x="14" y="228" width="244" height="7" rx="3" fill="#4a7ea3"/>
+            <g><rect x="28" y="56" width="36" height="32" rx="3" fill="#D89A3D"/><rect x="70" y="46" width="32" height="42" rx="3" fill="#2FAF9E"/><rect x="108" y="62" width="42" height="26" rx="3" fill="#EDF2F5" opacity=".88"/><rect x="156" y="50" width="36" height="38" rx="3" fill="#F0716F"/><rect x="198" y="58" width="48" height="30" rx="3" fill="#D89A3D" opacity=".85"/></g>
+            <g><rect x="28" y="124" width="44" height="34" rx="3" fill="#2FAF9E"/><rect x="78" y="112" width="34" height="46" rx="3" fill="#EDF2F5" opacity=".88"/><rect x="118" y="130" width="38" height="28" rx="3" fill="#D89A3D"/><rect x="162" y="118" width="40" height="40" rx="3" fill="#F0716F" opacity=".92"/><rect x="208" y="128" width="38" height="30" rx="3" fill="#2FAF9E" opacity=".8"/></g>
+            <g><rect x="28" y="194" width="38" height="34" rx="3" fill="#F0716F"/><rect x="72" y="184" width="48" height="44" rx="3" fill="#D89A3D"/><rect x="126" y="200" width="34" height="28" rx="3" fill="#2FAF9E"/><rect x="166" y="190" width="40" height="38" rx="3" fill="#EDF2F5" opacity=".88"/><rect x="212" y="198" width="34" height="30" rx="3" fill="#D89A3D" opacity=".85"/></g>
+            <g fill="#0A1F33" opacity=".22"><rect x="44" y="56" width="4" height="32"/><rect x="85" y="46" width="4" height="42"/><rect x="170" y="50" width="4" height="38"/><rect x="45" y="124" width="4" height="34"/><rect x="176" y="118" width="4" height="40"/><rect x="92" y="184" width="4" height="44"/></g>
+            <rect class="beam" x="6" y="22" width="22" height="214" fill="url(#abbeam)"/>
+            <!-- stock-taker -->
+            <rect x="306" y="228" width="20" height="26" rx="4" fill="#1c3a57"/><rect x="334" y="228" width="20" height="26" rx="4" fill="#1c3a57"/>
+            <rect x="298" y="142" width="64" height="94" rx="26" fill="#EDF2F5"/>
+            <circle cx="330" cy="120" r="19" fill="#C68642"/>
+            <ellipse cx="330" cy="104" rx="29" ry="14" fill="#F0716F"/><path d="M344 100 q16 -12 24 2 q-12 2 -24 8z" fill="#F0716F"/>
+            <circle cx="323" cy="122" r="2" fill="#1a1410"/><circle cx="337" cy="122" r="2" fill="#1a1410"/><path d="M323 129 Q330 134 337 129" stroke="#1a1410" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <path d="M304 166 Q282 176 272 182" stroke="#EDF2F5" stroke-width="13" fill="none" stroke-linecap="round"/>
+            <g transform="rotate(-12 272 182)"><rect x="256" y="160" width="34" height="46" rx="5" fill="#0A1F33" stroke="#8FD5C9" stroke-width="1.5"/><rect x="261" y="166" width="24" height="3" rx="1.5" fill="#34D399"/><rect x="261" y="173" width="18" height="3" rx="1.5" fill="#8FD5C9"/><rect x="261" y="180" width="22" height="3" rx="1.5" fill="#8FD5C9"/><rect x="261" y="187" width="14" height="3" rx="1.5" fill="#D89A3D"/></g>
+            <circle cx="276" cy="190" r="6" fill="#C68642"/>
+          </svg>
+          <div class="ab-chip a"><i class="ti ti-package" style="color:#8FD5C9"></i><div><b>White sneakers</b><span>24 in stock · counted</span></div></div>
+          <div class="ab-chip b warn"><i class="ti ti-alert-triangle" style="color:#F5C26B"></i><div><b>Low stock</b><span>Boat shoes · 3 left</span></div></div>
+        </div>
+
+        <!-- 4 · EXPENSES -->
+        <div class="ab-scene" data-i="3">
+          <svg class="ab-svg" viewBox="0 0 400 280" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <rect width="400" height="280" fill="url(#abg4)"/>
+            <rect y="252" width="400" height="28" fill="#0a2236"/>
+            <g><rect class="bar" x="22" y="68" width="14" height="28" rx="3" fill="#2FAF9E" style="animation-delay:.2s"/><rect class="bar" x="42" y="52" width="14" height="44" rx="3" fill="#2FAF9E" style="animation-delay:.35s"/><rect class="bar" x="62" y="60" width="14" height="36" rx="3" fill="#2FAF9E" style="animation-delay:.5s"/><rect class="bar" x="82" y="38" width="14" height="58" rx="3" fill="#2FAF9E" style="animation-delay:.65s"/><rect class="bar" x="102" y="24" width="14" height="72" rx="3" fill="#D89A3D" style="animation-delay:.8s"/></g>
+            <rect x="12" y="206" width="206" height="10" rx="5" fill="#EDF2F5" opacity=".92"/><rect x="22" y="216" width="186" height="38" fill="#17395A"/>
+            <rect x="80" y="150" width="56" height="60" rx="22" fill="#D89A3D"/>
+            <circle cx="108" cy="128" r="20" fill="#8D5A3B"/><path d="M88 124 a20 20 0 0 1 40 0 q-20 -9 -40 0z" fill="#151515"/>
+            <circle cx="101" cy="130" r="2" fill="#151515"/><circle cx="115" cy="130" r="2" fill="#151515"/><path d="M101 137 Q108 142 115 137" stroke="#151515" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <rect x="82" y="176" width="64" height="32" rx="4" fill="#2a4a68"/><circle cx="114" cy="192" r="4" fill="#8FD5C9" opacity=".8"/>
+            <circle cx="86" cy="206" r="6" fill="#8D5A3B"/><circle cx="144" cy="206" r="6" fill="#8D5A3B"/>
+            <g class="receipt r1"><path d="M0 0 h26 v34 l-4 -3 l-4 3 l-5 -3 l-4 3 l-5 -3 l-4 3z" fill="#EDF2F5"/><rect x="5" y="6" width="16" height="2.5" fill="#0A1F33" opacity=".5"/><rect x="5" y="12" width="12" height="2.5" fill="#0A1F33" opacity=".5"/><rect x="5" y="18" width="16" height="2.5" fill="#D89A3D"/></g>
+            <g class="receipt r2"><path d="M0 0 h26 v34 l-4 -3 l-4 3 l-5 -3 l-4 3 l-5 -3 l-4 3z" fill="#F5C26B"/><rect x="5" y="6" width="16" height="2.5" fill="#0A1F33" opacity=".5"/><rect x="5" y="12" width="12" height="2.5" fill="#0A1F33" opacity=".5"/></g>
+            <g>
+              <rect x="226" y="28" width="164" height="206" rx="14" fill="#EDF2F5"/>
+              <text x="240" y="52" font-size="12" font-weight="700" fill="#0A1F33">Expenses</text><text x="378" y="52" font-size="10" text-anchor="end" fill="#546C82">This week</text>
+              <g class="erow" style="animation-delay:.5s"><circle cx="248" cy="82" r="11" fill="#FDECC8"/><text x="248" y="86" font-size="11" text-anchor="middle" fill="#9A5700">⛽</text><text x="266" y="80" font-size="11" font-weight="600" fill="#0A1F33">Fuel</text><text x="266" y="93" font-size="9" fill="#546C82">Dispatch bike</text><text x="378" y="86" font-size="11" font-weight="700" text-anchor="end" fill="#0A1F33">₦8,500</text></g>
+              <g class="erow" style="animation-delay:1s"><circle cx="248" cy="120" r="11" fill="#D5F0EA"/><text x="248" y="124" font-size="11" text-anchor="middle" fill="#0E7567">📦</text><text x="266" y="118" font-size="11" font-weight="600" fill="#0A1F33">Packaging</text><text x="266" y="131" font-size="9" fill="#546C82">Boxes &amp; tape</text><text x="378" y="124" font-size="11" font-weight="700" text-anchor="end" fill="#0A1F33">₦12,200</text></g>
+              <g class="erow" style="animation-delay:1.5s"><circle cx="248" cy="158" r="11" fill="#F9D9D8"/><text x="248" y="162" font-size="11" text-anchor="middle" fill="#C0332E">🏬</text><text x="266" y="156" font-size="11" font-weight="600" fill="#0A1F33">Shop rent</text><text x="266" y="169" font-size="9" fill="#546C82">Monthly</text><text x="378" y="162" font-size="11" font-weight="700" text-anchor="end" fill="#0A1F33">₦45,000</text></g>
+              <rect x="238" y="188" width="140" height="34" rx="9" fill="#0A1F33"/><text x="250" y="209" font-size="10" fill="#8FD5C9">Total</text><text x="366" y="209" font-size="14" font-weight="700" text-anchor="end" fill="#fff">₦65,700</text>
+            </g>
+          </svg>
+          <div class="ab-chip a"><i class="ti ti-receipt-2" style="color:#F5C26B"></i><div><b>Expense recorded</b><span>Fuel · ₦8,500</span></div></div>
+          <div class="ab-chip b"><i class="ti ti-trending-up" style="color:#34D399"></i><div><b>Profit this week</b><span>₦184,300 ▲ 12%</span></div></div>
+        </div>
       </div>
-      <div style="position:relative;z-index:1;font-size:11px;color:rgba(255,255,255,0.45)">© 2026 Kooza</div>
+
+      <div class="ab-copy">
+        <h1 class="ab-h1">Run your business<br>from one place.</h1>
+        <div class="ab-caps" aria-live="polite">
+          <p class="ab-cap on"><b>Get paid in seconds.</b> Cash, transfer or card: every sale is recorded for you.</p>
+          <p class="ab-cap"><b>Deliver with confidence.</b> Track every order from dispatch to doorstep.</p>
+          <p class="ab-cap"><b>Always know your stock.</b> Count it once and Kooza warns you before it runs out.</p>
+          <p class="ab-cap"><b>See where every naira goes.</b> Log expenses and watch your real profit.</p>
+        </div>
+      </div>
+      <div class="ab-foot">
+        <div class="ab-dots" role="tablist" aria-label="Choose a story"><button class="ab-dot on" type="button" aria-label="Payments"><i></i></button><button class="ab-dot" type="button" aria-label="Delivery"><i></i></button><button class="ab-dot" type="button" aria-label="Inventory"><i></i></button><button class="ab-dot" type="button" aria-label="Expenses"><i></i></button></div>
+        <span class="ab-copyright">© 2026 Kooza</span>
+      </div>
     </div>
 
     <!-- Right form panel -->
@@ -5639,6 +5868,27 @@ function showSegmentMembers(key, title) {
 // Note: the app now starts via enterApp() after a successful login/signup,
 // or immediately if a saved token was found (see the AUTH section above)
 // — not with an unconditional call here.
+</script>
+<script>
+(function () {
+  var stage = document.getElementById('ab-stage'); if (!stage) return;
+  var panel = stage.closest('.auth-brand-panel'), auth = document.getElementById('auth-screen');
+  var scenes = [].slice.call(stage.querySelectorAll('.ab-scene')), caps = [].slice.call(panel.querySelectorAll('.ab-cap')), dots = [].slice.call(panel.querySelectorAll('.ab-dot'));
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches, i = 0, timer = null, DUR = 5200;
+  function show(n) {
+    i = (n + scenes.length) % scenes.length;
+    scenes.forEach(function (s, k) { s.classList.toggle('on', k === i); });
+    caps.forEach(function (c, k) { c.classList.toggle('on', k === i); });
+    dots.forEach(function (d, k) { d.classList.remove('on'); if (k === i) { void d.offsetWidth; d.classList.add('on'); } });
+  }
+  function stop() { clearInterval(timer); timer = null; }
+  function play() { stop(); if (reduce) return; timer = setInterval(function () { if (auth && auth.style.display === 'none') return; show(i + 1); }, DUR); }
+  dots.forEach(function (d, k) { d.addEventListener('click', function () { show(k); play(); }); });
+  panel.addEventListener('mouseenter', function () { panel.classList.add('ab-paused'); stop(); });
+  panel.addEventListener('mouseleave', function () { panel.classList.remove('ab-paused'); show(i); play(); });
+  document.addEventListener('visibilitychange', function () { if (document.hidden) stop(); else play(); });
+  show(0); play();
+})();
 </script>
 </body>
 </html>
