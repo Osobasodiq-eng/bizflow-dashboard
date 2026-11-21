@@ -160,6 +160,24 @@ tr:last-child td{border-bottom:none}
   .side-foot{margin:0 0 0 auto;border:0;padding:0;gap:12px}
   .main{padding:20px 14px 40px}
 }
+
+.pl-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px;margin-bottom:8px}
+.pl-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.pl-card.off{opacity:.65}
+.pl-top{display:flex;align-items:center;justify-content:space-between;gap:8px}.pl-top .pl-key{font-size:11px;color:var(--text-secondary)}
+.pl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.pl-card label,.pl-grid label{display:flex;flex-direction:column;gap:4px;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-secondary)}
+.pl-card input,.pl-card textarea,.pl-grid input,.pl-card select{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font:13px var(--font);color:var(--text);text-transform:none;letter-spacing:0;width:100%}
+.pl-card textarea{min-height:92px;resize:vertical;line-height:1.5}
+.pl-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pl-actions{display:flex;gap:8px;align-items:center;margin-top:2px}
+.pl-msg{font-size:12px}.pl-msg.ok{color:#1a7f5a}.pl-msg.err{color:#c0392b}
+.pl-subs{font-size:12px;color:var(--text-secondary)}
+.pl-chip{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--border);background:var(--g-t);color:var(--g);font-weight:600}
+#pl-matrix th,#pl-matrix td{white-space:nowrap}#pl-matrix td.c,#pl-matrix th.c{text-align:center}
+#pl-matrix tr.grp td{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--text-secondary);background:var(--g-t);padding:7px 14px}
+#pl-matrix select{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:4px 8px;color:var(--text);font:12.5px var(--font)}
+.sw{position:relative;display:inline-block;width:38px;height:22px}.sw input{opacity:0;width:0;height:0}.sw i{position:absolute;inset:0;background:var(--border);border-radius:22px;cursor:pointer;transition:.2s}.sw i:before{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;background:#fff;border-radius:50%;transition:.2s}.sw input:checked+i{background:var(--g)}.sw input:checked+i:before{transform:translateX(16px)}.sw input:disabled+i{opacity:.55;cursor:not-allowed}
 </style>
 </head>
 <body>
@@ -223,7 +241,7 @@ tr:last-child td{border-bottom:none}
 <div id="admin-screen">
   <aside class="side" id="side">
     <div class="side-brand"><i class="ti ti-shield-lock" aria-hidden="true"></i><div><b>Kooza</b><span>Platform admin</span></div></div>
-    <nav class="side-nav"><a class="nav-i on" href="#overview" data-go="overview" onclick="showPage('overview');return false"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><span>Overview</span></a><a class="nav-i" href="#revenue" data-go="revenue" onclick="showPage('revenue');return false"><i class="ti ti-credit-card" aria-hidden="true"></i><span>Subscriptions</span></a><a class="nav-i" href="#features" data-go="features" onclick="showPage('features');return false"><i class="ti ti-apps" aria-hidden="true"></i><span>Feature adoption</span></a><a class="nav-i" href="#channels" data-go="channels" onclick="showPage('channels');return false"><i class="ti ti-messages" aria-hidden="true"></i><span>Messaging channels</span></a><a class="nav-i" href="#businesses" data-go="businesses" onclick="showPage('businesses');return false"><i class="ti ti-building-store" aria-hidden="true"></i><span>Businesses</span><em id=nav-biz-count></em></a></nav>
+    <nav class="side-nav"><a class="nav-i on" href="#overview" data-go="overview" onclick="showPage('overview');return false"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><span>Overview</span></a><a class="nav-i" href="#revenue" data-go="revenue" onclick="showPage('revenue');return false"><i class="ti ti-credit-card" aria-hidden="true"></i><span>Subscriptions</span></a><a class="nav-i" href="#plans" data-go="plans" onclick="showPage('plans');return false"><i class="ti ti-list-details" aria-hidden="true"></i><span>Plans &amp; features</span></a><a class="nav-i" href="#features" data-go="features" onclick="showPage('features');return false"><i class="ti ti-apps" aria-hidden="true"></i><span>Feature adoption</span></a><a class="nav-i" href="#channels" data-go="channels" onclick="showPage('channels');return false"><i class="ti ti-messages" aria-hidden="true"></i><span>Messaging channels</span></a><a class="nav-i" href="#businesses" data-go="businesses" onclick="showPage('businesses');return false"><i class="ti ti-building-store" aria-hidden="true"></i><span>Businesses</span><em id=nav-biz-count></em></a></nav>
     <div class="side-foot">
       <button class="theme-btn" type="button" onclick="kzToggleTheme()" data-theme-toggle aria-label="Switch to light mode" title="Switch theme"><i class="ti ti-sun" aria-hidden="true"></i><i class="ti ti-moon" aria-hidden="true"></i></button>
       <div class="logout-link" onclick="logout()"><i class="ti ti-logout" aria-hidden="true"></i> Log out</div>
@@ -359,6 +377,24 @@ tr:last-child td{border-bottom:none}
     </table>
   </div>
 
+  </section>
+  <section class="pg" id="pg-plans" data-pg="plans">
+    <div class="pg-head" style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><h2>Plans &amp; features</h2><p>Create plans, set prices and limits, and choose which features each plan includes</p></div><button class="btn" onclick="plNewToggle()">+ New plan</button></div>
+    <div class="table-wrap" id="pl-new" style="display:none;padding:16px 18px;margin-bottom:18px">
+      <div class="pl-grid">
+        <label>Name<input id="pn-name" placeholder="e.g. Business"></label>
+        <label>Tagline<input id="pn-tag" placeholder="Short pitch"></label>
+        <label>Monthly price (₦)<input id="pn-m" type="number" min="0" value="0"></label>
+        <label>Yearly price (₦)<input id="pn-y" type="number" min="0" value="0"></label>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;margin-top:12px"><button class="btn" onclick="plCreate()">Create plan</button><span class="pl-msg" id="pn-msg"></span><span style="font-size:12px;color:var(--text-secondary)">You choose its features and limits next.</span></div>
+    </div>
+    <div class="pl-cards" id="pl-cards"><div class="empty-state">Loading…</div></div>
+    <div class="section-label">Feature matrix</div>
+    <div class="table-card" style="overflow:auto">
+      <div style="padding:12px 18px;font-size:12.5px;color:var(--text-secondary);border-bottom:1px solid var(--border)"><b style="color:var(--text)">Free</b> features are part of every plan. <b style="color:var(--text)">Paid</b> features are switched on per plan. Changes apply to merchants within a minute.</div>
+      <table id="pl-matrix"><tbody><tr><td class="empty-state">Loading…</td></tr></tbody></table>
+    </div>
   </section>
   </main>
 </div>
@@ -1003,9 +1039,80 @@ function showPage(k) {
   document.querySelectorAll('.nav-i').forEach(a => a.classList.toggle('on', a.dataset.go === k));
   try { history.replaceState(null, '', '#' + k); } catch (e) {}
   window.scrollTo(0, 0);
+  if (k === 'plans' && !_pl) loadPlans();
   if (k === 'overview' && window.Chart) setTimeout(() => Object.values(Chart.instances).forEach(c => { try { c.resize(); } catch (e) {} }), 30);
 }
 (function () { var h = (location.hash || '').slice(1); if (h && document.getElementById('pg-' + h)) setTimeout(() => showPage(h), 0); })();
+
+
+// ---------- Plans & features ----------
+let _pl = null;
+const plMsg = (el, t, ok) => { if (!el) return; el.textContent = t; el.className = 'pl-msg ' + (ok ? 'ok' : 'err'); if (ok) setTimeout(() => { el.textContent = ''; }, 2500); };
+async function plReq(method, url, body) {
+  const r = await apiFetch(`${API_BASE}/api/admin${url}`, { method, headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+  if (r.status === 204) return {}; const d = await r.json().catch(() => ({})); if (!r.ok) throw new Error(d.error || 'Something went wrong'); return d;
+}
+async function loadPlans() {
+  try { _pl = await plReq('GET', '/plans'); } catch (e) { document.getElementById('pl-cards').innerHTML = `<div class="empty-state">Could not load plans (${escA(e.message)}). Is the latest API deployed?</div>`; return; }
+  renderPlans();
+}
+function plNewToggle() { const b = document.getElementById('pl-new'); b.style.display = b.style.display === 'none' ? 'block' : 'none'; }
+async function plCreate() {
+  const msg = document.getElementById('pn-msg');
+  try {
+    await plReq('POST', '/plans', { name: document.getElementById('pn-name').value, tagline: document.getElementById('pn-tag').value, price: { monthly: document.getElementById('pn-m').value, yearly: document.getElementById('pn-y').value } });
+    ['pn-name', 'pn-tag'].forEach(i => document.getElementById(i).value = ''); plNewToggle(); await loadPlans();
+  } catch (e) { plMsg(msg, e.message, false); }
+}
+function renderPlans() {
+  const d = _pl, subs = d.subscribers || {};
+  document.getElementById('pl-cards').innerHTML = d.plans.map(p => {
+    const k = escA(p.key), v = x => (x === null || x === undefined) ? '' : x;
+    return `<div class="pl-card ${p.active ? '' : 'off'}" id="plc-${k}">
+      <div class="pl-top"><div><span class="pl-chip">${p.builtin ? 'Built-in' : 'Custom'}</span> <span class="pl-key">${k}</span></div>
+        <label style="flex-direction:row;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:12px">Visible<span class="sw"><input type="checkbox" id="pl-${k}-active" ${p.active ? 'checked' : ''} ${p.key === 'free' ? 'disabled' : ''}><i></i></span></label></div>
+      <label>Name<input id="pl-${k}-name" value="${escA(p.name)}"></label>
+      <label>Tagline<input id="pl-${k}-tag" value="${escA(p.tagline || '')}"></label>
+      <div class="pl-row2"><label>Monthly (₦)<input id="pl-${k}-pm" type="number" min="0" value="${v(p.price.monthly)}"></label><label>Yearly (₦)<input id="pl-${k}-py" type="number" min="0" value="${v(p.price.yearly)}"></label></div>
+      <div class="pl-row2"><label>Products limit<input id="pl-${k}-lp" type="number" min="0" placeholder="Unlimited" value="${v(p.limits.products)}"></label><label>Emails / month<input id="pl-${k}-le" type="number" min="0" value="${v(p.limits.emails)}"></label></div>
+      <label>Highlights (one per line)<textarea id="pl-${k}-hl">${escA((p.highlights || []).join('\n'))}</textarea></label>
+      <div class="pl-subs">${subs[p.key] || 0} store(s) on this plan</div>
+      <div class="pl-actions"><button class="btn" onclick="plSave('${k}')">Save</button>${p.builtin ? '' : `<button class="del-btn" onclick="plDelete('${k}')">Delete</button>`}<span class="pl-msg" id="pl-${k}-msg"></span></div>
+    </div>`;
+  }).join('');
+  // matrix
+  const plans = d.plans; let html = `<thead><tr><th>Feature</th><th class="c">Category</th>${plans.map(p => `<th class="c">${escA(p.name)}${p.active ? '' : ' <span style="font-weight:400;color:var(--text-secondary)">(hidden)</span>'}</th>`).join('')}</tr></thead><tbody>`;
+  let grp = '';
+  d.features.forEach(f => {
+    if (f.group !== grp) { grp = f.group; html += `<tr class="grp"><td colspan="${plans.length + 2}">${escA(grp)}</td></tr>`; }
+    const cat = f.enforced ? `<select onchange="plCat('${f.key}',this.value)"><option value="free" ${f.category === 'free' ? 'selected' : ''}>Free</option><option value="paid" ${f.category === 'paid' ? 'selected' : ''}>Paid</option></select>` : `<span class="pl-chip">Free</span>`;
+    html += `<tr><td>${escA(f.label)}${f.enforced ? '' : ' <span style="font-size:11px;color:var(--text-secondary)">· always on</span>'}</td><td class="c">${cat}</td>`;
+    plans.forEach(p => {
+      const on = !!p.features[f.key], locked = f.category === 'free' || !f.enforced;
+      html += `<td class="c">${locked ? '<span class="fx-ok" title="Included in every plan">✓</span>' : `<label class="sw"><input type="checkbox" ${on ? 'checked' : ''} onchange="plToggle('${escA(p.key)}','${f.key}',this)"><i></i></label>`}</td>`;
+    });
+    html += '</tr>';
+  });
+  document.getElementById('pl-matrix').innerHTML = html + '</tbody>';
+}
+async function plSave(k) {
+  const g = id => document.getElementById(`pl-${k}-${id}`), msg = g('msg');
+  try {
+    await plReq('PUT', `/plans/${k}`, { name: g('name').value, tagline: g('tag').value, price: { monthly: g('pm').value, yearly: g('py').value }, limits: { products: g('lp').value, emails: g('le').value }, highlights: g('hl').value, active: g('active').checked });
+    await loadPlans(); plMsg(document.getElementById(`pl-${k}-msg`), 'Saved', true);
+  } catch (e) { plMsg(msg, e.message, false); }
+}
+async function plToggle(k, f, el) {
+  try { const p = await plReq('PUT', `/plans/${k}`, { features: { [f]: el.checked } }); const i = _pl.plans.findIndex(x => x.key === k); _pl.plans[i] = p; }
+  catch (e) { el.checked = !el.checked; alert(e.message); }
+}
+async function plCat(f, c) {
+  try { await plReq('PUT', `/features/${f}`, { category: c }); await loadPlans(); } catch (e) { alert(e.message); loadPlans(); }
+}
+async function plDelete(k) {
+  if (!confirm('Delete this plan? This cannot be undone.')) return;
+  try { await plReq('DELETE', `/plans/${k}`); await loadPlans(); } catch (e) { alert(e.message); }
+}
 
 function closeStoreDetail() {
   document.getElementById('store-modal-overlay').classList.remove('open');
