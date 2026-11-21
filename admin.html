@@ -85,6 +85,9 @@ td{padding:12px 20px;font-size:13px;border-bottom:1px solid var(--border)}
 tr:last-child td{border-bottom:none}
 .biz-name{font-weight:500}
 .biz-email{font-size:11.5px;color:var(--text-secondary)}
+.fa-list{font-size:12.5px;line-height:1.9;margin-top:6px;color:var(--text)}.fa-list span{display:inline-block;margin:0 6px 4px 0;padding:2px 9px;border-radius:999px;background:var(--g-t);border:1px solid var(--border)}.fa-list b{color:var(--g);margin-left:4px}
+.fx-box{margin:6px 0 18px;display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.fx-item{border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:12.5px;line-height:1.6}.fx-item .t{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--text-secondary);margin-bottom:2px}.fx-ok{color:#1a7f5a;font-weight:600}.fx-warn{color:#c0392b;font-weight:600}.fx-mini{margin-top:6px;font-size:11.5px;padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-secondary);cursor:pointer}
+@media(max-width:980px){#fa-row{grid-template-columns:repeat(2,1fr)!important}#fa-looks{grid-template-columns:1fr!important}.fx-box{grid-template-columns:1fr}}
 .btn-plan{background:var(--g-t);color:var(--g);border:1px solid var(--border);border-radius:7px;padding:6px 10px;font-size:12px;cursor:pointer}
 .btn-plan:hover{border-color:var(--g)}
 .plan-badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;background:var(--gray-t);color:var(--text-secondary)}
@@ -225,6 +228,32 @@ tr:last-child td{border-bottom:none}
     <div class="health-card"><div class="health-label">Starter (free)</div><div class="health-val" id="bill-free">—</div></div>
   </div>
 
+  <div class="section-label">Messaging channels (Meta)</div>
+  <div class="table-wrap" style="padding:16px 18px;margin-bottom:24px">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <div style="font-size:13px;color:var(--text-secondary);flex:1;min-width:220px">Checks the WhatsApp, Messenger and Instagram setup against what Meta has on file.</div>
+      <button class="btn" id="mc-run" onclick="loadMetaCheck()">Run check</button>
+    </div>
+    <div id="mc-body" style="margin-top:12px;font-size:13px"></div>
+  </div>
+
+  <div class="section-label">Feature adoption</div>
+  <div class="health-row" id="fa-row" style="grid-template-columns:repeat(4,1fr)">
+    <div class="health-card"><div class="health-label">Store addresses</div><div class="health-val" id="fa-addr">—</div><div class="health-sub" id="fa-addr-sub">subdomains · own domains</div></div>
+    <div class="health-card"><div class="health-label">Channels connected</div><div class="health-val" id="fa-chan">—</div><div class="health-sub" id="fa-chan-sub">WhatsApp · Messenger · Instagram</div></div>
+    <div class="health-card"><div class="health-label">Inbox conversations</div><div class="health-val" id="fa-inbox">—</div><div class="health-sub" id="fa-inbox-sub">across all channels</div></div>
+    <div class="health-card"><div class="health-label">Campaigns</div><div class="health-val" id="fa-camp">—</div><div class="health-sub" id="fa-camp-sub">sent</div></div>
+    <div class="health-card"><div class="health-label">Automations on</div><div class="health-val" id="fa-auto">—</div><div class="health-sub" id="fa-auto-sub">stores</div></div>
+    <div class="health-card"><div class="health-label">Discount codes</div><div class="health-val" id="fa-disc">—</div><div class="health-sub" id="fa-disc-sub">active</div></div>
+    <div class="health-card"><div class="health-label">Store-wide sales</div><div class="health-val" id="fa-sales">—</div><div class="health-sub" id="fa-sales-sub">running now</div></div>
+    <div class="health-card"><div class="health-label">Paystack payouts</div><div class="health-val" id="fa-pay">—</div><div class="health-sub" id="fa-pay-sub">stores with a bank account</div></div>
+  </div>
+  <div class="table-wrap" style="padding:16px 18px;margin:12px 0 24px;display:grid;grid-template-columns:repeat(3,1fr);gap:18px" id="fa-looks">
+    <div><div class="health-label">Store looks</div><div id="fa-look-list" class="fa-list">—</div></div>
+    <div><div class="health-label">Store designs</div><div id="fa-design-list" class="fa-list">—</div></div>
+    <div><div class="health-label">Product display styles</div><div id="fa-display-list" class="fa-list">—</div></div>
+  </div>
+
   <div class="section-label">Health</div>
   <div class="health-row" id="health-row">
     <div class="health-card"><div class="health-label">Avg order value</div><div class="health-val" id="health-aov">—</div></div>
@@ -305,6 +334,9 @@ tr:last-child td{border-bottom:none}
       <div class="modal-stat"><div class="modal-stat-label">Days to first sale</div><div class="modal-stat-val" id="modal-days-to-sale">—</div></div>
       <div class="modal-stat"><div class="modal-stat-label">Last order</div><div class="modal-stat-val" id="modal-last-order">—</div></div>
     </div>
+
+    <div class="chart-title" style="margin-bottom:8px">Setup &amp; features</div>
+    <div class="fx-box" id="modal-features"><div class="fx-item" style="grid-column:1/-1;color:var(--text-secondary)">Loading…</div></div>
 
     <div class="chart-title" style="margin-bottom:4px">Orders &amp; revenue over time</div>
     <div class="chart-sub" style="margin-bottom:12px" id="modal-chart-sub">Last 8 weeks for this store</div>
@@ -442,7 +474,9 @@ async function submitResetPassword() {
 async function enterAdmin() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('admin-screen').style.display = 'block';
-  await Promise.all([loadStats(), loadBusinesses()]);
+  loadFeatures();
+  try { await Promise.all([loadStats(), loadBusinesses()]); } catch (e) { console.error(e); }
+  loadMetaCheck();
 }
 
 async function loadStats() {
@@ -474,7 +508,19 @@ async function setPlan(id, name) {
   if (plan !== 'free') { days = Number(prompt('For how many days? (e.g. 30 for a month, 365 for a year)', '30')); if (!days || days < 1) return; }
   const r = await apiFetch(`${API_BASE}/api/admin/businesses/${id}/plan`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan, days }) });
   if (!r.ok) return alert((await r.json()).error || 'Could not set plan');
-  loadBusinesses(); loadBilling();
+  loadBusinesses(); loadBilling(); loadMetaCheck();
+}
+async function loadMetaCheck() {
+  const box = document.getElementById('mc-body'), btn = document.getElementById('mc-run'); btn.disabled = true; btn.textContent = 'Checking…'; box.textContent = '';
+  const esc = t => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  try {
+    const r = await apiFetch(`${API_BASE}/api/admin/meta-check`); const d = await r.json(); if (!r.ok) throw new Error(d.error || 'Failed');
+    const rows = d.checks.map(c => `<div style="display:flex;gap:10px;padding:9px 0;border-top:1px solid var(--border,#e4e8e5)"><span style="font-weight:700;color:${c.ok ? '#1a7f5a' : '#c0392b'};width:16px">${c.ok ? '✓' : '✗'}</span><div style="flex:1"><div style="font-weight:600">${esc(c.label)}</div>${c.detail ? `<div style="color:var(--text-secondary);font-size:12px">${esc(c.detail)}</div>` : ''}${!c.ok && c.fix ? `<div style="font-size:12px;margin-top:3px">→ ${esc(c.fix)}</div>` : ''}</div></div>`).join('');
+    const conn = Object.keys(d.connected).length ? Object.entries(d.connected).map(([k, n]) => `${n} ${k}`).join(', ') : 'none yet';
+    box.innerHTML = `<div style="font-weight:700;margin-bottom:6px;color:${d.ready ? '#1a7f5a' : '#b7791f'}">${d.ready ? 'Ready — merchants can connect their channels.' : 'Not ready yet — fix the items marked ✗.'}</div>${rows}
+      <div style="border-top:1px solid var(--border,#e4e8e5);padding-top:10px;margin-top:4px;font-size:12px;line-height:1.7"><b>Paste into Meta</b><br>Webhook callback URL: <code>${esc(d.webhookUrl)}</code><br>Verify token: <code>${esc(d.verifyToken || '(set META_VERIFY_TOKEN first)')}</code><br>Data deletion URL: <code>${esc(d.callbacks.dataDeletion)}</code><br>Deauthorize URL: <code>${esc(d.callbacks.deauthorize)}</code><br><span style="color:var(--text-secondary)">Connected stores' channels: ${esc(conn)}</span></div>`;
+  } catch (e) { box.textContent = 'Could not run the check: ' + e.message; }
+  btn.disabled = false; btn.textContent = 'Run check';
 }
 async function loadBilling() {
   try {
@@ -829,6 +875,66 @@ function openStoreDetail(id) {
   document.getElementById('store-modal-overlay').classList.add('open');
 
   loadStoreTimeseries(id);
+  loadStoreFeatures(id);
+}
+
+
+// ---------- Feature adoption (platform-wide) ----------
+const LOOK_NAMES = { none: 'Standard', glass: 'Glass', neon: 'Neon', luxe: 'Luxe', pastel: 'Pastel', vintage: 'Vintage', mono: 'Mono' };
+function escA(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function pills(obj, names) {
+  const e = Object.entries(obj || {}).sort((a, b) => b[1] - a[1]);
+  return e.length ? e.map(([k, n]) => `<span>${escA((names && names[k]) || k)}<b>${n}</b></span>`).join('') : '—';
+}
+async function loadFeatures() {
+  let f; try { const r = await apiFetch(`${API_BASE}/api/admin/features`); if (!r.ok) return; f = await r.json(); } catch (e) { return; }
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  const total = (window._lastBusinesses || []).length;
+  set('fa-addr', f.addresses.subdomains + f.addresses.customDomains);
+  set('fa-addr-sub', `${f.addresses.subdomains} subdomains · ${f.addresses.customDomains} own domains (${f.addresses.customVerified} verified)`);
+  const ch = f.channels || {}; const cn = k => (ch[k] ? ch[k].connected : 0); const errs = Object.values(ch).reduce((a, c) => a + c.errors, 0);
+  set('fa-chan', cn('whatsapp') + cn('facebook') + cn('instagram'));
+  set('fa-chan-sub', `${cn('whatsapp')} WhatsApp · ${cn('facebook')} Messenger · ${cn('instagram')} Instagram${errs ? ` · ${errs} with errors` : ''}`);
+  const ib = Object.values(f.inbox.byChannel || {}).reduce((a, n) => a + n, 0);
+  set('fa-inbox', ib); set('fa-inbox-sub', `${f.inbox.recent} active in the last 30 days`);
+  set('fa-camp', f.campaigns.total); set('fa-camp-sub', `${f.campaigns.sent} sent · ${f.campaigns.messages} messages · ${f.campaigns.stores} stores`);
+  set('fa-auto', f.automations.enabled); set('fa-auto-sub', `across ${f.automations.stores} stores`);
+  set('fa-disc', f.discounts.codes); set('fa-disc-sub', `${f.discounts.active} active · used ${f.discounts.uses}× · ${f.discounts.stores} stores`);
+  set('fa-sales', f.sales.total); set('fa-sales-sub', `${f.sales.live} running now · ${f.sales.stores} stores`);
+  set('fa-pay', f.paystack.stores); set('fa-pay-sub', total ? `of ${total} stores have a bank account` : 'stores with a bank account');
+  document.getElementById('fa-look-list').innerHTML = pills(f.looks, LOOK_NAMES);
+  document.getElementById('fa-design-list').innerHTML = pills(f.designs);
+  document.getElementById('fa-display-list').innerHTML = pills(f.displays);
+}
+
+// ---------- Per-store features (inside the store modal) ----------
+async function loadStoreFeatures(id) {
+  const box = document.getElementById('modal-features'); box.innerHTML = '<div class="fx-item" style="grid-column:1/-1;color:var(--text-secondary)">Loading…</div>';
+  let f; try { const r = await apiFetch(`${API_BASE}/api/admin/businesses/${id}/features`); if (!r.ok) throw 0; f = await r.json(); } catch (e) { box.innerHTML = '<div class="fx-item" style="grid-column:1/-1">Could not load this store\'s features (is the latest API deployed?).</div>'; return; }
+  const item = (t, body) => `<div class="fx-item"><div class="t">${t}</div>${body}</div>`;
+  const a = f.address, chips = f.channels.length ? f.channels.map(c => `${escA(c.channel)}${c.detail ? ' · ' + escA(c.detail) : ''} <span class="${c.status === 'active' ? 'fx-ok' : 'fx-warn'}">${escA(c.status)}</span>${c.error ? ` <span class="fx-warn">(${escA(c.error)})</span>` : ''} <button class="fx-mini" onclick="adminDisconnect(${id},'${escA(c.channel)}')">Disconnect</button>`).join('<br>') : 'None connected';
+  const addr = [a.subdomain ? `Subdomain: <b>${escA(a.subdomain)}</b>` : '', a.customDomain ? `Own domain: <b>${escA(a.customDomain)}</b> <span class="${a.customDomainStatus === 'verified' ? 'fx-ok' : 'fx-warn'}">${escA(a.customDomainStatus)}</span>` : ''].filter(Boolean).join('<br>') || 'Default link only';
+  const rel = (a.subdomain || a.customDomain) ? `<br><button class="fx-mini" onclick="adminRelease(${id})">Release address</button>` : '';
+  const autos = f.automations.length ? f.automations.map(x => `${escA(x.kind.replace('_', ' '))}: <span class="${x.enabled ? 'fx-ok' : ''}">${x.enabled ? 'on' : 'off'}</span>`).join('<br>') : 'None set up';
+  const inbox = Object.entries(f.inbox).map(([k, n]) => `${escA(k)}: ${n}`).join('<br>') || 'No conversations';
+  box.innerHTML =
+    item('Store look &amp; layout', `Look: <b>${escA(LOOK_NAMES[f.look] || f.look)}</b><br>Design: <b>${escA(f.design)}</b><br>Display: <b>${escA(f.display)}</b>`) +
+    item('Store address', `${addr}${a.live ? `<br><a href="${escA(a.live)}" target="_blank" rel="noopener" style="color:var(--g)">${escA(a.live.replace(/^https?:\/\//, ''))}</a>` : ''}${rel}`) +
+    item('Messaging channels', chips) +
+    item('Inbox', inbox) +
+    item('Marketing', `${f.campaigns.total} campaigns (${f.campaigns.sent} sent, ${f.campaigns.messages} messages)<br>${autos}`) +
+    item('Discounts &amp; sales', `${f.discounts.active}/${f.discounts.total} codes active · used ${f.discounts.uses}×<br>${f.sales.live} sale(s) running of ${f.sales.total}`) +
+    item('Payments &amp; delivery', `Paystack: ${f.paystack.connected ? `<span class="fx-ok">connected</span>${f.paystack.bank ? ' · ' + escA(f.paystack.bank) : ''}` : 'not connected'}<br>${f.deliveryZones} delivery zone(s) · ${f.expenses} expense(s)`);
+}
+async function adminRelease(id) {
+  if (!confirm('Release this store\'s subdomain and custom domain? The links stop working immediately.')) return;
+  const r = await apiFetch(`${API_BASE}/api/admin/businesses/${id}/release-address`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ which: 'both' }) });
+  if (!r.ok) return alert('Could not release the address.'); loadStoreFeatures(id); loadFeatures();
+}
+async function adminDisconnect(id, channel) {
+  if (!confirm(`Disconnect ${channel} for this store?`)) return;
+  const r = await apiFetch(`${API_BASE}/api/admin/businesses/${id}/disconnect-channel`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ channel }) });
+  if (!r.ok) return alert('Could not disconnect.'); loadStoreFeatures(id); loadFeatures();
 }
 
 function closeStoreDetail() {
